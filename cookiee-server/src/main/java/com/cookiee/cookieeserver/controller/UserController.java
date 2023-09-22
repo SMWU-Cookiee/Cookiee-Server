@@ -2,6 +2,7 @@ package com.cookiee.cookieeserver.controller;
 
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.BaseResponseDto;
+import com.cookiee.cookieeserver.dto.DataResponseDto;
 import com.cookiee.cookieeserver.repository.UserRepository;
 import com.cookiee.cookieeserver.service.UserService;
 import jakarta.transaction.Transactional;
@@ -26,7 +27,7 @@ public class UserController {
 //    }
     // 유저 프로필 조회
     @GetMapping("/users/{userId}")
-    public BaseResponseDto<User> getUser(@PathVariable int userId){
+    public DataResponseDto<User> getUser(@PathVariable int userId){
         User user = userRepository.findById(userId).orElseThrow(new Supplier<IllegalArgumentException>(){
             @Override
             public IllegalArgumentException get() {
@@ -34,13 +35,13 @@ public class UserController {
             }
         });
 
-        return new BaseResponseDto<User>();
+        return DataResponseDto.of(user);
     }
 
     // 유저 프로필 수정 (닉네임, 한줄 소개, 프로필사진)
     @Transactional
     @PutMapping("/users/{userId}")
-    public User updateUser(@PathVariable int userId, @RequestBody User requestUser){
+    public DataResponseDto<User> updateUser(@PathVariable int userId, @RequestBody User requestUser){
         User newUser = userRepository.findById(userId).orElseThrow(new Supplier<IllegalArgumentException>() {
             @Override
             public IllegalArgumentException get() {
@@ -51,7 +52,7 @@ public class UserController {
         newUser.setSelfDescription(requestUser.getSelfDescription());
         newUser.setProfileImage(requestUser.getProfileImage());
 
-        return newUser;
+        return DataResponseDto.of(newUser, "회원 정보를 성공적으로 수정하였습니다.");
     }
 
     // 유저 프로필 삭제
@@ -59,7 +60,7 @@ public class UserController {
 
     // 임시로 User 추가
     @PostMapping("/users/join")
-    public String postTestUser(User user) {
+    public DataResponseDto<Object> postTestUser(User user) {
         System.out.println("id: " +user.getUserId());
         System.out.println("nickname: " +user.getNickname());
         System.out.println("email: " +user.getEmail());
@@ -68,6 +69,8 @@ public class UserController {
         System.out.println("created date: " +user.getCreatedDate());
 
         userRepository.save(user);
-        return "회원가입 완료";
+
+        //return DataResponseDto.empty();
+        return DataResponseDto.of(null, "회원가입에 성공하였습니다.");
     }
 }
