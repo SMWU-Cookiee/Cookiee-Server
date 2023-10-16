@@ -1,13 +1,13 @@
 package com.cookiee.cookieeserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Getter
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Category extends BaseTimeEntity{
     @Id
     @Column(nullable = false)
@@ -18,15 +18,16 @@ public class Category extends BaseTimeEntity{
     private String categoryName;  // 카테고리명
 
     @Column(nullable = false, length = 10)  // 최대 10자
-    private String categoryColor;  // 카테고리 색 (RGB 코드)
+    private String categoryColor;  // 카테고리 색 (HEX 코드)
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     @Builder
-    public Category(int categoryId, String categoryName, String categoryColor){
-        this.categoryId = categoryId;
+    public Category(User user, String categoryName, String categoryColor){
+        this.user = user;
         this.categoryName = categoryName;
         this.categoryColor = categoryColor;
     }
