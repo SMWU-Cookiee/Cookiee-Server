@@ -28,6 +28,6 @@ public class User extends BaseTimeEntity{
     @Column(nullable = false, length = 50)
     private String selfDescription;  // 사용자가 설정한 한 줄 소개
 
-    //@OneToMany(mappedBy = "user")
-    //private List<Category> categories = new ArrayList<>();
+    @OneToMany(mappedBy = "user")
+    private List<Category> categories = new ArrayList<>();
 }
