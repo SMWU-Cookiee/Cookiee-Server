@@ -22,7 +22,7 @@ public class Category extends BaseTimeEntity{
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "userId")
     private User user;
 
     @Builder
