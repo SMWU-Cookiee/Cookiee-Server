@@ -7,6 +7,7 @@ import com.cookiee.cookieeserver.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.dto.DataResponseDto;
 import com.cookiee.cookieeserver.dto.ErrorResponseDto;
 import com.cookiee.cookieeserver.dto.request.CategoryCreateRequestDto;
+import com.cookiee.cookieeserver.dto.response.CategoryGetResponseDto;
 import com.cookiee.cookieeserver.repository.CategoryRepository;
 import com.cookiee.cookieeserver.service.CategoryService;
 import com.cookiee.cookieeserver.service.UserService;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -44,13 +46,30 @@ public class CategoryController {
         return DataResponseDto.of(category, "카테고리 등록에 성공하였습니다.");
     }
 
-    // 카테고리 조회
-//    @GetMapping("/category/{userId}")
-//    public BaseResponseDto<Category> getCategory(@PathVariable int userId){
-//        Optional<Category> category;
-//
-//
-//    }
+    // 특정 유저의 카테고리 전체 조회
+    @GetMapping("/category/{userId}")
+    public BaseResponseDto<List<CategoryGetResponseDto>> getCategory(@PathVariable int userId){
+        List<CategoryGetResponseDto> result;
+        try {
+            Optional<User> user = userService.findOneById(userId);
+            if(user.isEmpty()){
+                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
+            }
+            else{
+                try{
+                    result = categoryService.getAllCategories(userId);
+                }
+                catch (Exception e) {
+                    return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
+                }
+            }
+        }
+        catch(Exception e){
+            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
+        }
+
+        return DataResponseDto.of(result, "카테고리 조회 요청에 성공하였습니다.");
+    }
 
     // 카테고리 수정
 
