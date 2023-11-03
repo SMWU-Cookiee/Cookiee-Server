@@ -41,7 +41,7 @@ public class UserController {
             return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
         }
         else{
-            return DataResponseDto.of(user);
+            return DataResponseDto.of(user, "회원 정보 조회 요청에 성공하였습니다.");
         }
     }
 
