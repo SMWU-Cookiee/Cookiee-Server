@@ -1,17 +1,17 @@
 package com.cookiee.cookieeserver.service;
 
+import com.amazonaws.services.kms.model.NotFoundException;
 import com.cookiee.cookieeserver.domain.Category;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.request.CategoryCreateRequestDto;
 import com.cookiee.cookieeserver.dto.request.CategoryUpdateRequestDto;
-import com.cookiee.cookieeserver.dto.response.CategoryGetResponseDto;
+import com.cookiee.cookieeserver.dto.response.CategoryResponseDto;
 import com.cookiee.cookieeserver.repository.CategoryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -32,25 +32,46 @@ public class CategoryService {
     }
 
     @Transactional
-    public List<CategoryGetResponseDto> getAllCategories(int userId) {
+    public List<CategoryResponseDto> getAllCategories(int userId) {
         return categoryRepository.findCategoriesByUserUserId(userId);
     }
 
 //    @Override
-//    public List<CategoryGetResponseDto> getAllCategories(int userId) {
-//        List<CategoryGetResponseDto> categoryList = categoryRepository.findCategoriesByUserId(userId);
+//    public List<CategoryResponseDto> getAllCategories(int userId) {
+//        List<CategoryResponseDto> categoryList = categoryRepository.findCategoriesByUserId(userId);
 //
 //        return categoryList;
 //    }
 
     @Transactional
-    public Category update(int categoryId, CategoryUpdateRequestDto requestDto){
+    public CategoryResponseDto update(int userId, int categoryId, CategoryUpdateRequestDto requestDto){
         Category category = categoryRepository.findById(categoryId).orElseThrow(() ->
-                new IllegalArgumentException(("해당 id의 카테고리가 존재하지 않습니다."))
+                new NotFoundException(("해당 id의 카테고리가 존재하지 않습니다."))
         );
 
-        category.update(requestDto.getCategoryName(), requestDto.getCategoryColor());
+        // 유저 아이디와 카테고리 아이디가 부합하는지 확인
+        if(categoryRepository.existsByCategoryIdInUser(userId, categoryId) == 1){
+            category.update(requestDto.getCategoryName(), requestDto.getCategoryColor());
+        }
+        else{
+            throw new NotFoundException("해당 유저에게 요청한 카테고리가 존재하지 않습니다.");
+        }
 
-        return category;
+        return new CategoryResponseDto(category.getCategoryId(), category.getCategoryName(), category.getCategoryColor());
+    }
+
+    @Transactional
+    public void delete(int userId, int categoryId) {
+        // 카테고리 아이디 존재 유무 확인
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() ->
+                new NotFoundException(("해당 id의 카테고리가 존재하지 않습니다."))
+        );
+
+        // 유저 아이디와 카테고리 아이디가 부합하는지 확인
+        if (categoryRepository.existsByCategoryIdInUser(userId, categoryId) == 1) {
+            categoryRepository.delete(category);
+        } else {
+            throw new NotFoundException("해당 유저에게 요청한 카테고리가 존재하지 않습니다.");
+        }
     }
 }

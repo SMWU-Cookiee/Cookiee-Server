@@ -1,12 +1,9 @@
 package com.cookiee.cookieeserver.dto.response;
 
-import com.cookiee.cookieeserver.domain.Category;
-import com.cookiee.cookieeserver.dto.request.CategoryCreateRequestDto;
 import jakarta.persistence.ColumnResult;
 import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.SqlResultSetMapping;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,7 +17,7 @@ import lombok.Setter;
 @SqlResultSetMapping(
         name = "category_dto",
         classes = @ConstructorResult(
-                targetClass = CategoryGetResponseDto.class,
+                targetClass = CategoryResponseDto.class,
                 columns = {
                         @ColumnResult(name = "categoryId", type = Integer.class),
                         @ColumnResult(name = "categoryName", type = String.class),
@@ -28,12 +25,13 @@ import lombok.Setter;
                 }
         )
 )
-public class CategoryGetResponseDto {
+
+public class CategoryResponseDto {
     int categoryId;
     String categoryName;
     String categoryColor;
 
-    public CategoryGetResponseDto(int categoryId, String categoryName, String categoryColor){
+    public CategoryResponseDto(int categoryId, String categoryName, String categoryColor){
         this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.categoryColor = categoryColor;

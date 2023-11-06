@@ -31,4 +31,9 @@ public class Category extends BaseTimeEntity{
         this.categoryName = categoryName;
         this.categoryColor = categoryColor;
     }
+
+    public void update(String categoryName, String categoryColor){
+        this.categoryName = categoryName;
+        this.categoryColor = categoryColor;
+    }
 }
