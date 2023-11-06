@@ -3,6 +3,7 @@ package com.cookiee.cookieeserver.service;
 import com.cookiee.cookieeserver.domain.Category;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.request.CategoryCreateRequestDto;
+import com.cookiee.cookieeserver.dto.request.CategoryUpdateRequestDto;
 import com.cookiee.cookieeserver.dto.response.CategoryGetResponseDto;
 import com.cookiee.cookieeserver.repository.CategoryRepository;
 import jakarta.transaction.Transactional;
@@ -20,7 +21,13 @@ public class CategoryService {
     // 카테고리 생성
     @Transactional
     public Category create(User user, CategoryCreateRequestDto requestDto) {
-        // 중복 검사 필요함
+        // 중복 검사
+        if(categoryRepository.existsByCategoryName(requestDto.getCategoryName())
+                || categoryRepository.existsByCategoryColor(requestDto.getCategoryColor())){
+            throw new IllegalArgumentException("카테고리 등록에 실패하였습니다. 중복되는 카테고리입니다.");
+
+        }
+
         return categoryRepository.save(requestDto.toEntity(user));
     }
 
@@ -35,4 +42,15 @@ public class CategoryService {
 //
 //        return categoryList;
 //    }
+
+    @Transactional
+    public Category update(int categoryId, CategoryUpdateRequestDto requestDto){
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() ->
+                new IllegalArgumentException(("해당 id의 카테고리가 존재하지 않습니다."))
+        );
+
+        category.update(requestDto.getCategoryName(), requestDto.getCategoryColor());
+
+        return category;
+    }
 }

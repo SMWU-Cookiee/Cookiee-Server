@@ -11,4 +11,8 @@ import java.util.List;
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
     @Query(name = "get_category_dto", nativeQuery = true)
     List<CategoryGetResponseDto> findCategoriesByUserUserId(@Param("userId") int userId);
+
+    boolean existsByCategoryName(String categoryName);
+
+    boolean existsByCategoryColor(String categoryColor);
 }
