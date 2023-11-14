@@ -8,6 +8,7 @@ import lombok.ToString;
 import org.junit.experimental.categories.Category;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -62,8 +63,8 @@ public class Event {
     private User user_id;  // 유저 pk (FK)
 
     //event : category = 1 : 다 -> 수연이쪽에 매핑해주어야 함
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "event")
-    private List<Category> categories;
+    @OneToMany(mappedBy = "event")
+    private List<collection> collections = new ArrayList<>();
 
     public Event(String what, String where, String with_who, String when,
                  String imageUrl, LocalDate created_time, LocalDate modified_time){
@@ -75,7 +76,7 @@ public class Event {
         this.created_time = created_time;
         this.modified_time = modified_time;
         this.user_id = getUser_id();
-        this.categories = getCategories();
+        //this.collections = collection();
 
     }
 
