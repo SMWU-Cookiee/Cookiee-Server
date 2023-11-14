@@ -1,4 +1,4 @@
-/*
+
 package com.cookiee.cookieeserver.repository;
 
 import com.cookiee.cookieeserver.domain.Event;
@@ -9,4 +9,3 @@ import java.util.List;
 public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByMonth(int month);
 }
-*/
