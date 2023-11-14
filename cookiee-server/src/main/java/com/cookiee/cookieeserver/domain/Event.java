@@ -31,6 +31,7 @@ public class Event extends BaseTimeEntity {
     @Column(length = 1000)
     private String with_who; // 함께 한 사람
 
+    @Column(length = 1000)
     private String when;   // 이벤트 시간
     public void setMonth(LocalDate created_at) {
         String year = Integer.toString(created_at.getYear());
@@ -48,7 +49,7 @@ public class Event extends BaseTimeEntity {
     private User user_id;  // 유저 pk (FK)
 
     //event : category = 1 : 다 -> 수연이쪽에 매핑해주어야 함
-    @OneToMany(mappedBy = "event")
+    @OneToMany(mappedBy = "event_id")
     private List<Collection> collections = new ArrayList<>();
 
     public Event(String what, String where, String with_who, String when,
@@ -59,8 +60,7 @@ public class Event extends BaseTimeEntity {
         this.when = when;
         this.imageUrl = imageUrl;
         this.user_id = getUser_id();
-        //this.collections = Collection();
-
+        //this.collections = Collection();\
     }
 
 }

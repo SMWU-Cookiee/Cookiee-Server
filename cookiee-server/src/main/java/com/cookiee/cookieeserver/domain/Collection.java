@@ -14,7 +14,7 @@ public class Collection {
 
     @ManyToOne
     @JoinColumn(name = "event_id")
-    private Event eventId;
+    private Event event_id;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
