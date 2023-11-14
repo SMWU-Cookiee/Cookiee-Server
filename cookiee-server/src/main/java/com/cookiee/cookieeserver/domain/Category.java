@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -25,9 +28,17 @@ public class Category extends BaseTimeEntity{
     @JoinColumn(name = "userId")
     private User user;
 
+    @OneToMany(mappedBy = "categoryId")
+    private List<Collection> eventList = new ArrayList<>();
+
     @Builder
     public Category(User user, String categoryName, String categoryColor){
         this.user = user;
+        this.categoryName = categoryName;
+        this.categoryColor = categoryColor;
+    }
+
+    public void update(String categoryName, String categoryColor){
         this.categoryName = categoryName;
         this.categoryColor = categoryColor;
     }
