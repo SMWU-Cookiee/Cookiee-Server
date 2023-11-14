@@ -14,6 +14,8 @@ import com.cookiee.cookieeserver.repository.CategoryRepository;
 import com.cookiee.cookieeserver.service.CategoryService;
 import com.cookiee.cookieeserver.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,7 +43,7 @@ public class CategoryController {
             }
         }
         catch (Exception e){
-            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
+            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "카테고리 등록에 실패하였습니다.");
         }
         return DataResponseDto.of(category, "카테고리 등록에 성공하였습니다.");
     }
