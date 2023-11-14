@@ -1,6 +1,8 @@
 /*
 
+
 package com.cookiee.cookieeserver.controller;
+
 
 
 
@@ -13,6 +15,8 @@ import com.cookiee.cookieeserver.service.EventService;
 import com.cookiee.cookieeserver.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+
 import java.util.function.Supplier;
 
 @RestController
@@ -61,3 +66,4 @@ public class EventController {
 
         return DataResponseDto.of(newEvent, "이벤트를 성공적으로 수정하였습니다.");
     }*/
+
