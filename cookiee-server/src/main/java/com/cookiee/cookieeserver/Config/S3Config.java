@@ -1,3 +1,4 @@
+/*
 package com.cookiee.cookieeserver.Config;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -32,4 +33,4 @@ public class S3Config {
 
     }
 
-}
+}*/
