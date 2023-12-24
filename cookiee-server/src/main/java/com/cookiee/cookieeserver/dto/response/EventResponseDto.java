@@ -1,6 +1,7 @@
 
 package com.cookiee.cookieeserver.dto.response;
 
+import com.cookiee.cookieeserver.domain.Category;
 import com.cookiee.cookieeserver.domain.Collection;
 import com.cookiee.cookieeserver.domain.Event;
 import lombok.Builder;
@@ -18,20 +19,20 @@ public record EventResponseDto(
         int EventDate,
         String imageUrl,
         Long userId,
-        List<Collection> collections){
+        List<Category> categories){
 
     public static EventResponseDto from(Event event){
         return EventResponseDto.builder()
-                .eventId(event.getEvent_id())
+                .eventId(event.getEventId())
                 .what(event.getEventWhat())
                 .eventWhere(event.getEventWhere())
                 .withWho(event.getWithWho())
                 .EventYear(event.getEventYear())
                 .EventMonth(event.getEventMonth())
                 .EventDate(event.getEventDate())
-                .imageUrl(event.getImageUrl())
-                .userId(event.getEvent_id())
-                .collections(event.getCollections())
+                .imageUrl(event.getImageUrl().toString())
+                .userId(event.getEventId())
+                .categories(event.getCategories())
                 .build();
     }
 }
