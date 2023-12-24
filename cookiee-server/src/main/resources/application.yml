@@ -1,0 +1,26 @@
+spring:
+datasource:
+  url: ${DB_URL}
+  driver-class-name: ${DB_DRIVER}
+  username: ${DB_USER}
+  password: ${DB_PASSWORD}
+
+jpa:
+  hibernate:
+    ddl-auto: update
+    # 개발 초기 단계는 create 또는 update
+    # 테스트 서버는 update 또는 validate
+    # 스테이징과 운영 서버는 validate 또는 none
+
+  show-sql: true
+  properties:
+    hibernate.format_sql: true
+
+  #custom:
+  #s3url : ${s3url}
+
+# 임시로 포트 번호 지정
+#server:
+#  port: 8080
+#  servlet:
+#    context-path: /cookiee
