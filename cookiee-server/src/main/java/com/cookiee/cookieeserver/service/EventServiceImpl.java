@@ -1,3 +1,4 @@
+/*
 package com.cookiee.cookieeserver.service;
 
 import com.cookiee.cookieeserver.domain.Event;
@@ -30,3 +31,4 @@ public class EventServiceImpl extends EventService {
     }
 
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package com.cookiee.cookieeserver.service;
 
 import com.cookiee.cookieeserver.domain.Event;
@@ -10,3 +11,4 @@ public abstract class EventService {
     @Transactional
     public abstract Long keepEvent(MultipartFile image, Event event) throws IOException;
 }
+*/

@@ -26,18 +26,18 @@ public class Event extends BaseTimeEntity {
     private String what; // 이벤트 내용
 
     @Column(length = 1000)
-    private String where; // 이벤트 장소
+    private String event_where; // 이벤트 장소
 
     @Column(length = 1000)
     private String with_who; // 함께 한 사람
 
-    private String when;   // 이벤트 시간
+    private String event_time;   // 이벤트 시간
     public void setMonth(LocalDate created_at) {
         String year = Integer.toString(created_at.getYear());
         String month = Integer.toString(created_at.getMonthValue());
         String date = Integer.toString(created_at.getDayOfMonth());
         String dayofweek = created_at.getDayOfWeek().toString(); //요일
-        this.when = year+month+date+dayofweek; //연-월-일-요일
+        this.event_time = year+month+date+dayofweek; //연-월-일-요일
     }
 
     @Column
@@ -48,15 +48,15 @@ public class Event extends BaseTimeEntity {
     private User user_id;  // 유저 pk (FK)
 
     //event : category = 1 : 다 -> 수연이쪽에 매핑해주어야 함
-    @OneToMany(mappedBy = "event")
+    @OneToMany(mappedBy = "eventId")
     private List<Collection> collections = new ArrayList<>();
 
     public Event(String what, String where, String with_who, String when,
                  String imageUrl, LocalDate created_time, LocalDate modified_time){
         this.what = what;
-        this.where = where;
+        this.event_where = where;
         this.with_who = with_who;
-        this.when = when;
+        this.event_time = when;
         this.imageUrl = imageUrl;
         this.user_id = getUser_id();
         //this.collections = Collection();
