@@ -6,6 +6,7 @@ package com.cookiee.cookieeserver.controller;
 import com.cookiee.cookieeserver.domain.Event;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.DataResponseDto;
+import com.cookiee.cookieeserver.dto.request.EventRegisterRequestDto;
 import com.cookiee.cookieeserver.dto.response.EventResponseDto;
 import com.cookiee.cookieeserver.repository.EventRepository;
 import com.cookiee.cookieeserver.repository.UserRepository;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 import java.net.http.HttpResponse;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -37,20 +39,30 @@ public class EventController {
     private final UserRepository userRepository;
 
     // 등록
-    @ResponseBody   // Long 타입을 리턴하고 싶은 경우 붙여야 함 (Long - 객체)
+    @ResponseBody
+    @PostMapping(value = "/event/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Long saveEvent(@PathVariable long userId, HttpServletRequest request, @RequestParam(value = "images") List<MultipartFile> imageUrl, @RequestParam(value = "thumbnail") MultipartFile thumbnail, EventRegisterRequestDto eventRegisterRequestDto) throws IOException {
+        Long eventId = eventService.createEvent(imageUrl, thumbnail, eventRegisterRequestDto, userId);
+        return eventId;
+    }
+
+
+
+
+   /* @ResponseBody
     @PostMapping(value = "/event/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Long saveEvent(@PathVariable long userId, HttpServletRequest request, @RequestParam(value = "image") MultipartFile image, Event event) throws IOException {
         Long eventId = eventService.createEvent(image, event, userId);
         return eventId;
-    }
+    }*/
 
-    // 날짜별 조회
+/*    // 날짜별 조회
     @GetMapping("/event")
     public HttpResponse<Optional<EventResponseDto>> getEvent(@RequestParam long userId, @RequestParam long eventId) {
         return HttpResponse.okBuild(
                 eventService.searchEvent(userId, eventId)
                         .map((Event event) -> EventResponseDto.from(event)));
-    }
+    }*/
        /* Event event = eventRepository.findById(eventId).orElseThrow(new Supplier<IllegalArgumentException>() {
             @Override
             public IllegalArgumentException get() {
