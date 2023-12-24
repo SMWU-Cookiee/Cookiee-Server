@@ -34,6 +34,10 @@ cloud:
     stack:
       auto: false
 
+swagger:
+  enabled: true
+  base-package: com.cookiee.cookieeserver
+
   #custom:
   #s3url : ${s3url}
 
