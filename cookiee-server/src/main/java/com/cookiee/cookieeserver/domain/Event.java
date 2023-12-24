@@ -52,14 +52,15 @@ public class Event extends BaseTimeEntity {
     private List<Collection> collections = new ArrayList<>();
 
     public Event(String what, String where, String with_who, String when,
-                 String imageUrl, LocalDate created_time, LocalDate modified_time){
+                 String imageUrl, LocalDate created_time, LocalDate modified_time, User user_id, List<Collection> collections){
         this.what = what;
         this.event_where = where;
         this.with_who = with_who;
         this.event_time = when;
         this.imageUrl = imageUrl;
-        this.user_id = getUser_id();
-        //this.collections = Collection();
+        this.user_id = user_id;
+        this.collections = collections;
+
 
     }
 
