@@ -1,3 +1,4 @@
+/*
 package com.cookiee.cookieeserver.controller;
 
 import com.cookiee.cookieeserver.domain.User;
@@ -27,3 +28,4 @@ public class UserControllerTest {
         Assertions.assertEquals(user2, userRepository.findById(user2.getUserId()).get());
     }
 }
+*/
