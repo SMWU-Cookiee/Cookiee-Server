@@ -1,12 +1,14 @@
 package com.cookiee.cookieeserver.repository;
 
 import com.cookiee.cookieeserver.domain.Category;
+import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.response.CategoryResponseDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
     @Query(name = "get_category_dto", nativeQuery = true)
@@ -21,5 +23,8 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     boolean existsByCategoryName(String categoryName);
 
     boolean existsByCategoryColor(String categoryColor);
+
+    List<Category> findAllByEventEventId(Long eventId);
+
 
 }

@@ -1,12 +1,8 @@
 package com.cookiee.cookieeserver.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,46 +16,54 @@ public class Event extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long event_id;  // 이벤트 PK
+    private Long eventId;  // 이벤트 PK
 
-    @Column(length = 1000)
-    private String what; // 이벤트 내용
+    @Column(nullable = true, length = 100)
+    private String eventWhat; // 이벤트 내용
 
-    @Column(length = 1000)
-    private String event_where; // 이벤트 장소
+    @Column(nullable = true, length = 100)
+    private String eventWhere; // 이벤트 장소
 
-    @Column(length = 1000)
-    private String with_who; // 함께 한 사람
+    @Column(nullable = true, length = 100)
+    private String withWho; // 함께 한 사람
 
-    private String event_time;   // 이벤트 시간
-    public void setMonth(LocalDate created_at) {
-        String year = Integer.toString(created_at.getYear());
-        String month = Integer.toString(created_at.getMonthValue());
-        String date = Integer.toString(created_at.getDayOfMonth());
-        String dayofweek = created_at.getDayOfWeek().toString(); //요일
-        this.event_time = year+month+date+dayofweek; //연-월-일-요일
-    }
+    @Column(nullable = false)
+    private int eventYear;
 
-    @Column
-    private String imageUrl; //이미지 사진
+    @Column(nullable = false)
+    private int eventMonth;
+
+    @Column(nullable = false)
+    private int eventDate;
+
+    @Column(nullable = true)
+    private List<String> imageUrl; //이미지 사진
+
+    @Column(nullable = true)
+    private String thumbnailUrl; //썸네일 사진
 
     @ManyToOne  // 다대일 단방향 관계, user 삭제되면 이벤트도 삭제
     @JoinColumn(name = "userId")
-    private User user_id;  // 유저 pk (FK)
+    private User user;  // 유저 pk (FK)
 
     //event : category = 1 : 다 -> 수연이쪽에 매핑해주어야 함
-    @OneToMany(mappedBy = "eventId")
-    private List<Collection> collections = new ArrayList<>();
+    @OneToMany(mappedBy = "event")
+    private List<Category> categories = new ArrayList<>();
 
-    public Event(String what, String where, String with_who, String when,
-                 String imageUrl, LocalDate created_time, LocalDate modified_time){
-        this.what = what;
-        this.event_where = where;
-        this.with_who = with_who;
-        this.event_time = when;
+    @Builder
+    public Event(String eventWhat, String eventWhere, String withWho, int eventYear, int eventMonth, int eventDate,
+                 List<String> imageUrl, String thumbnailUrl, User user, List<Category> categories){
+        this.eventWhat = eventWhat;
+        this.eventWhere = eventWhere;
+        this.withWho = withWho;
+        this.eventYear = eventYear;
+        this.eventMonth = eventMonth;
+        this.eventDate = eventDate;
         this.imageUrl = imageUrl;
-        this.user_id = getUser_id();
-        //this.collections = Collection();
+        this.thumbnailUrl = thumbnailUrl;
+        this.user = user;
+        this.categories = categories;
+
 
     }
 

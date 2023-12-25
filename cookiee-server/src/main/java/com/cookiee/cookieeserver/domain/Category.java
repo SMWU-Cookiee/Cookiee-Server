@@ -28,6 +28,11 @@ public class Category extends BaseTimeEntity{
     @JoinColumn(name = "userId")
     private User user;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "eventId")
+    private Event event;
+
     @OneToMany(mappedBy = "categoryId")
     private List<Collection> eventList = new ArrayList<>();
 
