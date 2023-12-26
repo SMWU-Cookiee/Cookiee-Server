@@ -14,10 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -37,7 +34,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override @Transactional
-    public Long createEvent(List<MultipartFile> images, MultipartFile thumbnail, EventRegisterRequestDto eventRegisterRequestDto, Long userId) throws IOException {
+    public Long createEvent(List<MultipartFile> images, EventRegisterRequestDto eventRegisterRequestDto, Long userId) throws IOException {
         User user = userRepository.findByUserId(userId);
         List<Category> categories = categoryRepository.findAllByEventEventId(eventRegisterRequestDto.eventId());
         if (!images.isEmpty()) {
@@ -45,11 +42,11 @@ public class EventServiceImpl implements EventService {
 
             for (MultipartFile image : images) {
                 String storedFileName = s3Uploader.saveFile(image);
-                eventRegisterRequestDto.toEntity(user, categories).setImageUrl(Collections.singletonList(storedFileName));
+                storedFileNames.add(storedFileName);
             }
+            eventRegisterRequestDto.toEntity(user, categories).setImageUrl(storedFileNames);
         }
-        String storedFileName1 = s3Uploader.saveFile(thumbnail);
-        eventRegisterRequestDto.toEntity(user, categories).setThumbnailUrl(storedFileName1);
+
         Event savedEvent = eventRepository.save(eventRegisterRequestDto.toEntity(user, categories));
         return savedEvent.getEventId();
     }

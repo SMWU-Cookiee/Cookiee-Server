@@ -42,11 +42,12 @@ public class S3Uploader {
     }
 
 
-/*    public String upload(MultipartFile multipartFile, String dirName) throws IOException {
+
+    public String uploader(MultipartFile multipartFile, String dirName) throws IOException {
         File uploadFile = convert(multipartFile)
                 .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
         return upload(uploadFile, dirName);
-    }*/
+    }
 
     private String upload(File uploadFile, String dirName) {
         String fileName = dirName + "/" + uploadFile.getName();

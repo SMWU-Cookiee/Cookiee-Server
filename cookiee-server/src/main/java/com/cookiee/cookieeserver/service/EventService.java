@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EventService {
-    Long createEvent(List<MultipartFile> image, MultipartFile thumbnail, EventRegisterRequestDto eventRegisterRequestDto, Long UserId) throws IOException;
+    Long createEvent(List<MultipartFile> image, EventRegisterRequestDto eventRegisterRequestDto, Long UserId) throws IOException;
 
 
 /*
