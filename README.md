@@ -1,6 +1,7 @@
 <div align=center>
 <h1>Cookiee-</h1>
-👨‍👩‍👧‍👦사진 캘린더 서비스🍪 <br> <br>
+<img src="https://2023-apps-exhibition-webpage.vercel.app/images/thumbnail/img-thumbnail-1.png">
+🍪사진 캘린더 서비스🍪 <br> <br>
 💻 2023 APPS Exhibition Project 💻
 </div>
 
@@ -28,13 +29,17 @@ Cookiee- 앱으로 여러분의 하루하루를 아름답게 기록해보세요!
 
 | 분류          | 기술                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | :------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend   | React Native                                                                                                              |
+| Frontend   | <img src="https://img.shields.io/badge/react native-61DBFB?style=for-the-badge&logo=react&logoColor=white">                                                                                                            |
 | Backend   | <img src="https://img.shields.io/badge/spring boot-6DB33F?style=for-the-badge&logo=spring&logoColor=white">   |
 | DB                             |<img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white">                                                                                                                                                                    |
 | Cloud           | <img src="https://img.shields.io/badge/aws-232F3E?style=for-the-badge&logo=aws&logoColor=white">  |
 <br>
 
 ## 🎥 시연 영상
+
+[![Cookiee-](http://img.youtube.com/vi/8AoxG-zcm-E/0.jpg)](https://youtu.be/8AoxG-zcm-E?feature=shared)
+
+
 
 
 <br>
@@ -44,5 +49,5 @@ Cookiee- 앱으로 여러분의 하루하루를 아름답게 기록해보세요!
 | 이름     | 개발분야  | 개인 레포                                         | 이메일                    |
 | -------- | --------- | ------------------------------------------------- | ------------------------- |
 | ✨조영서 | Back-end  | [dudrhy12](https://github.com/dudrhy12)  | dudrhy12@gmail.com |
-| ✨황수연 | Back-end | [syhwang1231]https://github.com/syhwang1231         | syhhwang1231@gmail.com     |
+| ✨황수연 | Back-end | [syhwang1231](https://github.com/syhwang1231)  | syhhwang1231@gmail.com     |
 <br>
