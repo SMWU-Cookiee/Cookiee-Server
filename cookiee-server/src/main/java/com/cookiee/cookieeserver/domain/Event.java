@@ -39,9 +39,6 @@ public class Event extends BaseTimeEntity {
     @Column(nullable = true)
     private List<String> imageUrl; //이미지 사진
 
-    @Column(nullable = true)
-    private String thumbnailUrl; //썸네일 사진
-
     @ManyToOne  // 다대일 단방향 관계, user 삭제되면 이벤트도 삭제
     @JoinColumn(name = "userId")
     private User user;  // 유저 pk (FK)
@@ -52,7 +49,7 @@ public class Event extends BaseTimeEntity {
 
     @Builder
     public Event(String eventWhat, String eventWhere, String withWho, int eventYear, int eventMonth, int eventDate,
-                 List<String> imageUrl, String thumbnailUrl, User user, List<Category> categories){
+                 List<String> imageUrl, User user, List<Category> categories){
         this.eventWhat = eventWhat;
         this.eventWhere = eventWhere;
         this.withWho = withWho;
@@ -60,7 +57,6 @@ public class Event extends BaseTimeEntity {
         this.eventMonth = eventMonth;
         this.eventDate = eventDate;
         this.imageUrl = imageUrl;
-        this.thumbnailUrl = thumbnailUrl;
         this.user = user;
         this.categories = categories;
 
