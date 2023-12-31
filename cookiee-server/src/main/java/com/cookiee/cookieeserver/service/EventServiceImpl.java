@@ -37,7 +37,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override @Transactional
-    public Long createEvent(List<MultipartFile> images, MultipartFile thumbnail, EventRegisterRequestDto eventRegisterRequestDto, Long userId) throws IOException {
+    public Long createEvent(List<MultipartFile> images, EventRegisterRequestDto eventRegisterRequestDto, Long userId) throws IOException {
         User user = userRepository.findByUserId(userId);
         List<Category> categories = categoryRepository.findAllByEventEventId(eventRegisterRequestDto.eventId());
         if (!images.isEmpty()) {
@@ -48,8 +48,8 @@ public class EventServiceImpl implements EventService {
                 eventRegisterRequestDto.toEntity(user, categories).setImageUrl(Collections.singletonList(storedFileName));
             }
         }
-        String storedFileName1 = s3Uploader.saveFile(thumbnail);
-        eventRegisterRequestDto.toEntity(user, categories).setThumbnailUrl(storedFileName1);
+        /*String storedFileName1 = s3Uploader.saveFile(thumbnail);
+        eventRegisterRequestDto.toEntity(user, categories).setThumbnailUrl(storedFileName1);*/
         Event savedEvent = eventRepository.save(eventRegisterRequestDto.toEntity(user, categories));
         return savedEvent.getEventId();
     }

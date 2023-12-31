@@ -16,7 +16,6 @@ public record EventRegisterRequestDto (
     int eventMonth,
     int eventDate,
     List<String> imageUrl,
-    String thumbnailUrl,
     List<Long> categoryIds){
 
     public Event toEntity(User user, List<Category> categoryIds){
