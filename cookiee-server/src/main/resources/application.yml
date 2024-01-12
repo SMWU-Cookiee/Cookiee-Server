@@ -6,6 +6,8 @@ spring:
     password: ${DB_PASSWORD}
 
 
+    hikari:
+      maximum-pool-size: 20  # thread starvation 해결 제발
   jpa:
     database: mysql
     hibernate:
