@@ -41,7 +41,8 @@ public class EventController {
     // 등록
     @ResponseBody
     @PostMapping(value = "/event/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Long saveEvent(@PathVariable long userId, HttpServletRequest request, @RequestParam List<MultipartFile> imageUrl,  EventRegisterRequestDto eventRegisterRequestDto) throws IOException {
+
+    public Long saveEvent(@PathVariable long userId, HttpServletRequest request, @RequestParam(value = "images") List<MultipartFile> imageUrl, EventRegisterRequestDto eventRegisterRequestDto) throws IOException {
         Long eventId = eventService.createEvent(imageUrl, eventRegisterRequestDto, userId);
         return eventId;
     }

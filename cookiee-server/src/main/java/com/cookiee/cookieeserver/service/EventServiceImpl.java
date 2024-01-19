@@ -47,6 +47,9 @@ public class EventServiceImpl implements EventService {
             eventRegisterRequestDto.toEntity(user, categories).setImageUrl(storedFileNames);
         }
 
+        /*String storedFileName1 = s3Uploader.saveFile(thumbnail);
+        eventRegisterRequestDto.toEntity(user, categories).setThumbnailUrl(storedFileName1);*/
+
         Event savedEvent = eventRepository.save(eventRegisterRequestDto.toEntity(user, categories));
         return savedEvent.getEventId();
     }
