@@ -4,6 +4,7 @@ import com.cookiee.cookieeserver.domain.Category;
 import com.cookiee.cookieeserver.domain.Event;
 import com.cookiee.cookieeserver.domain.User;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +19,7 @@ public record EventRegisterRequestDto (
     List<String> imageUrl,
     List<Long> categoryIds){
 
-    public Event toEntity(User user, List<Category> categoryIds){
+    public Event toEntity(User user, List<Category> categoryIds, List<String> imageUrls){
         return Event.builder()
                 .eventWhat(eventWhat)
                 .eventWhere(eventWhere)
@@ -28,6 +29,7 @@ public record EventRegisterRequestDto (
                 .eventDate(eventDate)
                 .user(user)
                 .categories(categoryIds)
+                .imageUrl(imageUrls)
                 .build();
     }
 
