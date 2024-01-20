@@ -4,8 +4,10 @@ import com.cookiee.cookieeserver.controller.S3Uploader;
 import com.cookiee.cookieeserver.domain.Thumbnail;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.request.ThumbnailRegisterRequestDto;
+import com.cookiee.cookieeserver.dto.response.ThumbnailGetResponseDto;
 import com.cookiee.cookieeserver.repository.ThumbnailRepository;
 import com.cookiee.cookieeserver.repository.UserRepository;
+import com.google.common.base.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -34,5 +38,21 @@ public class ThumbnailService {
         savedThumbnail = thumbnailRepository.save(thumbnailRegisterRequestDto.toEntity(user, storedFileName));
 
         return savedThumbnail;
+    }
+
+    @Transactional
+    public List<ThumbnailGetResponseDto> getThumbnail(long userId){
+        List<Thumbnail> thumbnails = thumbnailRepository.findByUserID(userId);
+        return thumbnails.stream()
+                .map(ThumbnailGetResponseDto::from)
+                .collect(Collectors.toList());
+
+    }
+
+    @Transactional
+    public void deleteThumbnail(long userId, long thumbnailId){
+        thumbnailRepository.findByUserIDAndThumbnailId(userId, thumbnailId)
+                .ifPresent(thumbnailRepository::delete);
+
     }
 }
