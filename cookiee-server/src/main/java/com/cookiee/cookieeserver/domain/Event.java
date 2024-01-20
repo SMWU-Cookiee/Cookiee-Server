@@ -1,5 +1,6 @@
 package com.cookiee.cookieeserver.domain;
 
+import io.swagger.annotations.ApiParam;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,24 +19,32 @@ public class Event extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long eventId;  // 이벤트 PK
 
+    @ApiParam(value="이벤트 내용", required=false, example="모같코를 했다.")
     @Column(nullable = true, length = 100)
     private String eventWhat; // 이벤트 내용
 
+    @ApiParam(value="이벤트 장소", required=false, example="합정역")
     @Column(nullable = true, length = 100)
     private String eventWhere; // 이벤트 장소
 
+    @ApiParam(value="함께 한 사람", required=false, example="민서, 수연, 지수")
     @Column(nullable = true, length = 100)
     private String withWho; // 함께 한 사람
 
+    @ApiParam(value="이벤트 내용", required=false, example="모같코를 했다.")
     @Column(nullable = false)
     private int eventYear;
 
+    @ApiParam(value="이벤트 달", required=false, example="1월")
     @Column(nullable = false)
     private int eventMonth;
 
+    @ApiParam(value="이벤트 날", required=false, example="20일")
     @Column(nullable = false)
     private int eventDate;
 
+    @ApiParam(value="이벤트 사진", required=false, example="https:블라블라,amazom.블라블라")
+    @ElementCollection
     @Column(nullable = true)
     private List<String> imageUrl; //이미지 사진
 
@@ -45,11 +54,11 @@ public class Event extends BaseTimeEntity {
 
     //event : category = 1 : 다 -> 수연이쪽에 매핑해주어야 함
     @OneToMany(mappedBy = "event")
-    private List<Category> categories = new ArrayList<>();
+    private List<EventCategory> eventCategories = new ArrayList<>();
 
     @Builder
     public Event(String eventWhat, String eventWhere, String withWho, int eventYear, int eventMonth, int eventDate,
-                 List<String> imageUrl, User user, List<Category> categories){
+                 List<String> imageUrl, User user, List<EventCategory> eventCategories){
         this.eventWhat = eventWhat;
         this.eventWhere = eventWhere;
         this.withWho = withWho;
@@ -58,7 +67,7 @@ public class Event extends BaseTimeEntity {
         this.eventDate = eventDate;
         this.imageUrl = imageUrl;
         this.user = user;
-        this.categories = categories;
+        this.eventCategories = eventCategories;
 
 
     }

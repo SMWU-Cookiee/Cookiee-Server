@@ -28,13 +28,9 @@ public class Category extends BaseTimeEntity{
     @JoinColumn(name = "userId")
     private User user;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "eventId")
-    private Event event;
 
-    @OneToMany(mappedBy = "categoryId")
-    private List<Collection> eventList = new ArrayList<>();
+    @OneToMany(mappedBy = "category")
+    private List<EventCategory> eventCategories = new ArrayList<>();
 
     @Builder
     public Category(User user, String categoryName, String categoryColor){
