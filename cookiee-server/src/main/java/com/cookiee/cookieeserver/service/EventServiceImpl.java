@@ -3,6 +3,7 @@ package com.cookiee.cookieeserver.service;
 import com.cookiee.cookieeserver.controller.S3Uploader;
 import com.cookiee.cookieeserver.domain.Category;
 import com.cookiee.cookieeserver.domain.Event;
+import com.cookiee.cookieeserver.domain.EventCategory;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.request.EventRegisterRequestDto;
 import com.cookiee.cookieeserver.repository.CategoryRepository;
@@ -37,7 +38,7 @@ public class EventServiceImpl implements EventService {
     public Event createEvent(List<MultipartFile> images, EventRegisterRequestDto eventRegisterRequestDto, Long userId) throws IOException {
         User user = userRepository.findByUserId(userId);
         Event savedEvent = null;
-        List<Category> categories = categoryRepository.findAllByEventEventId(eventRegisterRequestDto.eventId());
+        List<EventCategory> categories = categoryRepository.findAllByEventEventId(eventRegisterRequestDto.eventId());
         if (!images.isEmpty()) {
             List<String> storedFileNames = new ArrayList<>();
 

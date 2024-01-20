@@ -2,6 +2,7 @@ package com.cookiee.cookieeserver.dto.request;
 
 import com.cookiee.cookieeserver.domain.Category;
 import com.cookiee.cookieeserver.domain.Event;
+import com.cookiee.cookieeserver.domain.EventCategory;
 import com.cookiee.cookieeserver.domain.User;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public record EventRegisterRequestDto (
     List<String> imageUrl,
     List<Long> categoryIds){
 
-    public Event toEntity(User user, List<Category> categoryIds, List<String> imageUrls){
+    public Event toEntity(User user, List<EventCategory> categoryIds, List<String> imageUrls){
         return Event.builder()
                 .eventWhat(eventWhat)
                 .eventWhere(eventWhere)
@@ -28,7 +29,7 @@ public record EventRegisterRequestDto (
                 .eventMonth(eventMonth)
                 .eventDate(eventDate)
                 .user(user)
-                .categories(categoryIds)
+                .eventCategories(categoryIds)
                 .imageUrl(imageUrls)
                 .build();
     }
