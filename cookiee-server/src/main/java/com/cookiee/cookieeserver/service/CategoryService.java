@@ -2,21 +2,29 @@ package com.cookiee.cookieeserver.service;
 
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.cookiee.cookieeserver.domain.Category;
+import com.cookiee.cookieeserver.domain.Event;
+import com.cookiee.cookieeserver.domain.EventCategory;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.request.CategoryCreateRequestDto;
 import com.cookiee.cookieeserver.dto.request.CategoryUpdateRequestDto;
 import com.cookiee.cookieeserver.dto.response.CategoryResponseDto;
+import com.cookiee.cookieeserver.dto.response.EventCategoryGetResponseDto;
 import com.cookiee.cookieeserver.repository.CategoryRepository;
+import com.cookiee.cookieeserver.repository.EventCategoryRepository;
+import com.cookiee.cookieeserver.repository.EventRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
+    private final EventCategoryRepository eventCategoryRepository;
 
     // 카테고리 생성
     @Transactional
@@ -32,8 +40,39 @@ public class CategoryService {
     }
 
     @Transactional
+    public EventCategoryGetResponseDto findByIdForCollection(Long id){
+        Category categoryEntity = categoryRepository.findByCategoryId(id).orElseThrow(
+                () -> new IllegalArgumentException("해당 아이디로 카테고리를 찾을 수 없습니다.")
+        );
+
+        List<EventCategory> eventCategory = eventCategoryRepository.findByCategoryId(categoryEntity);
+
+        List<Event> eventList = categoryEntity.getEventCategories().stream()
+                .map(EventCategory::getEvent)
+                .collect(Collectors.toList());
+
+//        List<Event> eventList = eventCategories.stream()
+//                .map(EventCategory::getEvent)
+//                .collect(Collectors.toList());
+
+        return EventCategoryGetResponseDto.builder()
+                .category(categoryEntity)
+                .eventList(eventList)
+                .build();
+    }
+
+    @Transactional
     public List<CategoryResponseDto> getAllCategories(int userId) {
         return categoryRepository.findCategoriesByUserUserId(userId);
+    }
+
+//    @Transactional
+//    public Category getCategoryById(int categoryId){
+//        return categoryRepository.findByCategoryId(categoryId);
+//    }
+
+    public Optional<Category> findOneById(Long categoryId) {
+        return categoryRepository.findByCategoryId(categoryId);
     }
 
 //    @Override
@@ -44,8 +83,8 @@ public class CategoryService {
 //    }
 
     @Transactional
-    public CategoryResponseDto update(int userId, int categoryId, CategoryUpdateRequestDto requestDto){
-        Category category = categoryRepository.findById(categoryId).orElseThrow(() ->
+    public CategoryResponseDto update(int userId, Long categoryId, CategoryUpdateRequestDto requestDto){
+        Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow(() ->
                 new NotFoundException(("해당 id의 카테고리가 존재하지 않습니다."))
         );
 
@@ -61,9 +100,9 @@ public class CategoryService {
     }
 
     @Transactional
-    public void delete(int userId, int categoryId) {
+    public void delete(int userId, Long categoryId) {
         // 카테고리 아이디 존재 유무 확인
-        Category category = categoryRepository.findById(categoryId).orElseThrow(() ->
+        Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow(() ->
                 new NotFoundException(("해당 id의 카테고리가 존재하지 않습니다."))
         );
 

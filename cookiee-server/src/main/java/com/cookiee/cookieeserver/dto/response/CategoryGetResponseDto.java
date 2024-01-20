@@ -22,18 +22,18 @@ import lombok.Setter;
         classes = @ConstructorResult(
                 targetClass = CategoryGetResponseDto.class,
                 columns = {
-                        @ColumnResult(name = "categoryId", type = Integer.class),
+                        @ColumnResult(name = "categoryId", type = Long.class),
                         @ColumnResult(name = "categoryName", type = String.class),
                         @ColumnResult(name = "categoryColor", type = String.class)
                 }
         )
 )
 public class CategoryGetResponseDto {
-    int categoryId;
+    Long categoryId;
     String categoryName;
     String categoryColor;
 
-    public CategoryGetResponseDto(int categoryId, String categoryName, String categoryColor){
+    public CategoryGetResponseDto(Long categoryId, String categoryName, String categoryColor){
         this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.categoryColor = categoryColor;

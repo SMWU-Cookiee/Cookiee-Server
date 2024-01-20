@@ -15,7 +15,7 @@ public class Category extends BaseTimeEntity{
     @Id
     @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)  // auto_increment
-    private int categoryId;  // 카테고리 아이디
+    private Long categoryId;  // 카테고리 아이디
 
     @Column(nullable = false, length = 10)  // 최대 10자
     private String categoryName;  // 카테고리명
@@ -23,12 +23,11 @@ public class Category extends BaseTimeEntity{
     @Column(nullable = false, length = 10)  // 최대 10자
     private String categoryColor;  // 카테고리 색 (HEX 코드)
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
     private User user;
 
-
+    @JsonIgnore
     @OneToMany(mappedBy = "category")
     private List<EventCategory> eventCategories = new ArrayList<>();
 
