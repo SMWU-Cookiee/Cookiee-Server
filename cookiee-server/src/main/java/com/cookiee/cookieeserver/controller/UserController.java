@@ -23,6 +23,11 @@ public class UserController {
     @Autowired
     private final UserRepository userRepository;
 
+    // health check에 대한 상태 반환 위해서
+    @GetMapping("/healthcheck")
+    public String healthcheck() {
+        return "OK";
+    }
     // 유저 프로필 조회
     @GetMapping("/users/{userId}")
     public BaseResponseDto<User> getUser(@PathVariable int userId){

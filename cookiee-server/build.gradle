@@ -43,6 +43,14 @@ dependencies {
 	//S3
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
+	/* apple login 위한 의존성 */
+	// 애플 인증 서버에 JSON Web Key(JWK)를 가져올 때 사용
+//	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+//
+//	// jwt 처리 관련 의존성
+//	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+//	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+//	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 }
 
 tasks.named('test') {
