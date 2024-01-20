@@ -42,7 +42,17 @@ swagger:
 
   #custom:
   #s3url : ${s3url}
-
+#apple:
+#  team:
+#    id: 애플 개발자 팀아이디
+#  login:
+#    key: 9TCLGUF88R
+#  client:
+#    id: sociallogin.app.com
+#  redirect:
+#    url: https://wenail.co.kr/apple/callback
+#  key:
+#    path: /key/AuthKey_9TCLGUF88R.p8
 # 임시로 포트 번호 지정
 #server:
   #port: 3306
