@@ -4,6 +4,7 @@ package com.cookiee.cookieeserver.dto.response;
 import com.cookiee.cookieeserver.domain.Category;
 import com.cookiee.cookieeserver.domain.Collection;
 import com.cookiee.cookieeserver.domain.Event;
+import com.cookiee.cookieeserver.domain.EventCategory;
 import lombok.Builder;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public record EventResponseDto(
         int EventDate,
         String imageUrl,
         Long userId,
-        List<Category> categories){
+        List<EventCategory> Eventcategories){
 
     public static EventResponseDto from(Event event){
         return EventResponseDto.builder()
@@ -32,7 +33,7 @@ public record EventResponseDto(
                 .EventDate(event.getEventDate())
                 .imageUrl(event.getImageUrl().toString())
                 .userId(event.getEventId())
-                .categories(event.getCategories())
+                .Eventcategories(event.getEventCategories())
                 .build();
     }
 }

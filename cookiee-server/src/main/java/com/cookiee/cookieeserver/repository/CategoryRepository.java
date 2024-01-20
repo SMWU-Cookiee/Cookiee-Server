@@ -1,6 +1,7 @@
 package com.cookiee.cookieeserver.repository;
 
 import com.cookiee.cookieeserver.domain.Category;
+import com.cookiee.cookieeserver.domain.EventCategory;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.response.CategoryResponseDto;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,7 +25,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
     boolean existsByCategoryColor(String categoryColor);
 
-    List<Category> findAllByEventEventId(Long eventId);
+    List<EventCategory> findAllByEventEventId(Long eventId);
 
 
 }
