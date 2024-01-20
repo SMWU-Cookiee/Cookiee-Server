@@ -10,16 +10,16 @@ import com.cookiee.cookieeserver.dto.ErrorResponseDto;
 import com.cookiee.cookieeserver.dto.request.CategoryCreateRequestDto;
 import com.cookiee.cookieeserver.dto.request.CategoryUpdateRequestDto;
 import com.cookiee.cookieeserver.dto.response.CategoryResponseDto;
+import com.cookiee.cookieeserver.dto.response.EventCategoryGetResponseDto;
 import com.cookiee.cookieeserver.repository.CategoryRepository;
 import com.cookiee.cookieeserver.service.CategoryService;
 import com.cookiee.cookieeserver.service.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @RestController
 @RequiredArgsConstructor
@@ -76,7 +76,7 @@ public class CategoryController {
     // 카테고리 수정
     @PutMapping("/category/{userId}/{categoryId}")
     public BaseResponseDto<CategoryResponseDto> updateCategory(@PathVariable int userId,
-                                                    @PathVariable int categoryId,
+                                                    @PathVariable Long categoryId,
                                                     @RequestBody CategoryUpdateRequestDto requestDto){
         CategoryResponseDto result;
 
@@ -106,7 +106,7 @@ public class CategoryController {
     // 카테고리 삭제
     @DeleteMapping("/category/{userId}/{categoryId}")
     public BaseResponseDto<Category> deleteCategory(@PathVariable int userId,
-                                                    @PathVariable int categoryId){
+                                                    @PathVariable Long categoryId){
         try {
             User user = userService.findOneById(userId)
                     .orElseThrow(()-> new IllegalArgumentException("해당 id의 사용자가 존재하지 않습니다."));
@@ -120,5 +120,36 @@ public class CategoryController {
         }
 
         return DataResponseDto.of(null, "카테고리 삭제에 성공하였습니다.");
+    }
+
+    // 카테고리 모아보기....
+    @GetMapping("/collection/{userId}/{categoryId}")
+    public BaseResponseDto<EventCategoryGetResponseDto> getCollection(@PathVariable int userId,
+                                                                      @PathVariable Long categoryId){
+        EventCategoryGetResponseDto result;
+
+        try {
+            // 유저 유효성 먼저 확인
+            User user = userService.findOneById(userId)
+                    .orElseThrow(()-> new IllegalArgumentException("해당 id의 사용자가 존재하지 않습니다."));
+
+            final AtomicBoolean[] isValidCategoryId = {new AtomicBoolean(false)};
+
+            // 카테고리 유효성 먼저 확인
+            Category category = categoryService.findOneById(categoryId).orElseThrow(
+                    () -> new IllegalArgumentException("해당 id의 카테고리가 존재하지 않습니다.")
+            );
+
+            // 모아보기 데이터 리턴
+            result = categoryService.findByIdForCollection(categoryId);
+        }
+        catch(NotFoundException e){
+            return ErrorResponseDto.of(StatusCode.NOT_FOUND, e.getMessage());
+        }
+        catch(Exception e){
+            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
+        }
+
+        return DataResponseDto.of(result, "카테고리 모아보기 조회 요청에 성공하였습니다.");
     }
 }

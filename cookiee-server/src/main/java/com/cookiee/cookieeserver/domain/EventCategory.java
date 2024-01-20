@@ -1,28 +1,31 @@
 package com.cookiee.cookieeserver.domain;
 
+import com.cookiee.cookieeserver.dto.response.EventCategoryGetResponseDto;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @Entity
-public class EventCategory {
-
+public class EventCategory extends BaseTimeEntity{
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long eventCategoryId;
 
-    @ManyToOne
-    @JoinColumn(name="event_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="event")
     private Event event;
 
-    @ManyToOne
-    @JoinColumn(name="category_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="category")
     private Category category;
 
+    @Builder
+    public EventCategory(Event event, Category category) {
+        this.event = event;
+        this.category = category;
+    }
 }

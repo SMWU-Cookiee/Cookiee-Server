@@ -2,7 +2,7 @@
 package com.cookiee.cookieeserver.dto.response;
 
 import com.cookiee.cookieeserver.domain.Category;
-import com.cookiee.cookieeserver.domain.Collection;
+//import com.cookiee.cookieeserver.domain.Collection;
 import com.cookiee.cookieeserver.domain.Event;
 import com.cookiee.cookieeserver.domain.EventCategory;
 import lombok.Builder;

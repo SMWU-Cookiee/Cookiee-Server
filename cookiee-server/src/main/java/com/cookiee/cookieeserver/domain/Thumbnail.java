@@ -26,7 +26,7 @@ public class Thumbnail extends BaseTimeEntity {
     @Column(nullable = false)
     private int eventDate;
 
-    @ManyToOne  // 다대일 단방향 관계
+    @ManyToOne(fetch = FetchType.LAZY)  // 다대일 단방향 관계
     @JoinColumn(name = "userId")
     private User user;  // 유저 pk (FK)
 

@@ -10,17 +10,15 @@ import java.util.List;
 import java.util.Optional;
 
 public record EventRegisterRequestDto (
-    Long eventId,
     String eventWhat,
     String eventWhere,
     String withWho,
     int eventYear,
     int eventMonth,
     int eventDate,
-    List<String> imageUrl,
     List<Long> categoryIds){
 
-    public Event toEntity(User user, List<EventCategory> categoryIds, List<String> imageUrls){
+    public Event toEntity(User user, List<EventCategory> eventCategories, List<String> imageUrls){
         return Event.builder()
                 .eventWhat(eventWhat)
                 .eventWhere(eventWhere)
@@ -29,7 +27,7 @@ public record EventRegisterRequestDto (
                 .eventMonth(eventMonth)
                 .eventDate(eventDate)
                 .user(user)
-                .eventCategories(categoryIds)
+                .eventCategoryList(eventCategories)
                 .imageUrl(imageUrls)
                 .build();
     }
