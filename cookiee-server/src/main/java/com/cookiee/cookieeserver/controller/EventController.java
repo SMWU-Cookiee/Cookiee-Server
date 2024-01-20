@@ -70,7 +70,7 @@ public class EventController {
         return eventId;
     }*/
 
-/*    // 날짜별 조회
+/*
     @GetMapping("/event")
     public HttpResponse<Optional<EventResponseDto>> getEvent(@RequestParam long userId, @RequestParam long eventId) {
         return HttpResponse.okBuild(
