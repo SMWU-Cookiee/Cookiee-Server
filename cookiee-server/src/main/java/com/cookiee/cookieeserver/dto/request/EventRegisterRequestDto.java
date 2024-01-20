@@ -19,7 +19,7 @@ public record EventRegisterRequestDto (
     List<String> imageUrl,
     List<Long> categoryIds){
 
-    public Event toEntity(User user, List<Category> categoryIds){
+    public Event toEntity(User user, List<Category> categoryIds, List<String> imageUrls){
         return Event.builder()
                 .eventWhat(eventWhat)
                 .eventWhere(eventWhere)
@@ -29,6 +29,7 @@ public record EventRegisterRequestDto (
                 .eventDate(eventDate)
                 .user(user)
                 .categories(categoryIds)
+                .imageUrl(imageUrls)
                 .build();
     }
 
