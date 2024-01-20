@@ -44,7 +44,10 @@ public class EventController {
     // 등록
     @ResponseBody
     @PostMapping(value = "/event/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BaseResponseDto<Event> saveEvent(@PathVariable int userId, HttpServletRequest request, @RequestParam(value = "images") List<MultipartFile> imageUrl, EventRegisterRequestDto eventRegisterRequestDto) throws IOException {
+    public BaseResponseDto<Event> saveEvent(
+            @PathVariable int userId, HttpServletRequest request,
+            @RequestParam(value = "images") List<MultipartFile> imageUrl,
+            EventRegisterRequestDto eventRegisterRequestDto) throws IOException {
         Event event;
         try {
             Optional<User> user = userService.findOneById(userId);
