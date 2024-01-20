@@ -1,15 +1,17 @@
 package com.cookiee.cookieeserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 @Entity
 public class User extends BaseTimeEntity{
     @Id
@@ -28,6 +30,7 @@ public class User extends BaseTimeEntity{
     @Column(nullable = false, length = 50)
     private String selfDescription;  // 사용자가 설정한 한 줄 소개
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Category> categories = new ArrayList<>();
 }
