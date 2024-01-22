@@ -7,6 +7,7 @@ import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.SqlResultSetMapping;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,7 +34,8 @@ public class CategoryGetResponseDto {
     String categoryName;
     String categoryColor;
 
-    public CategoryGetResponseDto(Long categoryId, String categoryName, String categoryColor){
+    @Builder
+    public CategoryGetResponseDto(Long categoryId, String categoryName, String categoryColor) {
         this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.categoryColor = categoryColor;

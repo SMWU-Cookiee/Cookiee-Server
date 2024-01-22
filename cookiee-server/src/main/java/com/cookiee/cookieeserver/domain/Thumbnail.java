@@ -1,5 +1,6 @@
 package com.cookiee.cookieeserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,6 +27,7 @@ public class Thumbnail extends BaseTimeEntity {
     @Column(nullable = false)
     private int eventDate;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)  // 다대일 단방향 관계
     @JoinColumn(name = "userId")
     private User user;  // 유저 pk (FK)
