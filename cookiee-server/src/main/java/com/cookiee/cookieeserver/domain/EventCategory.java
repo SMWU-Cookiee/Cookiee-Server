@@ -1,6 +1,7 @@
 package com.cookiee.cookieeserver.domain;
 
 import com.cookiee.cookieeserver.dto.response.EventCategoryGetResponseDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,10 +16,12 @@ public class EventCategory extends BaseTimeEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long eventCategoryId;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="event")
     private Event event;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="category")
     private Category category;

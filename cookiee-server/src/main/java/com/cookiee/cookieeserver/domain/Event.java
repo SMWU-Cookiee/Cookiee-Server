@@ -49,6 +49,7 @@ public class Event extends BaseTimeEntity {
     @Column(nullable = true)
     private List<String> imageUrl; //이미지 사진
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)  // 다대일 단방향 관계, user 삭제되면 이벤트도 삭제
     @JoinColumn(name = "userId")
     private User user;  // 유저 pk (FK)

@@ -30,22 +30,27 @@ public class CategoryController {
 
     // 카테고리 등록
     @PostMapping("/category/{userId}")
-    public BaseResponseDto<Category> postCategory(@PathVariable int userId,
+    public BaseResponseDto<CategoryResponseDto> postCategory(@PathVariable int userId,
                                                   @RequestBody CategoryCreateRequestDto requestDto){
-        Category category;
+        CategoryResponseDto categoryResponseDto;
         try {
             Optional<User> user = userService.findOneById(userId);
             if(user.isEmpty()){
                 return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
             }
             else{
-                category = categoryService.create(user.get(), requestDto);
+                Category newCategory = categoryService.create(user.get(), requestDto);
+                categoryResponseDto = CategoryResponseDto.builder()
+                        .categoryId(newCategory.getCategoryId())
+                        .categoryName(newCategory.getCategoryName())
+                        .categoryColor(newCategory.getCategoryColor())
+                        .build();
             }
         }
         catch (Exception e){
             return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "카테고리 등록에 실패하였습니다.");
         }
-        return DataResponseDto.of(category, "카테고리 등록에 성공하였습니다.");
+        return DataResponseDto.of(categoryResponseDto, "카테고리 등록에 성공하였습니다.");
     }
 
     // 특정 유저의 카테고리 전체 조회

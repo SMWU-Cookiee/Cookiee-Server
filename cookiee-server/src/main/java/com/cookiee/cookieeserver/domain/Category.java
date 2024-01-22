@@ -23,6 +23,7 @@ public class Category extends BaseTimeEntity{
     @Column(nullable = false, length = 10)  // 최대 10자
     private String categoryColor;  // 카테고리 색 (HEX 코드)
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
     private User user;
