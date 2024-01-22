@@ -29,7 +29,7 @@ public class Thumbnail extends BaseTimeEntity {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)  // 다대일 단방향 관계
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private User user;  // 유저 pk (FK)
 
     @Builder

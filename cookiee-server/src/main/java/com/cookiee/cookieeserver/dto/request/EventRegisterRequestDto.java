@@ -4,13 +4,17 @@ import com.cookiee.cookieeserver.domain.Category;
 import com.cookiee.cookieeserver.domain.Event;
 import com.cookiee.cookieeserver.domain.EventCategory;
 import com.cookiee.cookieeserver.domain.User;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+//@ApiModel(value = "이벤트 등록")
 public record EventRegisterRequestDto (
-    String eventWhat,
+
+        @Schema(description = "이벤트 내용", nullable = false, example = "")
+        String eventWhat,
     String eventWhere,
     String withWho,
     int eventYear,
