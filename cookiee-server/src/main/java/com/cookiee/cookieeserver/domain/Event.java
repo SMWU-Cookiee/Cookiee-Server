@@ -1,7 +1,6 @@
 package com.cookiee.cookieeserver.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.annotations.ApiParam;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,31 +19,31 @@ public class Event extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long eventId;  // 이벤트 PK
 
-    @ApiParam(value="이벤트 내용", required=false, example="모같코를 했다.")
+    //@ApiParam(value="이벤트 내용", required=true, example="모같코를 했다.")
     @Column(nullable = true, length = 100)
     private String eventWhat; // 이벤트 내용
 
-    @ApiParam(value="이벤트 장소", required=false, example="합정역")
+    //@ApiParam(value="이벤트 장소", required=true, example="합정역")
     @Column(nullable = true, length = 100)
     private String eventWhere; // 이벤트 장소
 
-    @ApiParam(value="함께 한 사람", required=false, example="민서, 수연, 지수")
+    //@ApiParam(value="함께 한 사람", required=true, example="민서, 수연, 지수")
     @Column(nullable = true, length = 100)
     private String withWho; // 함께 한 사람
 
-    @ApiParam(value="이벤트 내용", required=false, example="모같코를 했다.")
+    //@ApiParam(value="이벤트 내용", required=true, example="모같코를 했다.")
     @Column(nullable = false)
     private int eventYear;
 
-    @ApiParam(value="이벤트 달", required=false, example="1월")
+    //@ApiParam(value="이벤트 달", required=true, example="1월")
     @Column(nullable = false)
     private int eventMonth;
 
-    @ApiParam(value="이벤트 날", required=false, example="20일")
+    //@ApiParam(value="이벤트 날", required=true, example="20일")
     @Column(nullable = false)
     private int eventDate;
 
-    @ApiParam(value="이벤트 사진", required=false, example="https:블라블라,amazom.블라블라")
+    //@ApiParam(value="이벤트 사진", required=true, example="https:블라블라,amazom.블라블라")
     @ElementCollection
     @Column(nullable = true)
     private List<String> imageUrl; //이미지 사진

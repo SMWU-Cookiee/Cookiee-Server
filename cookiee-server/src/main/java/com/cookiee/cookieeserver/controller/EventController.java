@@ -12,6 +12,7 @@ import com.cookiee.cookieeserver.repository.EventRepository;
 import com.cookiee.cookieeserver.repository.UserRepository;
 import com.cookiee.cookieeserver.service.EventService;
 import com.cookiee.cookieeserver.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+//@Api(tags = "event")
 @RestController
 @RequiredArgsConstructor
 @Controller
@@ -38,6 +40,15 @@ public class EventController {
     private final UserService userService;
 
     // 등록
+    @Operation(summary = "캘린더에서 이벤트 등록")
+/*    @ApiImplicitParam(
+            name = "userId",
+            value = "유저 아이디",
+            required = true,
+            dataType = "int",
+            paramType = "path",
+            defaultValue = "None"
+    )*/
     @ResponseBody
     @PostMapping(value = "/event/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponseDto<Event> saveEvent(
