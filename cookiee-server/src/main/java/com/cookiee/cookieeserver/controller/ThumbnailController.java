@@ -1,13 +1,11 @@
 package com.cookiee.cookieeserver.controller;
 
 import com.cookiee.cookieeserver.constant.StatusCode;
-import com.cookiee.cookieeserver.domain.Event;
 import com.cookiee.cookieeserver.domain.Thumbnail;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.dto.DataResponseDto;
 import com.cookiee.cookieeserver.dto.ErrorResponseDto;
-import com.cookiee.cookieeserver.dto.request.EventRegisterRequestDto;
 import com.cookiee.cookieeserver.dto.request.ThumbnailRegisterRequestDto;
 import com.cookiee.cookieeserver.dto.response.ThumbnailGetResponseDto;
 import com.cookiee.cookieeserver.repository.EventRepository;
@@ -18,14 +16,12 @@ import com.cookiee.cookieeserver.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Optional;
 
@@ -88,10 +84,19 @@ public class ThumbnailController {
     //삭제
     @ResponseBody
     @DeleteMapping(value="/thumbnail/del/{userId}/{thumbnailId}")
-    public void deleteThumbnail(@PathVariable Long userId, @PathVariable Long thumbnailId){
-        thumbnailService.deleteThumbnail(userId, thumbnailId);
+    public BaseResponseDto deleteThumbnail(@PathVariable Long userId, @PathVariable Long thumbnailId){
+        try {
+            Optional<User> user = userService.findOneById(Math.toIntExact(userId));
+            if (user.isEmpty()) {
+                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
+            } else {
+                thumbnailService.deleteThumbnail(userId, thumbnailId);
+                return DataResponseDto.of(null, "썸네일 삭제에 성공하였습니다.");
+            }
+        } catch (Exception e){
+            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "썸네일 삭제에 실패하였습니다.");
+        }
     }
-
 
 
 }

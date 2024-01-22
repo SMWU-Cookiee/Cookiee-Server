@@ -7,7 +7,6 @@ import com.cookiee.cookieeserver.dto.request.ThumbnailRegisterRequestDto;
 import com.cookiee.cookieeserver.dto.response.ThumbnailGetResponseDto;
 import com.cookiee.cookieeserver.repository.ThumbnailRepository;
 import com.cookiee.cookieeserver.repository.UserRepository;
-import com.google.common.base.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,7 +41,7 @@ public class ThumbnailService {
 
     @Transactional
     public List<ThumbnailGetResponseDto> getThumbnail(long userId){
-        List<Thumbnail> thumbnails = thumbnailRepository.findByUserID(userId);
+        List<Thumbnail> thumbnails = thumbnailRepository.findThumbnailsByUserUserId((int) userId);
         return thumbnails.stream()
                 .map(ThumbnailGetResponseDto::from)
                 .collect(Collectors.toList());
@@ -51,7 +50,7 @@ public class ThumbnailService {
 
     @Transactional
     public void deleteThumbnail(long userId, long thumbnailId){
-        thumbnailRepository.findByUserIDAndThumbnailId(userId, thumbnailId)
+        thumbnailRepository.findByUserUserIdAndThumbnailId((int)userId, thumbnailId)
                 .ifPresent(thumbnailRepository::delete);
 
     }
