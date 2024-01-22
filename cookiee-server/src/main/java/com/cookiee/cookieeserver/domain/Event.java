@@ -1,5 +1,6 @@
 package com.cookiee.cookieeserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiParam;
 import jakarta.persistence.*;
 import lombok.*;
@@ -48,17 +49,18 @@ public class Event extends BaseTimeEntity {
     @Column(nullable = true)
     private List<String> imageUrl; //이미지 사진
 
-    @ManyToOne  // 다대일 단방향 관계, user 삭제되면 이벤트도 삭제
+    @ManyToOne(fetch = FetchType.LAZY)  // 다대일 단방향 관계, user 삭제되면 이벤트도 삭제
     @JoinColumn(name = "userId")
     private User user;  // 유저 pk (FK)
 
     //event : category = 1 : 다 -> 수연이쪽에 매핑해주어야 함
+    @JsonIgnore
     @OneToMany(mappedBy = "event")
     private List<EventCategory> eventCategories = new ArrayList<>();
 
     @Builder
     public Event(String eventWhat, String eventWhere, String withWho, int eventYear, int eventMonth, int eventDate,
-                 List<String> imageUrl, User user, List<EventCategory> eventCategories){
+                 List<String> imageUrl, User user, List<EventCategory> eventCategoryList){
         this.eventWhat = eventWhat;
         this.eventWhere = eventWhere;
         this.withWho = withWho;
@@ -67,7 +69,7 @@ public class Event extends BaseTimeEntity {
         this.eventDate = eventDate;
         this.imageUrl = imageUrl;
         this.user = user;
-        this.eventCategories = eventCategories;
+        this.eventCategories = eventCategoryList;
 
 
     }

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface EventService {
+
     Event createEvent(List<MultipartFile> image, EventRegisterRequestDto eventRegisterRequestDto, Long UserId) throws IOException;
 
 

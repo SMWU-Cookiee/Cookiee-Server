@@ -7,8 +7,10 @@ import com.cookiee.cookieeserver.domain.EventCategory;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.request.EventRegisterRequestDto;
 import com.cookiee.cookieeserver.repository.CategoryRepository;
+import com.cookiee.cookieeserver.repository.EventCategoryRepository;
 import com.cookiee.cookieeserver.repository.EventRepository;
 import com.cookiee.cookieeserver.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,29 +18,35 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-
+    private final EventCategoryRepository eventCategoryRepository;
 
     @Autowired
     private S3Uploader s3Uploader;
 
-    public EventServiceImpl(EventRepository eventRepository, S3Uploader s3Uploader, UserRepository userRepository, CategoryRepository categoryRepository){
-        this.eventRepository = eventRepository;
-        this.userRepository = userRepository;
-        this.categoryRepository = categoryRepository;
-    }
 
-    @Override @Transactional
+    @Override
+    @Transactional
     public Event createEvent(List<MultipartFile> images, EventRegisterRequestDto eventRegisterRequestDto, Long userId) throws IOException {
         User user = userRepository.findByUserId(userId);
-        Event savedEvent = null;
-        List<EventCategory> categories = categoryRepository.findAllByEventEventId(eventRegisterRequestDto.eventId());
+
+        List<Category> categoryList = eventRegisterRequestDto.categoryIds().stream()
+                .map(
+                        id -> categoryRepository.findByCategoryId(id).orElseThrow(
+                                () -> new IllegalArgumentException("해당 id의 카테고리 없습니다...")
+                        )
+                )
+                .collect(Collectors.toList());
+
+        //List<Category> categoryList = categoryRepository.findAllByCategoryIdList(eventRegisterRequestDto.categoryIds());
         if (!images.isEmpty()) {
             List<String> storedFileNames = new ArrayList<>();
 
@@ -47,15 +55,20 @@ public class EventServiceImpl implements EventService {
                 System.out.println(storedFileName);
                 storedFileNames.add(storedFileName);
             }
-            //eventRegisterRequestDto.toEntity(user, categories, storedFileNames).setImageUrl(storedFileNames);
-            savedEvent = eventRepository.save(eventRegisterRequestDto.toEntity(user, categories, storedFileNames));
+            Event savedEvent = eventRepository.save(eventRegisterRequestDto.toEntity(user, new ArrayList<EventCategory>(), storedFileNames));
 
+            List<EventCategory> eventCategoryList = categoryList.stream()
+                    .map(category ->
+                            EventCategory.builder().event(savedEvent).category(category).build()
+                    ).collect(Collectors.toList());
+
+
+            ///
+            eventCategoryRepository.saveAll(eventCategoryList);
+            return savedEvent;
         }
 
-        /*String storedFileName1 = s3Uploader.saveFile(thumbnail);
-        eventRegisterRequestDto.toEntity(user, categories).setThumbnailUrl(storedFileName1);*/
-
-        return savedEvent;
+        throw new NullPointerException("사진이 없습니다.");
     }
 
 /*    @Override

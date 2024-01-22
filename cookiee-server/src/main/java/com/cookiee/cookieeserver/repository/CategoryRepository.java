@@ -19,13 +19,16 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
             "FROM category " +
             "WHERE category.category_id = :categoryId AND category.user_id = :userId",
     nativeQuery = true)
-    int existsByCategoryIdInUser(@Param("userId") int userId, @Param("categoryId") int categoryId);
+    int existsByCategoryIdInUser(@Param("userId") int userId, @Param("categoryId") Long categoryId);
 
     boolean existsByCategoryName(String categoryName);
 
     boolean existsByCategoryColor(String categoryColor);
 
-    List<EventCategory> findAllByEventEventId(Long eventId);
+    Optional<Category> findByCategoryId(Long categoryId);
 
-
+    @Query(value = "SELECT category_id as categoryId, category_name as categoryName, category_color as categoryColor) " +
+            "FROM category WHERE category_id IN (:categoryIDs)",
+            nativeQuery = true)
+    List<Category> findAllByCategoryIdList(List<Long> categoryIDs);
 }
