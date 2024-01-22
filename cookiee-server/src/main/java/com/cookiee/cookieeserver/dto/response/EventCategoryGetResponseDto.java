@@ -14,17 +14,17 @@ import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor
 public class EventCategoryGetResponseDto {
-    private CategoryGetResponseDto categoryGetResponseDto;
-    private List<EventResponseDto> eventResponseDtoList;
+    private CategoryGetResponseDto category;
+    private List<EventResponseDto> eventList;
 
     @Builder
     public EventCategoryGetResponseDto(Category category, List<Event> eventList){
-        this.categoryGetResponseDto = CategoryGetResponseDto.builder()
+        this.category = CategoryGetResponseDto.builder()
                 .categoryId(category.getCategoryId())
                 .categoryName(category.getCategoryName())
                 .categoryColor(category.getCategoryColor())
                 .build();
-        this.eventResponseDtoList = eventList.stream()
+        this.eventList = eventList.stream()
                 .map(EventResponseDto::from)
                 .collect(Collectors.toList());
     }
