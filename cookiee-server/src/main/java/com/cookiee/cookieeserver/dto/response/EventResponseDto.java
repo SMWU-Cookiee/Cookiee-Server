@@ -18,7 +18,7 @@ public record EventResponseDto(
         int EventYear,
         int EventMonth,
         int EventDate,
-        String imageUrl,
+        List<String> imageUrlList,
         Long userId,
         List<EventCategory> Eventcategories){
 
@@ -31,7 +31,7 @@ public record EventResponseDto(
                 .EventYear(event.getEventYear())
                 .EventMonth(event.getEventMonth())
                 .EventDate(event.getEventDate())
-                .imageUrl(event.getImageUrl().toString())
+                .imageUrlList(event.getImageUrl())
                 .userId(event.getEventId())
                 .Eventcategories(event.getEventCategories())
                 .build();

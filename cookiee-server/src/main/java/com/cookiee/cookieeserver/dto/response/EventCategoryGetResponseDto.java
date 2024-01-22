@@ -6,16 +6,18 @@ import com.cookiee.cookieeserver.domain.EventCategory;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 // 모아보기 GET 요청 시 응답 DTO입니당
 @Getter
+@Setter
 @NoArgsConstructor
 public class EventCategoryGetResponseDto {
     private CategoryGetResponseDto category;
-    private List<EventResponseDto> eventList;
+    private List<EventImageURLDto> eventImageList;
 
     @Builder
     public EventCategoryGetResponseDto(Category category, List<Event> eventList){
@@ -24,8 +26,14 @@ public class EventCategoryGetResponseDto {
                 .categoryName(category.getCategoryName())
                 .categoryColor(category.getCategoryColor())
                 .build();
-        this.eventList = eventList.stream()
+        this.eventImageList = eventList.stream()
                 .map(EventResponseDto::from)
+                .map(
+                        eventResponseDto -> EventImageURLDto.builder()
+                                .eventId(eventResponseDto.eventId())
+                                .firstImageUrl(eventResponseDto.imageUrlList().get(0))
+                                .build()
+                )
                 .collect(Collectors.toList());
     }
 }
