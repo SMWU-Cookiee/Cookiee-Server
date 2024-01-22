@@ -135,15 +135,15 @@ public class CategoryController {
 
         try {
             // 유저 유효성 먼저 확인
-            User user = userService.findOneById(userId)
-                    .orElseThrow(()-> new IllegalArgumentException("해당 id의 사용자가 존재하지 않습니다."));
-
-            final AtomicBoolean[] isValidCategoryId = {new AtomicBoolean(false)};
-
-            // 카테고리 유효성 먼저 확인
-            Category category = categoryService.findOneById(categoryId).orElseThrow(
-                    () -> new IllegalArgumentException("해당 id의 카테고리가 존재하지 않습니다.")
-            );
+//            User user = userService.findOneById(userId)
+//                    .orElseThrow(()-> new IllegalArgumentException("해당 id의 사용자가 존재하지 않습니다."));
+//
+//            final AtomicBoolean[] isValidCategoryId = {new AtomicBoolean(false)};
+//
+//            // 카테고리 유효성 먼저 확인
+//            Category category = categoryService.findOneById(categoryId).orElseThrow(
+//                    () -> new IllegalArgumentException("해당 id의 카테고리가 존재하지 않습니다.")
+//            );
 
             // 모아보기 데이터 리턴
             result = categoryService.findByIdForCollection(categoryId);
