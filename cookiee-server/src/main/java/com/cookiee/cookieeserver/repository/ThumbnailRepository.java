@@ -12,5 +12,5 @@ import java.util.Optional;
 public interface ThumbnailRepository extends JpaRepository<Thumbnail, Long> {
     List<Thumbnail> findThumbnailsByUserUserId(@Param("userId") int userId);
 
-    Optional<Thumbnail> findByUserUserIdAndThumbnailId(int userId, long thumbnailId);
+    Thumbnail findByUserUserIdAndThumbnailId(int userId, long thumbnailId);
 }
