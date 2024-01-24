@@ -30,7 +30,7 @@ public class UserController {
     }
     // 유저 프로필 조회
     @GetMapping("/users/{userId}")
-    public BaseResponseDto<User> getUser(@PathVariable int userId){
+    public BaseResponseDto<User> getUser(@PathVariable Long userId){
         Optional<User> user;
 
 //        try{
@@ -53,7 +53,7 @@ public class UserController {
     // 유저 프로필 수정 (닉네임, 한줄 소개, 프로필사진)
     @Transactional
     @PutMapping("/users/{userId}")
-    public BaseResponseDto<User> updateUser(@PathVariable int userId, @RequestBody User requestUser){
+    public BaseResponseDto<User> updateUser(@PathVariable Long userId, @RequestBody User requestUser){
 //        User newUser = userRepository.findById(userId).orElseThrow(new Supplier<IllegalArgumentException>() {
 //            @Override
 //            public IllegalArgumentException get() {
