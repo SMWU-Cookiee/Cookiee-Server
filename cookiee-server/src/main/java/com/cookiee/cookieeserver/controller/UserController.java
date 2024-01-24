@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class UserController {
     public String healthcheck() {
         return "OK";
     }
-    
+
     // 유저 프로필 조회
     @GetMapping("/users/{userId}")
     public BaseResponseDto<UserResponseDto> getUser(@PathVariable Long userId){
@@ -43,7 +44,9 @@ public class UserController {
                 .nickname(user.getNickname())
                 .profileImage(user.getProfileImage())
                 .selfDescription(user.getSelfDescription())
-                .categories(user.getCategories())
+                .categories(user.getCategories().stream()
+                        .map(category -> category.toDto(category))
+                        .collect(Collectors.toList()))
                 .build();
 
         return DataResponseDto.of(userResponseDto, "회원 정보 조회 요청에 성공하였습니다.");
@@ -70,7 +73,9 @@ public class UserController {
                     .nickname(user.getNickname())
                     .profileImage(user.getProfileImage())
                     .selfDescription(user.getSelfDescription())
-                    .categories(user.getCategories())
+                    .categories(user.getCategories().stream()
+                            .map(category -> category.toDto(category))
+                            .collect(Collectors.toList()))
                     .build();
 
             return DataResponseDto.of(userResponseDto, "회원 정보를 성공적으로 수정하였습니다.");

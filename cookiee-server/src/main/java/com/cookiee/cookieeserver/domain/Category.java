@@ -1,5 +1,6 @@
 package com.cookiee.cookieeserver.domain;
 
+import com.cookiee.cookieeserver.dto.response.CategoryGetResponseDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -42,5 +43,13 @@ public class Category extends BaseTimeEntity{
     public void update(String categoryName, String categoryColor){
         this.categoryName = categoryName;
         this.categoryColor = categoryColor;
+    }
+
+    public CategoryGetResponseDto toDto(Category category){
+        return CategoryGetResponseDto.builder()
+                .categoryId(category.getCategoryId())
+                .categoryName(category.getCategoryName())
+                .categoryColor(category.getCategoryColor())
+                .build();
     }
 }
