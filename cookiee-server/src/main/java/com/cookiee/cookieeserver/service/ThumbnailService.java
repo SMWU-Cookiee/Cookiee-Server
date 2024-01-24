@@ -29,7 +29,9 @@ public class ThumbnailService {
 
     @Transactional
     public Thumbnail createThumbnail(MultipartFile thumbnailUrl, ThumbnailRegisterRequestDto thumbnailRegisterRequestDto, Long userId) throws IOException {
-        User user = userRepository.findByUserId(userId);
+        User user = userRepository.findByUserId(userId).orElseThrow(
+                () -> new IllegalArgumentException("해당 id의 사용자가 없습니다.")
+        );
         Thumbnail savedThumbnail;
         String storedFileName = null;
         if (!thumbnailUrl.isEmpty())
