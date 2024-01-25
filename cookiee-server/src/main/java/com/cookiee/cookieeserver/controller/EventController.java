@@ -52,7 +52,7 @@ public class EventController {
     @ResponseBody
     @PostMapping(value = "/event/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponseDto<Event> saveEvent(
-            @PathVariable int userId, HttpServletRequest request,
+            @PathVariable Long userId, HttpServletRequest request,
             @RequestParam(value = "images") List<MultipartFile> imageUrl,
             EventRegisterRequestDto eventRegisterRequestDto) throws IOException {
         Event event;

@@ -62,7 +62,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public List<CategoryResponseDto> getAllCategories(int userId) {
+    public List<CategoryResponseDto> getAllCategories(Long userId) {
         return categoryRepository.findCategoriesByUserUserId(userId);
     }
 
@@ -83,7 +83,7 @@ public class CategoryService {
 //    }
 
     @Transactional
-    public CategoryResponseDto update(int userId, Long categoryId, CategoryUpdateRequestDto requestDto){
+    public CategoryResponseDto update(Long userId, Long categoryId, CategoryUpdateRequestDto requestDto){
         Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow(() ->
                 new NotFoundException(("해당 id의 카테고리가 존재하지 않습니다."))
         );
@@ -100,7 +100,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public void delete(int userId, Long categoryId) {
+    public void delete(Long userId, Long categoryId) {
         // 카테고리 아이디 존재 유무 확인
         Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow(() ->
                 new NotFoundException(("해당 id의 카테고리가 존재하지 않습니다."))

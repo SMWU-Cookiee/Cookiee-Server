@@ -12,7 +12,7 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
 
-    public Optional<User> findOneById(int userId) {
+    public Optional<User> findOneById(Long userId) {
         return userRepository.findById(userId);
     }
 

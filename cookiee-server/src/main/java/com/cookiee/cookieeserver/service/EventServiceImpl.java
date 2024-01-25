@@ -36,7 +36,10 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public Event createEvent(List<MultipartFile> images, EventRegisterRequestDto eventRegisterRequestDto, Long userId) throws IOException {
-        User user = userRepository.findByUserId(userId);
+        User user = userRepository.findByUserId(userId).orElseThrow(
+                () -> new IllegalArgumentException("해당 id의 사용자가 없습니다.")
+        );
+
 
         List<Category> categoryList = eventRegisterRequestDto.categoryIds().stream()
                 .map(
