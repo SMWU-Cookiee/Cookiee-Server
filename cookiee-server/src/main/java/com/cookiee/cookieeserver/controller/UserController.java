@@ -34,21 +34,24 @@ public class UserController {
     // 유저 프로필 조회
     @GetMapping("/users/{userId}")
     public BaseResponseDto<UserResponseDto> getUser(@PathVariable Long userId){
-        User user = userRepository.findByUserId(userId).orElseThrow(
-                () -> new IllegalArgumentException("해당 id의 사용자가 존재하지 않습니다.")
-        );
-
-        UserResponseDto userResponseDto = UserResponseDto.builder()
-                .userId(user.getUserId())
-                .email(user.getEmail())
-                .nickname(user.getNickname())
-                .profileImage(user.getProfileImage())
-                .selfDescription(user.getSelfDescription())
-                .categories(user.getCategories().stream()
-                        .map(category -> category.toDto(category))
-                        .collect(Collectors.toList()))
-                .build();
-
+        Optional<User> user = userRepository.findByUserId(userId);
+        UserResponseDto userResponseDto;
+        if (user.isEmpty()) {
+            return ErrorResponseDto.of(StatusCode.NOT_FOUND, "해당 id의 사용자가 존재하지 않습니다.");
+        }
+        else {
+            User u = user.get();
+            userResponseDto = UserResponseDto.builder()
+                    .userId(u.getUserId())
+                    .email(u.getEmail())
+                    .nickname(u.getNickname())
+                    .profileImage(u.getProfileImage())
+                    .selfDescription(u.getSelfDescription())
+                    .categories(u.getCategories().stream()
+                            .map(category -> category.toDto(category))
+                            .collect(Collectors.toList()))
+                    .build();
+        }
         return DataResponseDto.of(userResponseDto, "회원 정보 조회 요청에 성공하였습니다.");
     }
 

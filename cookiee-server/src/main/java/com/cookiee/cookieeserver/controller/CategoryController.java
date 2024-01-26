@@ -110,7 +110,7 @@ public class CategoryController {
 
     // 카테고리 삭제
     @DeleteMapping("/category/{userId}/{categoryId}")
-    public BaseResponseDto<Category> deleteCategory(@PathVariable Long userId,
+    public BaseResponseDto deleteCategory(@PathVariable Long userId,
                                                     @PathVariable Long categoryId){
         try {
             User user = userService.findOneById(userId)
