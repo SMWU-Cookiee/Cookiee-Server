@@ -9,6 +9,7 @@ import lombok.Builder;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Builder
 public record EventResponseDto(
@@ -20,8 +21,7 @@ public record EventResponseDto(
         int EventMonth,
         int EventDate,
         List<String> imageUrlList,
-        Long userId,
-        List<EventCategory> Eventcategories){
+        List<CategoryGetResponseDto> categories){
 
     public static EventResponseDto from(Event event){
         return new EventResponseDto(
@@ -33,11 +33,19 @@ public record EventResponseDto(
                 event.getEventMonth(),
                 event.getEventDate(),
                 event.getImageUrl(),
-                event.getEventId(),
-                event.getEventCategories()
+                event.getEventCategories().stream()
+                        .map(EventCategory::getCategory)
+                        .map(category ->
+                            CategoryGetResponseDto.builder()
+                                    .categoryId(category.getCategoryId())
+                                    .categoryName(category.getCategoryName())
+                                    .categoryColor(category.getCategoryColor())
+                                    .build()
+                        )
+                        .collect(Collectors.toList())
         );
     }
-
+}
 /*    @Builder
     public EventResponseDto(Long eventId, String what, String eventWhere, String withWho, int EventYear, int EventMonth, int EventDate, Long userId, List<String> imageUrlList, List<EventCategory> eventCategories){
         this.eventId = eventId;
@@ -51,5 +59,5 @@ public record EventResponseDto(
         this.imageUrlList = imageUrlList;
         this.Eventcategories = eventCategories;
     }*/
-}
+
 
