@@ -73,7 +73,6 @@ public class ThumbnailService {
         try {
             URI uri = new URI(imageUrl);
             String path = uri.getPath();
-            // 파일 경로에서 마지막 '/' 이후의 문자열이 파일 이름입니다.
             return path.substring(path.lastIndexOf('/') + 1);
         } catch (Exception e) {
             e.printStackTrace();

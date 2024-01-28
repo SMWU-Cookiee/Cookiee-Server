@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
-    //List<Event> findByUserIdAndEventYearAndEventMonth(Long userId, int evntYear, int eventMonth);
+    List<Event> findByUserUserIdAndEventYearAndEventMonthAndEventDate(Long userId, int evntYear, int eventMonth, int eventDate);
 }
 
 
