@@ -1,5 +1,6 @@
 package com.cookiee.cookieeserver.service;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.cookiee.cookieeserver.controller.S3Uploader;
 import com.cookiee.cookieeserver.domain.Thumbnail;
@@ -32,7 +33,7 @@ public class ThumbnailService {
     private final ThumbnailRepository thumbnailRepository;
     @Autowired
     private S3Uploader s3Uploader;
-    private final AmazonS3Client amazonS3Client;
+    private final AmazonS3 amazonS3Client;
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
@@ -73,7 +74,6 @@ public class ThumbnailService {
         try {
             URI uri = new URI(imageUrl);
             String path = uri.getPath();
-            // 파일 경로에서 마지막 '/' 이후의 문자열이 파일 이름입니다.
             return path.substring(path.lastIndexOf('/') + 1);
         } catch (Exception e) {
             e.printStackTrace();
