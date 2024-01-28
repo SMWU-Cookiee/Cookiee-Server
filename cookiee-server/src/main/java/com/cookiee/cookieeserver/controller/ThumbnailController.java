@@ -46,7 +46,7 @@ public class ThumbnailController {
     //등록
     @ResponseBody
     @PostMapping(value = "/thumbnail/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BaseResponseDto<ThumbnailRegisterRequestDto> createThumbnail(@PathVariable int userId,
+    public BaseResponseDto<ThumbnailRegisterRequestDto> createThumbnail(@PathVariable Long userId,
                                                     HttpServletRequest request,
                                                     @RequestParam(value = "thumbnail") MultipartFile thumbnailUrl,
                                                     ThumbnailRegisterRequestDto thumbnailRegisterRequestDto) throws IOException {
@@ -67,7 +67,7 @@ public class ThumbnailController {
     //조회
     @ResponseBody
     @GetMapping(value="/thumbnail/view/{userId}")
-    public BaseResponseDto<ThumbnailGetResponseDto> getThumbnail(@PathVariable int userId) {
+    public BaseResponseDto<ThumbnailGetResponseDto> getThumbnail(@PathVariable Long userId) {
         List<ThumbnailGetResponseDto> thumbnail;
         try {
             Optional<User> user = userService.findOneById(userId);
@@ -109,7 +109,7 @@ public class ThumbnailController {
     @DeleteMapping(value="/thumbnail/del/{userId}/{thumbnailId}")
     public BaseResponseDto deleteThumbnail(@PathVariable Long userId, @PathVariable Long thumbnailId){
         try {
-            Optional<User> user = userService.findOneById(Math.toIntExact(userId));
+            Optional<User> user = userService.findOneById(userId);
             if (user.isEmpty()) {
                 return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
             } else {

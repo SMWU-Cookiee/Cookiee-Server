@@ -30,7 +30,7 @@ public class CategoryController {
 
     // 카테고리 등록
     @PostMapping("/category/{userId}")
-    public BaseResponseDto<CategoryResponseDto> postCategory(@PathVariable int userId,
+    public BaseResponseDto<CategoryResponseDto> postCategory(@PathVariable Long userId,
                                                   @RequestBody CategoryCreateRequestDto requestDto){
         CategoryResponseDto categoryResponseDto;
         try {
@@ -55,7 +55,7 @@ public class CategoryController {
 
     // 특정 유저의 카테고리 전체 조회
     @GetMapping("/category/{userId}")
-    public BaseResponseDto<List<CategoryResponseDto>> getCategory(@PathVariable int userId){
+    public BaseResponseDto<List<CategoryResponseDto>> getCategory(@PathVariable Long userId){
         List<CategoryResponseDto> result;
         try {
             Optional<User> user = userService.findOneById(userId);
@@ -80,7 +80,7 @@ public class CategoryController {
 
     // 카테고리 수정
     @PutMapping("/category/{userId}/{categoryId}")
-    public BaseResponseDto<CategoryResponseDto> updateCategory(@PathVariable int userId,
+    public BaseResponseDto<CategoryResponseDto> updateCategory(@PathVariable Long userId,
                                                     @PathVariable Long categoryId,
                                                     @RequestBody CategoryUpdateRequestDto requestDto){
         CategoryResponseDto result;
@@ -110,7 +110,7 @@ public class CategoryController {
 
     // 카테고리 삭제
     @DeleteMapping("/category/{userId}/{categoryId}")
-    public BaseResponseDto<Category> deleteCategory(@PathVariable int userId,
+    public BaseResponseDto<Category> deleteCategory(@PathVariable Long userId,
                                                     @PathVariable Long categoryId){
         try {
             User user = userService.findOneById(userId)
@@ -129,7 +129,7 @@ public class CategoryController {
 
     // 카테고리 모아보기....
     @GetMapping("/collection/{userId}/{categoryId}")
-    public BaseResponseDto<EventCategoryGetResponseDto> getCollection(@PathVariable int userId,
+    public BaseResponseDto<EventCategoryGetResponseDto> getCollection(@PathVariable Long userId,
                                                                       @PathVariable Long categoryId){
         EventCategoryGetResponseDto result;
 

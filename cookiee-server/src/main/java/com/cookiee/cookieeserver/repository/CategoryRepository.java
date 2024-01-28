@@ -11,15 +11,15 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface CategoryRepository extends JpaRepository<Category, Integer> {
+public interface CategoryRepository extends JpaRepository<Category, Long> {
     @Query(name = "get_category_dto", nativeQuery = true)
-    List<CategoryResponseDto> findCategoriesByUserUserId(@Param("userId") int userId);
+    List<CategoryResponseDto> findCategoriesByUserUserId(@Param("userId") Long userId);
     //SELECT CASE  WHEN count(pl)> 0 THEN true ELSE false END FROM PostboxLabel pl ...
     @Query(value = "SELECT COUNT(category_id) > 0 " +
             "FROM category " +
             "WHERE category.category_id = :categoryId AND category.user_id = :userId",
     nativeQuery = true)
-    int existsByCategoryIdInUser(@Param("userId") int userId, @Param("categoryId") Long categoryId);
+    int existsByCategoryIdInUser(@Param("userId") Long userId, @Param("categoryId") Long categoryId);
 
     boolean existsByCategoryName(String categoryName);
 
