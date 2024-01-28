@@ -10,6 +10,7 @@ import com.cookiee.cookieeserver.dto.request.ThumbnailUpdateRequestDto;
 import com.cookiee.cookieeserver.dto.response.ThumbnailResponseDto;
 import com.cookiee.cookieeserver.repository.EventRepository;
 import com.cookiee.cookieeserver.repository.UserRepository;
+import com.cookiee.cookieeserver.service.EventService;
 import com.cookiee.cookieeserver.service.ThumbnailService;
 import com.cookiee.cookieeserver.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;

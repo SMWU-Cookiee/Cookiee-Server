@@ -69,7 +69,7 @@ public class EventService  {
                     ).collect(Collectors.toList());
 
             eventCategoryRepository.saveAll(eventCategoryList);
-            return new EventResponseDto(savedEvent.getEventId(), savedEvent.getEventWhat(), savedEvent.getEventWhere(), savedEvent.getWithWho(), savedEvent.getEventYear(), savedEvent.getEventMonth(), savedEvent.getEventDate(), savedEvent.getUser().getUserId(), savedEvent.getImageUrl(), savedEvent.getEventCategories());
+            return new EventResponseDto(savedEvent.getEventId(), savedEvent.getEventWhat(), savedEvent.getEventWhere(), savedEvent.getWithWho(), savedEvent.getEventYear(), savedEvent.getEventMonth(), savedEvent.getEventDate(), savedEvent.getImageUrl(), savedEvent.getUser().getUserId(), savedEvent.getEventCategories());
         }
 
         throw new NullPointerException("사진이 없습니다.");
