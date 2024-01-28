@@ -38,7 +38,7 @@ public class ThumbnailService {
 
 
     @Transactional
-    public Thumbnail createThumbnail(MultipartFile thumbnailUrl, ThumbnailRegisterRequestDto thumbnailRegisterRequestDto, Long userId) throws IOException {
+    public ThumbnailResponseDto createThumbnail(MultipartFile thumbnailUrl, ThumbnailRegisterRequestDto thumbnailRegisterRequestDto, Long userId) throws IOException {
         User user = userRepository.findByUserId(userId).orElseThrow(
                 () -> new IllegalArgumentException("해당 id의 사용자가 없습니다.")
         );
@@ -48,7 +48,7 @@ public class ThumbnailService {
             storedFileName = s3Uploader.saveFile(thumbnailUrl);
         savedThumbnail = thumbnailRepository.save(thumbnailRegisterRequestDto.toEntity(user, storedFileName));
 
-        return savedThumbnail;
+        return new ThumbnailResponseDto(savedThumbnail.getThumbnailId(), savedThumbnail.getEventYear(), savedThumbnail.getEventMonth(), savedThumbnail.getEventDate(), savedThumbnail.getThumbnailUrl());
     }
 
     @Transactional

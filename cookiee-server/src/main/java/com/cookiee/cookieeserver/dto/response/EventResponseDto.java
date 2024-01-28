@@ -8,6 +8,7 @@ import com.cookiee.cookieeserver.domain.EventCategory;
 import lombok.Builder;
 
 import java.util.List;
+import java.util.Locale;
 
 @Builder
 public record EventResponseDto(
@@ -35,6 +36,20 @@ public record EventResponseDto(
                 .userId(event.getEventId())
                 .Eventcategories(event.getEventCategories())
                 .build();
+    }
+
+    @Builder
+    public EventResponseDto(Long eventId, String what, String eventWhere, String withWho, int EventYear, int EventMonth, int EventDate, Long userId, List<String> imageUrlList, List<EventCategory> eventCategories){
+        this.eventId = eventId;
+        this.what = what;
+        this.eventWhere = eventWhere;
+        this.withWho = withWho;
+        this.EventYear = EventYear;
+        this.EventMonth = EventMonth;
+        this.EventDate = EventDate;
+        this.userId = userId;
+        this.imageUrlList = imageUrlList;
+        this.Eventcategories = eventCategories;
     }
 }
 
