@@ -27,8 +27,8 @@ public class UserController {
 
     // health check에 대한 상태 반환 위해서
     @GetMapping("/healthcheck")
-    public String healthcheck() {
-        return "OK";
+    public BaseResponseDto healthcheck() {
+        return BaseResponseDto.of(true, StatusCode.OK);
     }
 
     // 유저 프로필 조회
