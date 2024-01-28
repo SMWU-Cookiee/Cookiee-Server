@@ -44,22 +44,23 @@ public class ThumbnailController {
     //등록
     @ResponseBody
     @PostMapping(value = "/thumbnail/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BaseResponseDto<ThumbnailRegisterRequestDto> createThumbnail(@PathVariable Long userId,
+    public BaseResponseDto<ThumbnailResponseDto> createThumbnail(@PathVariable Long userId,
                                                     HttpServletRequest request,
                                                     @RequestParam(value = "thumbnail") MultipartFile thumbnailUrl,
                                                     ThumbnailRegisterRequestDto thumbnailRegisterRequestDto) throws IOException {
+        ThumbnailResponseDto thumbnail;
         try {
             Optional<User> user = userService.findOneById(userId);
             if (user.isEmpty()) {
                 return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
             } else {
-                thumbnailService.createThumbnail(thumbnailUrl, thumbnailRegisterRequestDto, (long) userId);
+                thumbnail = thumbnailService.createThumbnail(thumbnailUrl, thumbnailRegisterRequestDto, userId);
             }
         }
         catch (Exception e){
             return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "썸네일 등록에 실패하였습니다.");
         }
-        return DataResponseDto.of(thumbnailRegisterRequestDto, "썸네일 등록에 성공하였습니다.");
+        return DataResponseDto.of(thumbnail, "썸네일 등록에 성공하였습니다.");
     }
 
     //조회
@@ -72,7 +73,7 @@ public class ThumbnailController {
             if (user.isEmpty()) {
                 return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
             } else {
-                thumbnail = thumbnailService.getThumbnail((long) userId);
+                thumbnail = thumbnailService.getThumbnail(userId);
             }
         } catch (Exception e) {
             return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "썸네일 조회에 실패하였습니다.");
