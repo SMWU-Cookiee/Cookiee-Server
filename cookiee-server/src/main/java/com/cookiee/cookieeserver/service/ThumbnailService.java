@@ -1,5 +1,6 @@
 package com.cookiee.cookieeserver.service;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.cookiee.cookieeserver.controller.S3Uploader;
 import com.cookiee.cookieeserver.domain.Thumbnail;
@@ -32,7 +33,7 @@ public class ThumbnailService {
     private final ThumbnailRepository thumbnailRepository;
     @Autowired
     private S3Uploader s3Uploader;
-    private final AmazonS3Client amazonS3Client;
+    private final AmazonS3 amazonS3Client;
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 

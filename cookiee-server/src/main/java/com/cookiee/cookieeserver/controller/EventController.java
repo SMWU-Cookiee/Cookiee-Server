@@ -85,8 +85,23 @@ public class EventController {
     }
 
     //삭제
+    @ResponseBody
+    @DeleteMapping("/event/del/{userId}/{eventId}")
+    public BaseResponseDto<EventResponseDto> deleteEvent(@PathVariable long userId, @PathVariable long eventId){
+        try {
+            Optional<User> user = userService.findOneById(userId);
+            if (user.isEmpty()) {
+                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 회원이 존재하지 않습니다.");
+            } else {
+                eventService.deleteEvent(userId, eventId);
+                return DataResponseDto.of(null, "이벤트 삭제에 성공하였습니다.");
+            }
+        } catch (Exception e){
+            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 삭제에 실패했습니다");
+            }
+        }
+    }
 
-}
 
 
   /*  // 수정
