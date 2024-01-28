@@ -4,6 +4,10 @@ spring:
       load-on-startup: 1
     throw-exception-if-no-handler-found: true
     dispatch-options-request: false
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
   datasource:
     url: ${DB_URL}
