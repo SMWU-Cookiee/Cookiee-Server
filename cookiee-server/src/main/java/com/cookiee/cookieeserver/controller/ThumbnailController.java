@@ -1,15 +1,13 @@
 package com.cookiee.cookieeserver.controller;
 
 import com.cookiee.cookieeserver.constant.StatusCode;
-import com.cookiee.cookieeserver.domain.Thumbnail;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.dto.DataResponseDto;
 import com.cookiee.cookieeserver.dto.ErrorResponseDto;
 import com.cookiee.cookieeserver.dto.request.ThumbnailRegisterRequestDto;
 import com.cookiee.cookieeserver.dto.request.ThumbnailUpdateRequestDto;
-import com.cookiee.cookieeserver.dto.response.ThumbnailGetResponseDto;
-import com.cookiee.cookieeserver.dto.response.ThumbnailUpdateResponseDto;
+import com.cookiee.cookieeserver.dto.response.ThumbnailResponseDto;
 import com.cookiee.cookieeserver.repository.EventRepository;
 import com.cookiee.cookieeserver.repository.UserRepository;
 import com.cookiee.cookieeserver.service.EventService;
@@ -67,8 +65,8 @@ public class ThumbnailController {
     //조회
     @ResponseBody
     @GetMapping(value="/thumbnail/view/{userId}")
-    public BaseResponseDto<ThumbnailGetResponseDto> getThumbnail(@PathVariable Long userId) {
-        List<ThumbnailGetResponseDto> thumbnail;
+    public BaseResponseDto<ThumbnailResponseDto> getThumbnail(@PathVariable Long userId) {
+        List<ThumbnailResponseDto> thumbnail;
         try {
             Optional<User> user = userService.findOneById(userId);
             if (user.isEmpty()) {
@@ -85,10 +83,10 @@ public class ThumbnailController {
     //수정
     @ResponseBody
     @PutMapping(value = "/thumbnail/update/{userId}/{thumbnailId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BaseResponseDto<ThumbnailUpdateResponseDto> updateThumbnail(@PathVariable int userId, @PathVariable long thumbnailId,
+    public BaseResponseDto<ThumbnailResponseDto> updateThumbnail(@PathVariable long userId, @PathVariable long thumbnailId,
                                                                                   @RequestParam(value = "thumbnail") MultipartFile thumbnailUrl,
                                                                                   ThumbnailUpdateRequestDto thumbnailUpdateRequestDto) throws IOException {
-        ThumbnailUpdateResponseDto updated;
+        ThumbnailResponseDto updated;
         try {
             Optional<User> user = userService.findOneById(userId);
             if (user.isEmpty()) {
