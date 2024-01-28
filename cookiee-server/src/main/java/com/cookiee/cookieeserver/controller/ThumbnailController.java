@@ -1,13 +1,13 @@
 package com.cookiee.cookieeserver.controller;
 
 import com.cookiee.cookieeserver.constant.StatusCode;
-import com.cookiee.cookieeserver.domain.Thumbnail;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.dto.DataResponseDto;
 import com.cookiee.cookieeserver.dto.ErrorResponseDto;
 import com.cookiee.cookieeserver.dto.request.ThumbnailRegisterRequestDto;
-import com.cookiee.cookieeserver.dto.response.ThumbnailGetResponseDto;
+import com.cookiee.cookieeserver.dto.request.ThumbnailUpdateRequestDto;
+import com.cookiee.cookieeserver.dto.response.ThumbnailResponseDto;
 import com.cookiee.cookieeserver.repository.EventRepository;
 import com.cookiee.cookieeserver.repository.UserRepository;
 import com.cookiee.cookieeserver.service.EventService;
@@ -44,17 +44,17 @@ public class ThumbnailController {
     //등록
     @ResponseBody
     @PostMapping(value = "/thumbnail/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BaseResponseDto<ThumbnailRegisterRequestDto> createThumbnail(@PathVariable Long userId,
+    public BaseResponseDto<ThumbnailResponseDto> createThumbnail(@PathVariable Long userId,
                                                     HttpServletRequest request,
                                                     @RequestParam(value = "thumbnail") MultipartFile thumbnailUrl,
                                                     ThumbnailRegisterRequestDto thumbnailRegisterRequestDto) throws IOException {
-        Thumbnail thumbnail;
+        ThumbnailResponseDto thumbnail;
         try {
             Optional<User> user = userService.findOneById(userId);
             if (user.isEmpty()) {
                 return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
             } else {
-                thumbnail = thumbnailService.createThumbnail(thumbnailUrl, thumbnailRegisterRequestDto, (long) userId);
+                thumbnail = thumbnailService.createThumbnail(thumbnailUrl, thumbnailRegisterRequestDto, userId);
             }
         }
         catch (Exception e){
@@ -66,20 +66,42 @@ public class ThumbnailController {
     //조회
     @ResponseBody
     @GetMapping(value="/thumbnail/view/{userId}")
-    public BaseResponseDto<ThumbnailGetResponseDto> getThumbnail(@PathVariable Long userId) {
-        List<ThumbnailGetResponseDto> thumbnail;
+    public BaseResponseDto<ThumbnailResponseDto> getThumbnail(@PathVariable Long userId) {
+        List<ThumbnailResponseDto> thumbnail;
         try {
             Optional<User> user = userService.findOneById(userId);
             if (user.isEmpty()) {
                 return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
             } else {
-                thumbnail = thumbnailService.getThumbnail((long) userId);
+                thumbnail = thumbnailService.getThumbnail(userId);
             }
         } catch (Exception e) {
             return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "썸네일 조회에 실패하였습니다.");
         }
         return DataResponseDto.of(thumbnail, "썸네일 조회에 성공하였습니다.");
     }
+
+    //수정
+    @ResponseBody
+    @PutMapping(value = "/thumbnail/update/{userId}/{thumbnailId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponseDto<ThumbnailResponseDto> updateThumbnail(@PathVariable long userId, @PathVariable long thumbnailId,
+                                                                                  @RequestParam(value = "thumbnail") MultipartFile thumbnailUrl,
+                                                                                  ThumbnailUpdateRequestDto thumbnailUpdateRequestDto) throws IOException {
+        ThumbnailResponseDto updated;
+        try {
+            Optional<User> user = userService.findOneById(userId);
+            if (user.isEmpty()) {
+                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
+            } else {
+                updated = thumbnailService.updateThumbnail(thumbnailUrl, thumbnailUpdateRequestDto, userId, thumbnailId);
+            }
+        }
+        catch (Exception e){
+            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "썸네일 수정에 실패하였습니다.");
+        }
+        return DataResponseDto.of(updated, "썸네일 수정에 성공하였습니다.");
+    }
+
 
     //삭제
     @ResponseBody
