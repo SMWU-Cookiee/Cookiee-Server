@@ -5,7 +5,10 @@ import com.cookiee.cookieeserver.domain.Category;
 import com.cookiee.cookieeserver.domain.Event;
 import com.cookiee.cookieeserver.domain.EventCategory;
 import com.cookiee.cookieeserver.domain.User;
+import com.cookiee.cookieeserver.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.dto.request.EventRegisterRequestDto;
+import com.cookiee.cookieeserver.dto.response.EventResponseDto;
+import com.cookiee.cookieeserver.dto.response.ThumbnailResponseDto;
 import com.cookiee.cookieeserver.repository.CategoryRepository;
 import com.cookiee.cookieeserver.repository.EventCategoryRepository;
 import com.cookiee.cookieeserver.repository.EventRepository;
@@ -35,7 +38,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event createEvent(List<MultipartFile> images, EventRegisterRequestDto eventRegisterRequestDto, Long userId) throws IOException {
+    public EventResponseDto createEvent(List<MultipartFile> images, EventRegisterRequestDto eventRegisterRequestDto, Long userId) throws IOException {
         User user = userRepository.findByUserId(userId).orElseThrow(
                 () -> new IllegalArgumentException("해당 id의 사용자가 없습니다.")
         );
@@ -59,16 +62,13 @@ public class EventServiceImpl implements EventService {
                 storedFileNames.add(storedFileName);
             }
             Event savedEvent = eventRepository.save(eventRegisterRequestDto.toEntity(user, new ArrayList<EventCategory>(), storedFileNames));
-
             List<EventCategory> eventCategoryList = categoryList.stream()
                     .map(category ->
                             EventCategory.builder().event(savedEvent).category(category).build()
                     ).collect(Collectors.toList());
 
-
-            ///
             eventCategoryRepository.saveAll(eventCategoryList);
-            return savedEvent;
+            return new EventResponseDto(savedEvent.getEventId(), savedEvent.getEventWhat(), savedEvent.getEventWhere(), savedEvent.getWithWho(), savedEvent.getEventYear(), savedEvent.getEventMonth(), savedEvent.getEventDate(), savedEvent.getUser().getUserId(), savedEvent.getImageUrl(), savedEvent.getEventCategories());
         }
 
         throw new NullPointerException("사진이 없습니다.");

@@ -8,6 +8,7 @@ import com.cookiee.cookieeserver.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.dto.DataResponseDto;
 import com.cookiee.cookieeserver.dto.ErrorResponseDto;
 import com.cookiee.cookieeserver.dto.request.EventRegisterRequestDto;
+import com.cookiee.cookieeserver.dto.response.EventResponseDto;
 import com.cookiee.cookieeserver.repository.EventRepository;
 import com.cookiee.cookieeserver.repository.UserRepository;
 import com.cookiee.cookieeserver.service.EventService;
@@ -51,17 +52,17 @@ public class EventController {
     )*/
     @ResponseBody
     @PostMapping(value = "/event/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BaseResponseDto<Event> saveEvent(
-            @PathVariable Long userId, HttpServletRequest request,
+    public BaseResponseDto<EventResponseDto> saveEvent(
+            @PathVariable Long userId,
             @RequestParam(value = "images") List<MultipartFile> imageUrl,
             EventRegisterRequestDto eventRegisterRequestDto) throws IOException {
-        Event event;
+        EventResponseDto event;
         try {
             Optional<User> user = userService.findOneById(userId);
             if (user.isEmpty()) {
                 return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
             } else {
-                event = eventService.createEvent(imageUrl, eventRegisterRequestDto, (long) userId);
+                event = eventService.createEvent(imageUrl, eventRegisterRequestDto, userId);
             }
         } catch (Exception e) {
             return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 등록에 실패하였습니다.");

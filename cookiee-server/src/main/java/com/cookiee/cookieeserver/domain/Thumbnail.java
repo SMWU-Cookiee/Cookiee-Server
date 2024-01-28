@@ -40,4 +40,9 @@ public class Thumbnail extends BaseTimeEntity {
         this.eventDate = eventDate;
         this.user = user;
     }
+
+    public void update(String thumbnailUrl){
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
 }
