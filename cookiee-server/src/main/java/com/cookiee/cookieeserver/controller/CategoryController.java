@@ -1,7 +1,7 @@
 package com.cookiee.cookieeserver.controller;
 
 import com.amazonaws.services.kms.model.NotFoundException;
-import com.cookiee.cookieeserver.constant.StatusCode;
+import com.cookiee.cookieeserver.global.StatusCode;
 import com.cookiee.cookieeserver.domain.Category;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.BaseResponseDto;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @RestController
 @RequiredArgsConstructor
@@ -72,7 +71,7 @@ public class CategoryController {
                     result = categoryService.getAllCategories(userId);
                 }
                 catch (Exception e) {
-                    return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
+                    return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, "해당 사용자의 카테고리 조회 요청에 실패하였습니다.");
                 }
             }
         }
