@@ -8,6 +8,7 @@ import com.cookiee.cookieeserver.dto.DataResponseDto;
 import com.cookiee.cookieeserver.dto.ErrorResponseDto;
 import com.cookiee.cookieeserver.dto.request.EventGetRequestDto;
 import com.cookiee.cookieeserver.dto.request.EventRegisterRequestDto;
+import com.cookiee.cookieeserver.dto.request.EventUpdateRequestDto;
 import com.cookiee.cookieeserver.dto.response.EventResponseDto;
 import com.cookiee.cookieeserver.repository.EventRepository;
 import com.cookiee.cookieeserver.repository.UserRepository;
@@ -70,24 +71,42 @@ public class EventController {
     @ResponseBody
     @GetMapping("/event/view/{userId}")
     public BaseResponseDto<EventResponseDto> getEvent(@PathVariable long userId, EventGetRequestDto eventGetRequestDto) {
-        List<EventResponseDto> thumbnails;
+        List<EventResponseDto> events;
         try {
             Optional<User> user = userService.findOneById(userId);
             if (user.isEmpty()) {
                 return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
             } else {
-                thumbnails = eventService.getEvent(userId, eventGetRequestDto);
+                events = eventService.getEvent(userId, eventGetRequestDto);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 조회에 실패하였습니다.");
         }
-        return DataResponseDto.of(thumbnails, "이벤트 조회에 성공하였습니다.");
+        return DataResponseDto.of(events, "이벤트 조회에 성공하였습니다.");
+    }
+
+    // 수정
+    @ResponseBody
+    @PutMapping("/event/update/{userId}/{eventId}")
+    public BaseResponseDto<EventResponseDto> updateEvent(@PathVariable long userId, @PathVariable long eventId, @RequestParam(value = "images") List<MultipartFile> imageUrl, EventUpdateRequestDto eventUpdateRequestDto) {
+        EventResponseDto event;
+        try {
+            Optional<User> user = userService.findOneById(userId);
+            if(user.isEmpty()){
+                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
+            } else{
+                event = eventService.updateEvent(userId, eventId,eventUpdateRequestDto, imageUrl);
+            }
+        } catch ( Exception e){
+            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 수정에 실패하였습니다.");
+        }
+        return DataResponseDto.of(event, "이벤트 수정에 성공하였습니다.");
     }
 
     //삭제
     @ResponseBody
     @DeleteMapping("/event/del/{userId}/{eventId}")
-    public BaseResponseDto<EventResponseDto> deleteEvent(@PathVariable long userId, @PathVariable long eventId){
+    public BaseResponseDto<EventResponseDto> deleteEvent(@PathVariable long userId, @PathVariable long eventId) {
         try {
             Optional<User> user = userService.findOneById(userId);
             if (user.isEmpty()) {
@@ -96,30 +115,11 @@ public class EventController {
                 eventService.deleteEvent(userId, eventId);
                 return DataResponseDto.of(null, "이벤트 삭제에 성공하였습니다.");
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 삭제에 실패했습니다");
-            }
         }
     }
 
 
 
-  /*  // 수정
-    @Transactional
-    @PutMapping("/users/{userId}/{eventId}")
-    public DataResponseDto<Event> updateEvent(@PathVariable long eventId, @RequestBody Event requestEvent){
-        Event newEvent = eventRepository.findById(eventId).orElseThrow(new Supplier<IllegalArgumentException>() {
-            @Override
-            public IllegalArgumentException get() {
-                return new IllegalArgumentException("이벤트 수정에 실패하였습니다.");
-            }
-        });
-        newEvent.setWhat(requestEvent.getWhat());
-        newEvent.setWhen(requestEvent.getWhen());
-        newEvent.setImageUrl(requestEvent.getImageUrl());
-        newEvent.setWith_who(requestEvent.getWith_who());
-        newEvent.setCategories(requestEvent.getCategories());
-
-        return DataResponseDto.of(newEvent, "이벤트를 성공적으로 수정하였습니다.");
-    }*/
-
+}

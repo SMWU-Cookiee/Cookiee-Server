@@ -70,8 +70,14 @@ public class Event extends BaseTimeEntity {
         this.imageUrl = imageUrl;
         this.user = user;
         this.eventCategories = eventCategoryList;
+    }
 
-
+    public void update(String eventWhat, String eventWhere, String withWho, List<String> imageUrl, List<EventCategory> eventCategoryList){
+        this.eventWhat = eventWhat;
+        this.eventWhere = eventWhere;
+        this.withWho = withWho;
+        this.imageUrl = imageUrl;
+        this.eventCategories = eventCategoryList;
     }
 
 }

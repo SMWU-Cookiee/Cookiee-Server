@@ -12,9 +12,9 @@ import java.util.Optional;
 
 //@ApiModel(value = "이벤트 등록")
 public record EventRegisterRequestDto (
-
         @Schema(description = "이벤트 내용", nullable = false, example = "")
-        String eventWhat,
+
+    String eventWhat,
     String eventWhere,
     String withWho,
     int eventYear,
