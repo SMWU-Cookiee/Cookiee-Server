@@ -16,4 +16,6 @@ public interface EventCategoryRepository extends JpaRepository<EventCategory, In
     List<EventCategory> findByCategoryId(@Param("category") Category category);
 
     List<EventCategory> findEventCategoriesByEventEventId(Long eventId);
+
+    void deleteByCategoryCategoryId(Long categoryId);
 }
