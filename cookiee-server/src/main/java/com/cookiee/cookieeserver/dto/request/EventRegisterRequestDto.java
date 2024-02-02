@@ -20,6 +20,8 @@ public record EventRegisterRequestDto (
     int eventYear,
     int eventMonth,
     int eventDate,
+    String startTime,
+    String endTime,
     List<Long> categoryIds){
 
     public Event toEntity(User user, List<EventCategory> eventCategories, List<String> imageUrls){
@@ -30,6 +32,8 @@ public record EventRegisterRequestDto (
                 .eventYear(eventYear)
                 .eventMonth(eventMonth)
                 .eventDate(eventDate)
+                .startTime(startTime)
+                .endTime(endTime)
                 .user(user)
                 .eventCategoryList(eventCategories)
                 .imageUrl(imageUrls)
