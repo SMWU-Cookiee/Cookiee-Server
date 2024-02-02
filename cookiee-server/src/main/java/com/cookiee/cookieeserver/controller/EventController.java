@@ -107,7 +107,7 @@ public class EventController {
     // 수정
     @ResponseBody
     @PutMapping("/event/update/{userId}/{eventId}")
-    public BaseResponseDto<EventResponseDto> updateEvent(@PathVariable long userId, @PathVariable long eventId, @RequestParam(value = "images") List<MultipartFile> imageUrl, EventUpdateRequestDto eventUpdateRequestDto) {
+    public BaseResponseDto<EventResponseDto> updateEvent(@PathVariable long userId, @PathVariable long eventId, @RequestParam(value = "images", required = false) List<MultipartFile> imageUrl, EventUpdateRequestDto eventUpdateRequestDto) {
         EventResponseDto event;
         try {
             Optional<User> user = userService.findOneById(userId);
