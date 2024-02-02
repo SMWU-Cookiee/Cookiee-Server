@@ -67,23 +67,42 @@ public class EventController {
         return DataResponseDto.of(event, "이벤트 등록에 성공하였습니다.");
     }
 
-    //조회
+    //eventId별 상세조회
+    @ResponseBody
+    @GetMapping("/event/view/{userId}/{eventId}")
+    public BaseResponseDto<EventResponseDto> getEventDetail(@PathVariable long userId, @PathVariable long eventId) {
+        EventResponseDto event;
+        try {
+            Optional<User> user = userService.findOneById(userId);
+            if (user.isEmpty()) {
+                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
+            } else {
+                event = eventService.getEventDetail(userId,eventId);
+            }
+        } catch (Exception e) {
+            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 조회에 실패하였습니다.");
+        }
+        return DataResponseDto.of(event, "이벤트 조회에 성공하였습니다.");
+    }
+
+    //날짜별 상세조회
     @ResponseBody
     @GetMapping("/event/view/{userId}")
-    public BaseResponseDto<EventResponseDto> getEvent(@PathVariable long userId, EventGetRequestDto eventGetRequestDto) {
+    public BaseResponseDto<EventResponseDto> getEventList(@PathVariable long userId, EventGetRequestDto eventGetRequestDto) {
         List<EventResponseDto> events;
         try {
             Optional<User> user = userService.findOneById(userId);
             if (user.isEmpty()) {
                 return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
             } else {
-                events = eventService.getEvent(userId, eventGetRequestDto);
+                events = eventService.getEventList(userId, eventGetRequestDto);
             }
         } catch (Exception e) {
             return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 조회에 실패하였습니다.");
         }
         return DataResponseDto.of(events, "이벤트 조회에 성공하였습니다.");
     }
+
 
     // 수정
     @ResponseBody
