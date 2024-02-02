@@ -20,6 +20,8 @@ public record EventResponseDto(
         int EventYear,
         int EventMonth,
         int EventDate,
+        String startTime,
+        String endTime,
         List<String> imageUrlList,
         List<CategoryGetResponseDto> categories){
 
@@ -32,6 +34,8 @@ public record EventResponseDto(
                 event.getEventYear(),
                 event.getEventMonth(),
                 event.getEventDate(),
+                event.getStartTime(),
+                event.getEndTime(),
                 event.getImageUrl(),
                 event.getEventCategories().stream()
                         .map(EventCategory::getCategory)

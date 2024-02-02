@@ -43,6 +43,12 @@ public class Event extends BaseTimeEntity {
     @Column(nullable = false)
     private int eventDate;
 
+    @Column
+    private String startTime;
+
+    @Column
+    private String endTime;
+
     //@ApiParam(value="이벤트 사진", required=true, example="https:블라블라,amazom.블라블라")
     @ElementCollection
     @Column(nullable = true)
@@ -60,22 +66,26 @@ public class Event extends BaseTimeEntity {
 
     @Builder
     public Event(String eventWhat, String eventWhere, String withWho, int eventYear, int eventMonth, int eventDate,
-                 List<String> imageUrl, User user, List<EventCategory> eventCategoryList){
+                 String startTime, String endTime, List<String> imageUrl, User user, List<EventCategory> eventCategoryList){
         this.eventWhat = eventWhat;
         this.eventWhere = eventWhere;
         this.withWho = withWho;
         this.eventYear = eventYear;
         this.eventMonth = eventMonth;
         this.eventDate = eventDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.imageUrl = imageUrl;
         this.user = user;
         this.eventCategories = eventCategoryList;
     }
 
-    public void update(String eventWhat, String eventWhere, String withWho, List<String> imageUrl, List<EventCategory> eventCategoryList){
+    public void update(String eventWhat, String eventWhere, String withWho, String startTime, String endTime, List<String> imageUrl, List<EventCategory> eventCategoryList){
         this.eventWhat = eventWhat;
         this.eventWhere = eventWhere;
         this.withWho = withWho;
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.imageUrl = imageUrl;
         this.eventCategories = eventCategoryList;
     }
