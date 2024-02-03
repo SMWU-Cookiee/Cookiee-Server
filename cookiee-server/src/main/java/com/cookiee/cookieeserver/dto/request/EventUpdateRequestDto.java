@@ -12,6 +12,8 @@ public record EventUpdateRequestDto(
         String eventWhat,
         String eventWhere,
         String withWho,
+        String startTime,
+        String endTime,
         List<Long> categoryIds){
 
     public Event toEntity(List<EventCategory> eventCategories, List<String> imageUrls){
@@ -19,6 +21,8 @@ public record EventUpdateRequestDto(
                 .eventWhat(eventWhat)
                 .eventWhere(eventWhere)
                 .withWho(withWho)
+                .startTime(startTime)
+                .endTime(endTime)
                 .eventCategoryList(eventCategories)
                 .imageUrl(imageUrls)
                 .build();
