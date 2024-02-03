@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor    // final 멤버변수가 있으면 생성자 항목에 포함시킴
@@ -30,20 +31,22 @@ public class S3Uploader {
     private String bucket;
 
     // MultipartFile을 전달받아 File로 전환한 후 S3에 업로드
-    public String saveFile(MultipartFile multipartFile) throws IOException {
+    public String saveFile(MultipartFile multipartFile, String userId, String dirName) throws IOException {
         String originalFilename = multipartFile.getOriginalFilename();
+        String newFilename = userId + "/" + dirName + "/" + UUID.randomUUID() +  originalFilename;
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(multipartFile.getSize());
         metadata.setContentType(multipartFile.getContentType());
 
-        amazonS3Client.putObject(bucket, originalFilename, multipartFile.getInputStream(), metadata);
-        return amazonS3Client.getUrl(bucket, originalFilename).toString();
+        amazonS3Client.putObject(bucket, newFilename, multipartFile.getInputStream(), metadata);
+        return amazonS3Client.getUrl(bucket, newFilename).toString();
     }
 
 
 
-    public String uploader(MultipartFile multipartFile, String dirName) throws IOException {
+
+ /*   public String uploader(MultipartFile multipartFile, String dirName) throws IOException {
         File uploadFile = convert(multipartFile)
                 .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
         return upload(uploadFile, dirName);
@@ -85,6 +88,7 @@ public class S3Uploader {
             return Optional.of(convertFile);
         }
         return Optional.empty();
-    }
+    }*/
+
 
 }
