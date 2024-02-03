@@ -46,7 +46,7 @@ public class ThumbnailService {
         Thumbnail savedThumbnail;
         String storedFileName = null;
         if (!thumbnailUrl.isEmpty())
-            storedFileName = s3Uploader.saveFile(thumbnailUrl);
+            storedFileName = s3Uploader.saveFile(thumbnailUrl, String.valueOf(userId), "thumbnail");
         savedThumbnail = thumbnailRepository.save(thumbnailRegisterRequestDto.toEntity(user, storedFileName));
 
         return new ThumbnailResponseDto(savedThumbnail.getThumbnailId(), savedThumbnail.getEventYear(), savedThumbnail.getEventMonth(), savedThumbnail.getEventDate(), savedThumbnail.getThumbnailUrl());
@@ -86,7 +86,7 @@ public class ThumbnailService {
         Thumbnail updatedthumbnail = thumbnailRepository.findByUserUserIdAndThumbnailId(userId, thumbnailId);
         String fileName = extractFileNameFromUrl(updatedthumbnail.getThumbnailUrl());
         amazonS3Client.deleteObject(bucketName, fileName); //버킷에서 사진 삭제
-        String updatedFileName = s3Uploader.saveFile(thumbnailUrl);
+        String updatedFileName = s3Uploader.saveFile(thumbnailUrl, String.valueOf(userId), "thumbnail");
         updatedthumbnail.update(updatedFileName);
         return new ThumbnailResponseDto(updatedthumbnail.getThumbnailId(), updatedthumbnail.getEventYear(), updatedthumbnail.getEventMonth(), updatedthumbnail.getEventDate(), updatedthumbnail.getThumbnailUrl());
     }
