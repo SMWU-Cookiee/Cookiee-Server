@@ -28,7 +28,12 @@ public class CategoryController {
     private final CategoryService categoryService;
     private final CategoryRepository categoryRepository;
 
-    // 카테고리 등록
+    /***
+     * 카테고리 등록
+     * @param userId        유저 아이디
+     * @param requestDto    등록하려는 카테고리 내용
+     * @return              CategoryResponseDto
+     */
     @PostMapping("/category/{userId}")
     public BaseResponseDto<CategoryResponseDto> postCategory(@PathVariable Long userId,
                                                   @RequestBody CategoryCreateRequestDto requestDto){
@@ -111,7 +116,7 @@ public class CategoryController {
     // 카테고리 삭제
     @DeleteMapping("/category/{userId}/{categoryId}")
     public BaseResponseDto deleteCategory(@PathVariable Long userId,
-                                                    @PathVariable Long categoryId){
+                                          @PathVariable Long categoryId){
         try {
             User user = userService.findOneById(userId)
                     .orElseThrow(()-> new IllegalArgumentException("해당 id의 사용자가 존재하지 않습니다."));

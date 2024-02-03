@@ -108,6 +108,10 @@ public class CategoryService {
 
         // 유저 아이디와 카테고리 아이디가 부합하는지 확인
         if (categoryRepository.existsByCategoryIdInUser(userId, categoryId) == 1) {
+            // 외래키로 엮였기 때문에 해당 카테고리 아이디를 갖고 있는 EventCategory를 지워야 함
+            eventCategoryRepository.deleteByCategoryCategoryId(categoryId);
+
+            // 그 다음에 카테고리 삭제
             categoryRepository.delete(category);
         } else {
             throw new NotFoundException("해당 유저에게 요청한 카테고리가 존재하지 않습니다.");
