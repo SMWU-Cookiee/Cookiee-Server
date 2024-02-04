@@ -1,7 +1,7 @@
 package com.cookiee.cookieeserver.controller;
 
 import com.amazonaws.services.kms.model.NotFoundException;
-import com.cookiee.cookieeserver.global.StatusCode;
+import com.cookiee.cookieeserver.constant.StatusCode;
 import com.cookiee.cookieeserver.domain.Category;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.BaseResponseDto;
@@ -52,7 +52,7 @@ public class CategoryController {
             }
         }
         catch (Exception e){
-            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "카테고리 등록에 실패하였습니다.");
+            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, e.getMessage());
         }
         return DataResponseDto.of(categoryResponseDto, "카테고리 등록에 성공하였습니다.");
     }
