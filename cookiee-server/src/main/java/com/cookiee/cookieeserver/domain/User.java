@@ -25,6 +25,20 @@ public class User extends BaseTimeEntity{
     private String email;  // 이메일
 
     @Column(nullable = false)
+    private String socialId;  // 소셜 아이디
+
+    // 기본적으로 Enum 값은 int로 저장되기 때문에 String으로 저장하도록 하기
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;  // 소셜 로그인 하려면 role 필요함
+
+    @Column(nullable = false)
+    private String refreshToken;  // 리프레쉬 토큰
+
+    @Column(nullable = false)
+    private AuthProvider socialLoginType;  // 애플인지 구글인지
+
+    @Column(nullable = false)
     private String profileImage;  // 사용자 프로필 이미지 경로
 
     @Column(nullable = false, length = 50)

@@ -1,6 +1,6 @@
 package com.cookiee.cookieeserver.controller;
 
-import com.cookiee.cookieeserver.constant.StatusCode;
+import com.cookiee.cookieeserver.global.StatusCode;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.dto.DataResponseDto;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @RestController

@@ -1,7 +1,7 @@
 package com.cookiee.cookieeserver.controller;
 
 
-import com.cookiee.cookieeserver.constant.StatusCode;
+import com.cookiee.cookieeserver.global.StatusCode;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.dto.DataResponseDto;
@@ -10,11 +10,8 @@ import com.cookiee.cookieeserver.dto.request.EventGetRequestDto;
 import com.cookiee.cookieeserver.dto.request.EventRegisterRequestDto;
 import com.cookiee.cookieeserver.dto.request.EventUpdateRequestDto;
 import com.cookiee.cookieeserver.dto.response.EventResponseDto;
-import com.cookiee.cookieeserver.repository.EventRepository;
-import com.cookiee.cookieeserver.repository.UserRepository;
 import com.cookiee.cookieeserver.service.EventService;
 import com.cookiee.cookieeserver.service.UserService;
-import com.fasterxml.jackson.databind.ser.Serializers;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
