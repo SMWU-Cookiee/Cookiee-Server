@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
     private final JwtService jwtService;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 //        http.csrf().disable()
@@ -32,19 +33,19 @@ public class SecurityConfig {
 //                .userInfoEndpoint()//8
 //                .userService(customOAuth2UserService);//9
 
-        http.csrf(AbstractHttpConfigurer::disable)
+        http.csrf(AbstractHttpConfigurer::disable)  // rest api이므로 basic auth 및 csrf 보안을 사용하지 않는 설정
+                // JWT를 사용하기 때문에 세션을 사용하지 않는 설정.(아래)
                 .sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)  // rest api이므로 basic auth 및 csrf 보안을 사용하지 않는 설정
                 .authorizeHttpRequests(
                         registry -> registry
-                                .requestMatchers("/", "/error")  // 에러를 안거치게?
-                                .permitAll()
-                                .requestMatchers("/auth/**")
-                                .permitAll()
-                                .anyRequest()
-                                .permitAll()
+                                // / 아래의 경로, /error 아래의 경로의 API에 대해서는 모든 요청을 허가
+                                .requestMatchers("/", "/error").permitAll()
+                                .requestMatchers("/auth/**").permitAll()  // /auth 아래의 모든 경로에 대해 요청 허가
+                                .anyRequest().permitAll()  // 이 밖에 모든 요청에 대해서 인증을 필요로 함
                 )
+         // JWT 인증을 위하여 직접 구현한 jwtAuthorizationFilter 필터를 UsernamePasswordAuthenticationFilter 전에 실행
                 .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

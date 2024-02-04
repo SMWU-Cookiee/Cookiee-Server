@@ -1,10 +1,9 @@
 package com.cookiee.cookieeserver.login.jwt;
 
+import com.cookiee.cookieeserver.login.dto.AccessTokenResponse;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Optional;
 
 @Getter
 @Service
@@ -37,13 +37,13 @@ public class JwtService {
 
     /**
      * 액세스 토큰 생성
-     * @param userSocialId
-     * @return
+     * @param userId    액세스 토큰을 부여할 유저 아이디
+     * @return          액세스 토큰
      */
-    public String createAccessToken(String userSocialId) {
+    public String createAccessToken(Long userId) {
         Date now = new Date();
         return Jwts.builder()
-                .setSubject(userSocialId)
+                .setSubject(String.valueOf(userId))
                 .claim("role", "ROLE_USER")
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + accessTokenExpirationTime))
@@ -53,7 +53,7 @@ public class JwtService {
 
     /**
      * 리프레쉬 토큰 생성
-     * @return
+     * @return      생성된 리프레쉬 토큰
      */
     public String createRefreshToken() {
         Date now = new Date();
@@ -65,23 +65,33 @@ public class JwtService {
 
     /**
      * 리프레쉬 토큰 유효성 검증
-     * @param accessToken
-     * @param refreshToken
-     * @return
+     * @param accessToken   액세스 토큰
+     * @param refreshToken  리프레쉬 토큰
+     * @return              유저 아이디
      */
-    public String validateRefreshToken(String accessToken, String refreshToken) {
-        String handle = getUserSocialId(accessToken);
-        User user = userRepository.findByUserSocialId(handle);
+    public Long validateRefreshToken(String accessToken, String refreshToken) {
+        Long userId = getUserId(accessToken);  // 액세스 토큰으로 user id 받아오기
+        User user = userRepository.findByUserId(userId).orElse(null);
 
-        if (user.getRefreshToken() == null)
-            throw new RefreshTokenException(NULL_REFRESH_TOKEN);
+        if (user == null){
+            throw new JwtException("해당 액세스 토큰으로 사용자를 찾을 수 없습니다.");
+        }
+        else{
+            if (user.getRefreshToken() == null)
+                throw new JwtException("리프레쉬 토큰이 존재하지 않습니다.");
 
-        if (!user.getRefreshToken().equals(refreshToken))
-            throw new RefreshTokenException(INVALID_REFRESH_TOKEN);
+            if (!user.getRefreshToken().equals(refreshToken))
+                throw new JwtException("유효하지 않은 리프레쉬 토큰입니다.");
+        }
 
-        return user.getSocialId();
+        return user.getUserId();
     }
 
+    /**
+     * 토큰 정보 검증하는 메소드
+     * @param token
+     * @return
+     */
     public boolean validate(String token) {
         try {
             Jwts.parserBuilder()
@@ -90,21 +100,19 @@ public class JwtService {
                     .parseClaimsJws(token)
                     .getBody();
             return true;
-        } catch (SecurityException e) {
-            throw new JwtException(INVALID_TOKEN_SIGNATURE.getMessage());
-        } catch (MalformedJwtException e) {
-            throw new JwtException(MALFORMED_TOKEN.getMessage());
-        } catch (ExpiredJwtException e) {
-            throw new JwtException(EXPIRED_TOKEN.getMessage());
+        } catch (SecurityException | MalformedJwtException e) {
+            throw new JwtException("Invalid token,"+e.getMessage());
+        }catch (ExpiredJwtException e) {
+            throw new JwtException("만료된 토큰입니다.");
         } catch (UnsupportedJwtException e) {
-            throw new JwtException(UNSUPPORTED_TOKEN.getMessage());
+            throw new JwtException("지원되지 않는 토큰입니다.");
         } catch (IllegalArgumentException e) {
-            throw new JwtException(INVALID_TOKEN.getMessage());
+            throw new JwtException("해당 토큰으로 데이터가 존재하지 않습니다.");
         }
     }
 
     /**
-     * 토큰을 통해 JWT 안의 claim 가져오기
+     * 토큰을 통해 JWT 안의 claim, 즉 토큰을 복호화시켜서 정보를 꺼내는 메소드
      * @param token
      * @return
      */
@@ -120,35 +128,51 @@ public class JwtService {
         }
     }
 
-    public String getUserSocialId(String token) {
-        return getTokenClaims(token).getSubject();
+    /**
+     * 토큰으로 claims에 접근하여 유저 아이디 값 불러오기
+     * @param accessToken   액세스 토큰
+     * @return              유저 아이디
+     */
+    public Long getUserId(String accessToken) {
+        return Long.valueOf(getTokenClaims(accessToken).getSubject());
     }
 
-    public PostTokenResponse reissueAccessToken() {
+    /**
+     * 액세스 토큰 갱신
+     * @return
+     */
+    public AccessTokenResponse reissueAccessToken() throws Exception {
+        // 요청에 함께 온 헤더에서 액세스 토큰 가져오기
         String accessToken = JwtHeaderUtil.getAccessToken();
+        // 요청에 함께 온 헤더에서 리프레쉬 토큰 가져오기
         String refreshToken = JwtHeaderUtil.getRefreshToken();
 
+        // 리프레쉬 토큰이 없는 경우
         if (refreshToken == null)
-            throw new RefreshTokenException(NULL_REFRESH_TOKEN);
+            throw new Exception("리프레쉬 토큰이 없습니다.");
+        // 유효한 리프레쉬 토큰이 아닌 경우
         else if (!validate(refreshToken))
-            throw new RefreshTokenException(INVALID_REFRESH_TOKEN);
+            throw new Exception("유효하지 않은 리프레쉬 토큰입니다.");
 
-        String handle = validateRefreshToken(accessToken, refreshToken);
-        String newAccessToken = createAccessToken(handle);
+        // 두 토큰으로 사용자 아이디 가져오기
+        Long userId = validateRefreshToken(accessToken, refreshToken);
 
-        return PostTokenResponse.builder()
+        // 사용자 아이디로 액세스 토큰 생성
+        String newAccessToken = createAccessToken(userId);
+
+        return AccessTokenResponse.builder()
                 .accessToken(newAccessToken)
                 .build();
     }
 
-    // custom
-    public Member getLoginMember() {
-        final String loginMemberHandle = getLoginMemberHandle();
-        return memberRepository.findByHandle(loginMemberHandle);
-    }
-
-    public String getLoginMemberHandle() {
-        String accessToken = JwtHeaderUtil.getAccessToken();
-        return getHandle(accessToken);
-    }
+//    // custom
+//    public Member getLoginMember() {
+//        final String loginMemberHandle = getLoginMemberHandle();
+//        return memberRepository.findByHandle(loginMemberHandle);
+//    }
+//
+//    public String getLoginMemberHandle() {
+//        String accessToken = JwtHeaderUtil.getAccessToken();
+//        return getHandle(accessToken);
+//    }
 }
