@@ -2,6 +2,7 @@ package com.cookiee.cookieeserver.login.apple.service;
 
 import com.cookiee.cookieeserver.login.apple.controller.AppleClient;
 import com.cookiee.cookieeserver.global.domain.AuthProvider;
+import com.cookiee.cookieeserver.login.OAuthResponse;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.login.apple.dto.response.ApplePublicKeyResponse;
 import com.cookiee.cookieeserver.login.apple.dto.response.AppleTokenResponse;
@@ -20,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.*;
@@ -82,12 +82,10 @@ public class AppleService {
     // 읽어온 정보가 기존 DB에 저장되어 있지 않다면 회원가입을 위해 새로 저장해주고, 그렇지 않다면 로그인을 수행한다.
     // 두 경우 모두 JWT access token과 refresh token을 발급해준다.
     @Transactional
-    public User login(String idToken, String authorizationCode) {
+    public OAuthResponse login(String idToken, String authorizationCode) {
         String socialId;
         String email;
-        String refreshToken;
-
-        User user;
+        String appleRefreshToken;
 
         // public key 구성요소를 조회한 뒤 JWT의 서명을 검증한 후 Claim을 응답
         // identity token의 payload들이 인코딩 되어 claims에 있음. -> 디코딩하여 apple 고유 계정 id 등 중요 요소를 획득해서 사용하면 된다.
@@ -100,7 +98,7 @@ public class AppleService {
 
             // access token 등.. 생성해서 그 내용을 appleTokenResponse에 받아온다.
             AppleTokenResponse appleTokenResponse = generateAuthToken(authorizationCode);
-            refreshToken = appleTokenResponse.getRefreshToken();
+            appleRefreshToken = appleTokenResponse.getRefreshToken();
             //refreshToken = String.valueOf(jsonObj.get("refresh_token"));
 
             // ID TOKEN을 통해 회원 고유 식별자 받기
@@ -116,52 +114,60 @@ public class AppleService {
             email = String.valueOf(claims.get("email"));
 
             // userId = String.valueOf(payload.get("sub"));
-            //email = String.valueOf(payload.get("email"));
+            // email = String.valueOf(payload.get("email"));
 
             // 로그인 요청하면서 받아온 소셜 아이디와 해당 소셜 로그인 타입의 조합으로 유저 찾아오기 -> 없으면 null(새로운 사용자임)
-            User findUser = userRepository
+            User foundUser = userRepository
                     .findByAuthProviderAndSocialId(AuthProvider.APPLE, socialId)
                     .orElse(null);
 
-            // 신규 회원가입인 경우
-            if (findUser == null) {
-                // 신규 회원가입의 경우 DB에 저장
-                user = userRepository.save(
-                        User.builder()
-                                .socialLoginType(AuthProvider.APPLE)
-                                .socialId(socialId)
-                                .email(email)
-                                .refreshToken(refreshToken)
-                                .build()
-                );
-            }
-            // 기존 회원인 경우 -> refresh token 업데이트 위해 DB에 저장
-            else {
-                findUser.setRefreshToken(refreshToken);
-                user = userRepository.save(findUser);
+            /* 신규 회원가입인 경우 -> 관련 정보 리턴 */
+            if (foundUser == null) {
+                return OAuthResponse.builder()
+                        .id(socialId)
+                        .socialType("apple")
+                        .email(email)
+                        .isNewMember(true)
+                        .refreshToken(appleRefreshToken)
+                        .build();
             }
 
-            loginSuccess(user, response);
-            return user;
+            /* 기존 회원인 경우 */
+            // 앱의 리프레쉬 토큰과 액세스 토큰 생성
+            String appRefreshToken = jwtService.createRefreshToken();
+            String appAccessToken = jwtService.createAccessToken(foundUser.getUserId());
 
-        } catch (ParseException | JsonProcessingException e) {
+            // 서버에서 만든 리프레쉬 토큰으로 저장
+            foundUser.setRefreshToken(appRefreshToken);
+            userRepository.save(foundUser);
+
+            // 회원 정보 응답 (기존 회원)
+            return OAuthResponse.builder()
+                    .id(socialId)
+                    .email(email)
+                    .isNewMember(false)
+                    .socialType("apple")
+                    .accessToken(appAccessToken)
+                    .refreshToken(appRefreshToken)
+                    .build();
+        } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to parse json data");
-        } catch (IOException | java.text.ParseException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     // 로그인 또는 회원가입이 정상적으로 완료된 경우 토큰을 발급하고, response 헤더에 설정한다.
-    public void loginSuccess(User user, HttpServletResponse response) {
-        String accessToken = jwtService.createAccessToken(user.getSocialId());
-        String refreshToken = jwtService.createRefreshToken();
-
-        jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
-        jwtService.updateRefreshToken(user.getEmail(), refreshToken);
-    }
+//    public void loginSuccess(User user, HttpServletResponse response) {
+//        String accessToken = jwtService.createAccessToken(user.getUserId());
+//        String refreshToken = jwtService.createRefreshToken();
+//
+//        jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
+//        jwtService.updateRefreshToken(user.getEmail(), refreshToken);
+//    }
 
     // public key 조회 -> JWT 서명 검증 -> claim 응답
-    public Claims getClaimsBy(String identityToken){
+    public Claims getClaimsBy(String identityToken) {
         try {
             // 1. public key 조회
             ApplePublicKeyResponse response = appleClient.getAppleAuthPublicKey();
@@ -187,18 +193,15 @@ public class AppleService {
             // 그리고 필요에 따라 iss, aud 등 나머지 값들을 추가적으로 검증하면 된다.
             return Jwts.parser().setSigningKey(publicKey).parseClaimsJws(identityToken).getBody();
 
-        } catch (NoSuchAlgorithmException e) {
-
-        } catch (InvalidKeySpecException e) {
-
-        } catch ( MalformedJwtException e) {
+        } catch (MalformedJwtException e) {
             //토큰 서명 검증 or 구조 문제 (Invalid token)
-            new IllegalAccessException("유효하지 않은 토큰입니다.");
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
         } catch (ExpiredJwtException e) {
-            new IllegalAccessException("만료된 토큰입니다.");
+            throw new IllegalArgumentException("만료된 토큰입니다.");
         } catch (Exception e) {
 
         }
+        return null;
     }
 
     /**
