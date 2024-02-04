@@ -21,9 +21,11 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     nativeQuery = true)
     int existsByCategoryIdInUser(@Param("userId") Long userId, @Param("categoryId") Long categoryId);
 
-    boolean existsByCategoryName(String categoryName);
+    Optional<Category> findByUserIdAndCategoryId(Long userId, Long categoryId);
 
-    boolean existsByCategoryColor(String categoryColor);
+    boolean existsByCategoryNameAndUserId(String categoryName, Long userId);
+
+    boolean existsByCategoryColorAndUserId(String categoryColor, Long userId);
 
     Optional<Category> findByCategoryId(Long categoryId);
 

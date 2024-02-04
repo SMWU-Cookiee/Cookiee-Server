@@ -1,5 +1,6 @@
 package com.cookiee.cookieeserver.service;
 
+import com.amazonaws.services.kms.model.AlreadyExistsException;
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.cookiee.cookieeserver.domain.Category;
 import com.cookiee.cookieeserver.domain.Event;
@@ -89,12 +90,26 @@ public class CategoryService {
         );
 
         // 유저 아이디와 카테고리 아이디가 부합하는지 확인
-        if(categoryRepository.existsByCategoryIdInUser(userId, categoryId) == 1){
-            category.update(requestDto.getCategoryName(), requestDto.getCategoryColor());
-        }
-        else{
+        category = categoryRepository
+                .findByUserIdAndCategoryId(userId, categoryId)
+                .orElse(null);
+
+        if(category == null){
             throw new NotFoundException("해당 유저에게 요청한 카테고리가 존재하지 않습니다.");
         }
+        else{
+            if(categoryRepository.existsByCategoryNameAndUserId(requestDto.getCategoryName(), userId)
+            || categoryRepository.existsByCategoryColorAndUserId(requestDto.getCategoryColor(), userId))
+                throw new AlreadyExistsException("이미 존재하는 카테고리 이름 혹은 색상입니다.");
+            else
+                category.update(requestDto.getCategoryName(), requestDto.getCategoryColor());
+        }
+//        if(categoryRepository.existsByCategoryIdInUser(userId, categoryId) == 1){
+//            category.update(requestDto.getCategoryName(), requestDto.getCategoryColor());
+//        }
+//        else{
+//            throw new NotFoundException("해당 유저에게 요청한 카테고리가 존재하지 않습니다.");
+//        }
 
         return new CategoryResponseDto(category.getCategoryId(), category.getCategoryName(), category.getCategoryColor());
     }
