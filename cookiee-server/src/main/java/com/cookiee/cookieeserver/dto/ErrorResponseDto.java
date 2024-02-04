@@ -1,6 +1,6 @@
 package com.cookiee.cookieeserver.dto;
 
-import com.cookiee.cookieeserver.constant.StatusCode;
+import com.cookiee.cookieeserver.global.StatusCode;
 
 /* 통신 실패했을 때 Response Dto */
 public class ErrorResponseDto extends BaseResponseDto {

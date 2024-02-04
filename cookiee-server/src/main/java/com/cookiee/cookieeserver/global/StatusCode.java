@@ -1,4 +1,4 @@
-package com.cookiee.cookieeserver.constant;
+package com.cookiee.cookieeserver.global;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

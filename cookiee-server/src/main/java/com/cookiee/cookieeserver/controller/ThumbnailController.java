@@ -1,6 +1,6 @@
 package com.cookiee.cookieeserver.controller;
 
-import com.cookiee.cookieeserver.constant.StatusCode;
+import com.cookiee.cookieeserver.global.StatusCode;
 import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.dto.DataResponseDto;

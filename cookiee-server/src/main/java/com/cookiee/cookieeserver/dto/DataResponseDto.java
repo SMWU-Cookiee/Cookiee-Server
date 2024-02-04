@@ -1,6 +1,6 @@
 package com.cookiee.cookieeserver.dto;
 
-import com.cookiee.cookieeserver.constant.StatusCode;
+import com.cookiee.cookieeserver.global.StatusCode;
 import lombok.Getter;
 
 /* 통신이 제대로 됐을 때 Response DTO */
