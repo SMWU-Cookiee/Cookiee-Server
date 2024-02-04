@@ -1,4 +1,4 @@
-package com.cookiee.cookieeserver.config.auth;
+package com.cookiee.cookieeserver.login.config;
 
 import com.cookiee.cookieeserver.CookieeServerApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;

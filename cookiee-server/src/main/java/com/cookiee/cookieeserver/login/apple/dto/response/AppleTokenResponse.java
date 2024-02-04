@@ -1,4 +1,4 @@
-package com.cookiee.cookieeserver.login.dto.response;
+package com.cookiee.cookieeserver.login.apple.dto.response;
 
 import lombok.Setter;
 

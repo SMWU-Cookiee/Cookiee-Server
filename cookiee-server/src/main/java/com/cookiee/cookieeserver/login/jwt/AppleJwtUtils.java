@@ -1,6 +1,6 @@
 package com.cookiee.cookieeserver.login.jwt;
 
-import com.cookiee.cookieeserver.login.controller.apple.AppleClient;
+import com.cookiee.cookieeserver.login.apple.controller.AppleClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

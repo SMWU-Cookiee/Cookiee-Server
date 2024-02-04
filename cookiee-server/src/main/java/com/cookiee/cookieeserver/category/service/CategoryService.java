@@ -11,7 +11,7 @@ import com.cookiee.cookieeserver.category.dto.request.CategoryUpdateRequestDto;
 import com.cookiee.cookieeserver.category.dto.response.CategoryResponseDto;
 import com.cookiee.cookieeserver.event.dto.response.EventCategoryGetResponseDto;
 import com.cookiee.cookieeserver.category.repository.CategoryRepository;
-import com.cookiee.cookieeserver.repository.EventCategoryRepository;
+import com.cookiee.cookieeserver.global.repository.EventCategoryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

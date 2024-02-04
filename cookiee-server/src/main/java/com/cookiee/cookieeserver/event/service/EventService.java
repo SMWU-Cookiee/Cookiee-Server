@@ -10,7 +10,7 @@ import com.cookiee.cookieeserver.event.dto.request.EventRegisterRequestDto;
 import com.cookiee.cookieeserver.event.dto.request.EventUpdateRequestDto;
 import com.cookiee.cookieeserver.event.dto.response.EventResponseDto;
 import com.cookiee.cookieeserver.category.repository.CategoryRepository;
-import com.cookiee.cookieeserver.repository.EventCategoryRepository;
+import com.cookiee.cookieeserver.global.repository.EventCategoryRepository;
 import com.cookiee.cookieeserver.event.repository.EventRepository;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
