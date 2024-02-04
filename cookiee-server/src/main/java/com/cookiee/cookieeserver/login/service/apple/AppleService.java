@@ -1,12 +1,12 @@
 package com.cookiee.cookieeserver.login.service.apple;
 
 import com.cookiee.cookieeserver.login.controller.apple.AppleClient;
-import com.cookiee.cookieeserver.domain.AuthProvider;
-import com.cookiee.cookieeserver.domain.User;
+import com.cookiee.cookieeserver.global.domain.AuthProvider;
+import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.login.dto.response.ApplePublicKeyResponse;
 import com.cookiee.cookieeserver.login.dto.response.AppleTokenResponse;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
-import com.cookiee.cookieeserver.repository.UserRepository;
+import com.cookiee.cookieeserver.user.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;

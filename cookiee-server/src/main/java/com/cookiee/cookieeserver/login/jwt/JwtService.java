@@ -1,7 +1,7 @@
 package com.cookiee.cookieeserver.login.jwt;
 
-import com.cookiee.cookieeserver.domain.User;
-import com.cookiee.cookieeserver.repository.UserRepository;
+import com.cookiee.cookieeserver.user.domain.User;
+import com.cookiee.cookieeserver.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

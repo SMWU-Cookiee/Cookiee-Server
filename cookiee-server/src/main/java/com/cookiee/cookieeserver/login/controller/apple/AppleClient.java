@@ -1,6 +1,6 @@
 package com.cookiee.cookieeserver.login.controller.apple;
 
-import com.cookiee.cookieeserver.Config.auth.FeignClientConfig;
+import com.cookiee.cookieeserver.config.auth.FeignClientConfig;
 import com.cookiee.cookieeserver.login.dto.response.ApplePublicKeyResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

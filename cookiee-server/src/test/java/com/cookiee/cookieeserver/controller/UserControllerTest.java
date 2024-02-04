@@ -1,9 +1,9 @@
 /*
 package com.cookiee.cookieeserver.controller;
 
-import com.cookiee.cookieeserver.domain.User;
-import com.cookiee.cookieeserver.repository.UserRepository;
-import com.cookiee.cookieeserver.service.UserService;
+import com.cookiee.cookieeserver.user.domain.User;
+import com.cookiee.cookieeserver.user.repository.UserRepository;
+import com.cookiee.cookieeserver.user.service.UserService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

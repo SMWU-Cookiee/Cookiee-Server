@@ -1,9 +1,9 @@
 package com.cookiee.cookieeserver.login.controller.apple;
 
 import com.cookiee.cookieeserver.global.StatusCode;
-import com.cookiee.cookieeserver.dto.BaseResponseDto;
-import com.cookiee.cookieeserver.dto.DataResponseDto;
-import com.cookiee.cookieeserver.dto.ErrorResponseDto;
+import com.cookiee.cookieeserver.global.dto.BaseResponseDto;
+import com.cookiee.cookieeserver.global.dto.DataResponseDto;
+import com.cookiee.cookieeserver.global.dto.ErrorResponseDto;
 import com.cookiee.cookieeserver.login.service.apple.AppleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
