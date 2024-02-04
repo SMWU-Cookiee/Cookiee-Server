@@ -1,4 +1,4 @@
-package com.cookiee.cookieeserver.repository;
+package com.cookiee.cookieeserver.global.repository;
 
 import com.cookiee.cookieeserver.category.domain.Category;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
