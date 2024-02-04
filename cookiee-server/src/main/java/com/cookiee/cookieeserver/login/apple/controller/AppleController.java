@@ -4,6 +4,7 @@ import com.cookiee.cookieeserver.global.StatusCode;
 import com.cookiee.cookieeserver.global.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.global.dto.DataResponseDto;
 import com.cookiee.cookieeserver.global.dto.ErrorResponseDto;
+import com.cookiee.cookieeserver.login.OAuthResponse;
 import com.cookiee.cookieeserver.login.apple.service.AppleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,11 +23,11 @@ public class AppleController {
     @PostMapping("/login/apple")
     public BaseResponseDto<?> appleOAuthRequest(@RequestHeader(HEADER_IDENTITY_TOKEN) String idToken,
                                                 @RequestHeader(HEADER_APPLE_AUTHORIZATION_CODE) String authorizationCode) {
+        OAuthResponse response = appleService.login(idToken, authorizationCode);
         // 애플 회원가입 또는 로그인 실패
-        if (appleService.login(idToken, authorizationCode) == null) {
+        if (response == null) {
             return ErrorResponseDto.of(StatusCode.UNAUTHORIZED, "애플 로그인 실패");
         }
-
-        return DataResponseDto.of(null, "애플 로그인에 성공하였습니다.");
+        return DataResponseDto.of(response, "애플 로그인에 성공하였습니다.");
     }
 }
