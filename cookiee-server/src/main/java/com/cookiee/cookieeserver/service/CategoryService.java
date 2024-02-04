@@ -12,7 +12,6 @@ import com.cookiee.cookieeserver.dto.response.CategoryResponseDto;
 import com.cookiee.cookieeserver.dto.response.EventCategoryGetResponseDto;
 import com.cookiee.cookieeserver.repository.CategoryRepository;
 import com.cookiee.cookieeserver.repository.EventCategoryRepository;
-import com.cookiee.cookieeserver.repository.EventRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,9 +30,9 @@ public class CategoryService {
     @Transactional
     public Category create(User user, CategoryCreateRequestDto requestDto) {
         // 중복 검사
-        if(categoryRepository.existsByCategoryName(requestDto.getCategoryName())
-                || categoryRepository.existsByCategoryColor(requestDto.getCategoryColor())){
-            throw new IllegalArgumentException("카테고리 등록에 실패하였습니다. 중복되는 카테고리입니다.");
+        if(categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryName(), user.getUserId())
+                || categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryColor(), user.getUserId())){
+            throw new IllegalArgumentException("카테고리 등록에 실패하였습니다. 중복되는 카테고리 이름 혹은 색상입니다.");
 
         }
 
@@ -43,7 +42,7 @@ public class CategoryService {
     @Transactional
     public EventCategoryGetResponseDto findByIdForCollection(Long id){
         Category categoryEntity = categoryRepository.findByCategoryId(id).orElseThrow(
-                () -> new IllegalArgumentException("해당 아이디로 카테고리를 찾을 수 없습니다.")
+                () -> new AlreadyExistsException("해당 아이디로 카테고리를 찾을 수 없습니다.")
         );
 
         List<EventCategory> eventCategory = eventCategoryRepository.findByCategoryId(categoryEntity);
@@ -91,15 +90,15 @@ public class CategoryService {
 
         // 유저 아이디와 카테고리 아이디가 부합하는지 확인
         category = categoryRepository
-                .findByUserIdAndCategoryId(userId, categoryId)
+                .findByUserUserIdAndCategoryId(userId, categoryId)
                 .orElse(null);
 
         if(category == null){
             throw new NotFoundException("해당 유저에게 요청한 카테고리가 존재하지 않습니다.");
         }
         else{
-            if(categoryRepository.existsByCategoryNameAndUserId(requestDto.getCategoryName(), userId)
-            || categoryRepository.existsByCategoryColorAndUserId(requestDto.getCategoryColor(), userId))
+            if(categoryRepository.existsByCategoryNameAndUserUserId(requestDto.getCategoryName(), userId)
+            || categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryColor(), userId))
                 throw new AlreadyExistsException("이미 존재하는 카테고리 이름 혹은 색상입니다.");
             else
                 category.update(requestDto.getCategoryName(), requestDto.getCategoryColor());

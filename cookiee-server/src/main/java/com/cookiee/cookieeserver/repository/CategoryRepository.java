@@ -1,8 +1,6 @@
 package com.cookiee.cookieeserver.repository;
 
 import com.cookiee.cookieeserver.domain.Category;
-import com.cookiee.cookieeserver.domain.EventCategory;
-import com.cookiee.cookieeserver.domain.User;
 import com.cookiee.cookieeserver.dto.response.CategoryResponseDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,11 +19,11 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     nativeQuery = true)
     int existsByCategoryIdInUser(@Param("userId") Long userId, @Param("categoryId") Long categoryId);
 
-    Optional<Category> findByUserIdAndCategoryId(Long userId, Long categoryId);
+    Optional<Category> findByUserUserIdAndCategoryId(Long userId, Long categoryId);
 
-    boolean existsByCategoryNameAndUserId(String categoryName, Long userId);
+    boolean existsByCategoryNameAndUserUserId(String categoryName, Long userId);
 
-    boolean existsByCategoryColorAndUserId(String categoryColor, Long userId);
+    boolean existsByCategoryColorAndUserUserId(String categoryColor, Long userId);
 
     Optional<Category> findByCategoryId(Long categoryId);
 
