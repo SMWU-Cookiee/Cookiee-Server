@@ -30,8 +30,8 @@ public class CategoryService {
     @Transactional
     public Category create(User user, CategoryCreateRequestDto requestDto) {
         // 중복 검사
-        if(categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryName(), user.getUserId())
-                || categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryColor(), user.getUserId())){
+        if(categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryColor(), user.getUserId())
+                || categoryRepository.existsByCategoryNameAndUserUserId(requestDto.getCategoryName(), user.getUserId())){
             throw new IllegalArgumentException("카테고리 등록에 실패하였습니다. 중복되는 카테고리 이름 혹은 색상입니다.");
 
         }
