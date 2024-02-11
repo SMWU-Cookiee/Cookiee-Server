@@ -5,7 +5,6 @@ import com.cookiee.cookieeserver.global.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.global.dto.DataResponseDto;
 import com.cookiee.cookieeserver.global.dto.ErrorResponseDto;
 import com.cookiee.cookieeserver.login.OAuthResponse;
-import com.cookiee.cookieeserver.login.apple.dto.response.AppleLoginResponse;
 import com.cookiee.cookieeserver.login.apple.service.AppleService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
