@@ -1,5 +1,6 @@
 package com.cookiee.cookieeserver.login.config;
 
+import com.cookiee.cookieeserver.config.WebConfig;
 import com.cookiee.cookieeserver.login.jwt.JwtAuthorizationFilter;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
     private final JwtService jwtService;
+    private final WebConfig webConfig;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
