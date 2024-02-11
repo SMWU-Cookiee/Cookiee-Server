@@ -37,7 +37,7 @@ spring:
 
 logging:
   file:
-    name: logs/test.log  # 로깅 파일 위치이다.
+    path: logs/test.log  # 로깅 파일 위치이다.
   level:
     org.hibernate.SQL: debug
     com.cookiee.cookieeserver: debug
