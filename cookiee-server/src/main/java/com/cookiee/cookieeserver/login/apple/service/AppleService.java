@@ -14,10 +14,10 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
@@ -35,16 +35,14 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigInteger;
 import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
-//@Slf4j
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AppleService {
@@ -55,7 +53,7 @@ public class AppleService {
     @Value("${apple.team.id}")
     private String APPLE_TEAM_ID;
 
-    @Value("${apple.login-key}")
+    @Value("${apple.login.key}")
     private String APPLE_LOGIN_KEY;
 
     @Getter
@@ -99,6 +97,7 @@ public class AppleService {
             // access token 등.. 생성해서 그 내용을 appleTokenResponse에 받아온다.
             AppleTokenResponse appleTokenResponse = generateAuthToken(authorizationCode);
             appleRefreshToken = appleTokenResponse.getRefreshToken();
+            log.debug("애플 로그인 - 애플 고유 리프레쉬 토큰은 {}", appleRefreshToken);
             //refreshToken = String.valueOf(jsonObj.get("refresh_token"));
 
             // ID TOKEN을 통해 회원 고유 식별자 받기
@@ -118,13 +117,14 @@ public class AppleService {
 
             // 로그인 요청하면서 받아온 소셜 아이디와 해당 소셜 로그인 타입의 조합으로 유저 찾아오기 -> 없으면 null(새로운 사용자임)
             User foundUser = userRepository
-                    .findByAuthProviderAndSocialId(AuthProvider.APPLE, socialId)
+                    .findBySocialLoginTypeAndSocialId(AuthProvider.APPLE, socialId)
                     .orElse(null);
 
             /* 신규 회원가입인 경우 -> 관련 정보 리턴 */
             if (foundUser == null) {
+                log.debug("socialId가 {}인 유저는 존재하지 않음. 신규 회원가입", socialId);
                 return OAuthResponse.builder()
-                        .id(socialId)
+                        .socialId(socialId)
                         .socialType("apple")
                         .email(email)
                         .isNewMember(true)
@@ -134,6 +134,7 @@ public class AppleService {
 
             /* 기존 회원인 경우 */
             // 앱의 리프레쉬 토큰과 액세스 토큰 생성
+            log.debug("socialId가 {}인 유저는 기존 유저입니다.", socialId);
             String appRefreshToken = jwtService.createRefreshToken();
             String appAccessToken = jwtService.createAccessToken(foundUser.getUserId());
 
@@ -143,7 +144,7 @@ public class AppleService {
 
             // 회원 정보 응답 (기존 회원)
             return OAuthResponse.builder()
-                    .id(socialId)
+                    .socialId(socialId)
                     .email(email)
                     .isNewMember(false)
                     .socialType("apple")
@@ -156,15 +157,6 @@ public class AppleService {
             throw new RuntimeException(e);
         }
     }
-
-    // 로그인 또는 회원가입이 정상적으로 완료된 경우 토큰을 발급하고, response 헤더에 설정한다.
-//    public void loginSuccess(User user, HttpServletResponse response) {
-//        String accessToken = jwtService.createAccessToken(user.getUserId());
-//        String refreshToken = jwtService.createRefreshToken();
-//
-//        jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
-//        jwtService.updateRefreshToken(user.getEmail(), refreshToken);
-//    }
 
     // public key 조회 -> JWT 서명 검증 -> claim 응답
     public Claims getClaimsBy(String identityToken) {
@@ -225,7 +217,7 @@ public class AppleService {
         params.add("client_id", APPLE_CLIENT_ID);
         params.add("client_secret", createClientSecretKey());  // public key를 받기 위해서는 client secret key 생성
         params.add("code", code);
-        params.add("redirect_uri", APPLE_REDIRECT_URL);
+        //params.add("redirect_uri", APPLE_REDIRECT_URL);  // 추가 안해도 되는 것 같음..
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -251,7 +243,7 @@ public class AppleService {
             // 응답으로 받은 json 데이터를 AppleTokenResponse로 변환해서 리턴
             return new ObjectMapper().readValue(response.getBody(), AppleTokenResponse.class);
         } catch (HttpClientErrorException e) {
-            throw new IllegalArgumentException("Apple Auth Token Error");
+            throw new IllegalArgumentException("애플에서 public key 받기를 실패하였습니다.");
         }
     }
 
@@ -282,15 +274,45 @@ public class AppleService {
 
     // 애플의 client secret을 얻기 위해 사용하는 메소드이다. key 받아오는 메소드
     private PrivateKey getPrivateKey() throws IOException {
-        ClassPathResource resource = new ClassPathResource(APPLE_KEY_PATH);
-        String privateKey = new String(resource.getInputStream().readAllBytes());
+        try {
+            ClassPathResource resource = new ClassPathResource(APPLE_KEY_PATH);
+            String privateKey = new String(resource.getInputStream().readAllBytes());
 
-        Reader pemReader = new StringReader(privateKey);
-        PEMParser pemParser = new PEMParser(pemReader);
-        JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
-        PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
+            Reader pemReader = new StringReader(privateKey);
+            PEMParser pemParser = new PEMParser(pemReader);
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
+            PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
 
-        return converter.getPrivateKey(object);
+            return converter.getPrivateKey(object);
+        }
+        catch(IOException e){
+            throw new IOException("Failed to get private key");
+        }
+    }
+
+    /**
+     * 애플 로그인한 유저 탈퇴
+     * @param appleRefreshToken
+     */
+    public void revoke(String appleRefreshToken) throws IOException {
+        // 헤더에 넣을 파라미터 값 만들기
+        LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", APPLE_CLIENT_ID);
+        params.add("client_secret", createClientSecretKey());
+        params.add("token", appleRefreshToken);
+
+        // 통신할 rest template 만들기
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        // 헤더 생성
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
+
+        // 애플 서버에 회원 탈퇴 요청 보내기 (revoke token)
+        restTemplate.postForEntity(APPLE_AUTH_URL + "/auth/revoke", httpEntity, String.class);
     }
 
 }
