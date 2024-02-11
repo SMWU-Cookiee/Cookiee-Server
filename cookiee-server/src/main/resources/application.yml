@@ -8,6 +8,8 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
+  profiles:
+    include: oauth
 
   datasource:
     url: ${DB_URL}
@@ -34,8 +36,15 @@ spring:
       hibernate.format_sql: true
 
 logging:
+  file:
+    path: logs/test.log  # 로깅 파일 위치이다.
   level:
     org.hibernate.SQL: debug
+    com.cookiee.cookieeserver: debug
+  logback:
+    rollingpolicy:
+      max-history: 7
+      max-file-size: 10MB
 
 cloud:
   aws:
@@ -68,20 +77,13 @@ springdoc:
   default-produces-media-type: application/json
   paths-to-match:
     - /v1/**
-
+# 토큰 발급자
+jwt:
+  issuer: ${JWT_ISSUER}
+  # JWT 키 (여러 문자가 섞일수록 안전하다)
+  secret: ${JWT_SECRET_KEY}
   #custom:
   #s3url : ${s3url}
-#apple:
-#  team:
-#    id: 애플 개발자 팀아이디
-#  login:
-#    key: 9TCLGUF88R
-#  client:
-#    id: sociallogin.app.com
-#  redirect:
-#    url: https://wenail.co.kr/apple/callback
-#  key:
-#    path: /key/AuthKey_9TCLGUF88R.p8
 # 임시로 포트 번호 지정
 #server:
   #port: 3306

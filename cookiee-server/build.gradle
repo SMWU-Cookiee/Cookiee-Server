@@ -51,20 +51,21 @@ dependencies {
 
 	/* apple login 위한 의존성 */
 	// 애플 인증 서버에 JSON Web Key(JWK)를 가져올 때 사용
-//	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-//
-//	// jwt 처리 관련 의존성
-//	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
-//	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
-//	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+	implementation platform('org.springframework.cloud:spring-cloud-dependencies:2022.0.3')
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
-	// Apple login
-	implementation 'com.nimbusds:nimbus-jose-jwt:3.10'
+	// JWT
+	implementation 'javax.xml.bind:jaxb-api:2.3.1'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+
+	implementation 'com.nimbusds:nimbus-jose-jwt:9.30.1'
 	implementation 'org.bouncycastle:bcpkix-jdk18on:1.72'
-	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
 
 	// 소셜 로그인
-	//implementation('org.springframework.boot:spring-boot-starter-oauth2-client')
+	implementation('org.springframework.boot:spring-boot-starter-oauth2-client')
 }
 
 tasks.named('test') {
