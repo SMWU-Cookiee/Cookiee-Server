@@ -1,6 +1,6 @@
 package com.cookiee.cookieeserver.login.jwt;
 
-import com.cookiee.cookieeserver.login.dto.AccessTokenResponse;
+import com.cookiee.cookieeserver.login.dto.response.AccessTokenResponse;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
 import io.jsonwebtoken.*;
@@ -8,12 +8,12 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
-import java.util.Optional;
 
 @Getter
 @Service
@@ -164,15 +164,4 @@ public class JwtService {
                 .accessToken(newAccessToken)
                 .build();
     }
-
-//    // custom
-//    public Member getLoginMember() {
-//        final String loginMemberHandle = getLoginMemberHandle();
-//        return memberRepository.findByHandle(loginMemberHandle);
-//    }
-//
-//    public String getLoginMemberHandle() {
-//        String accessToken = JwtHeaderUtil.getAccessToken();
-//        return getHandle(accessToken);
-//    }
 }

@@ -1,4 +1,4 @@
-package com.cookiee.cookieeserver.login.dto;
+package com.cookiee.cookieeserver.login.dto.response;
 
 import lombok.Builder;
 import lombok.Data;
