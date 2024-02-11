@@ -39,11 +39,14 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private String refreshToken;  // 리프레쉬 토큰
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AuthProvider socialLoginType;  // 애플인지 구글인지
 
+    private String socialRefreshToken;  // 애플용 리프레쉬 토큰
+
     @Column(length = 50)
-    private String description;
+    private String selfDescription;
 
     @Column(nullable = false)
     private String profileImage;  // 사용자 프로필 이미지 경로
@@ -57,14 +60,14 @@ public class User extends BaseTimeEntity {
         this.nickname = nickname;
         this.email = email;
         this.profileImage = profileImage;
-        this.description = description;
+        this.selfDescription = description;
         this.role = role;
     }
 
     public User update(String nickname, String profileImage, String description) {
         this.nickname = nickname;
         this.profileImage = profileImage;
-        this.description = description;
+        this.selfDescription = description;
 
         return this;
     }
