@@ -33,7 +33,7 @@ public class JwtHeaderUtil {
     private static String getToken(String tokenHeader) throws Exception {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         String headerValue = request.getHeader(tokenHeader);
-        if (headerValue == null) throw new Exception("토큰이 없습니다.");
+        if (headerValue == null) throw new Exception("토큰 인증이 필요합니다.");
 
         // Bearer로 시작하고 토큰이 맞는지 확인
         if (StringUtils.hasText(headerValue) && headerValue.startsWith(TOKEN_PREFIX)) {

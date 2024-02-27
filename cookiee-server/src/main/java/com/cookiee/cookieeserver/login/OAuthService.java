@@ -56,6 +56,7 @@ public class OAuthService {
         String storedFileName = s3Uploader.saveFile(signupUserInfo.getProfileImage(),
                                                     String.valueOf(newUser.getUserId()),
                                                     "profile");
+        log.info("[OAuthService] storedFileName: {}", storedFileName);
 
         // 새로운 유저의 리프레쉬, 액세스 토큰 생성
         String refreshToken = jwtService.createRefreshToken();

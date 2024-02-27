@@ -9,18 +9,14 @@ import com.cookiee.cookieeserver.login.dto.response.AccessTokenResponse;
 import com.cookiee.cookieeserver.login.jwt.JwtHeaderUtil;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import javax.swing.plaf.basic.BasicEditorPaneUI;
-import java.io.IOException;
 
 @Controller
-@RequestMapping("/auth")
+@Slf4j
 @RequiredArgsConstructor
 public class OAuthController {
     private final JwtService jwtService;
@@ -30,13 +26,15 @@ public class OAuthController {
      * 새로 가입한 사용자가 소셜 로그인 후 회원 정보 입력할 때
      * @return
      */
-    @PostMapping(value = "/signup", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = "/auth/signup", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public BaseResponseDto<?> signup(UserSignupRequestDto userSignupRequestDto) {
         try{
             OAuthResponse response = oAuthService.signup(userSignupRequestDto);
+            log.info("[OAuthController] response: {}", response);
             return DataResponseDto.of(response);
         }
         catch(Exception e){
+            log.debug(e.getMessage());
             return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
         }
     }
@@ -45,7 +43,7 @@ public class OAuthController {
      * 회원 탈퇴
      * @return
      */
-    @DeleteMapping("/signout")
+    @DeleteMapping("/auth/signout")
     public BaseResponseDto<?> signout() throws Exception {
         String accessToken = JwtHeaderUtil.getAccessToken();
         Long userId = jwtService.getUserId(accessToken);
@@ -59,7 +57,7 @@ public class OAuthController {
      * @return
      * @throws Exception
      */
-    @PostMapping("/refresh")
+    @PostMapping("/auth/refresh")
     public BaseResponseDto<?> refresh() {
         try {
             AccessTokenResponse response = jwtService.reissueAccessToken();
