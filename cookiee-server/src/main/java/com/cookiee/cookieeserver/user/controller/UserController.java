@@ -59,29 +59,24 @@ public class UserController {
     public BaseResponseDto<UserResponseDto> updateUser(@PathVariable Long userId, @RequestBody User requestUser){
         User user = userService.findOneById(userId);
 
-//        try {
-            UserResponseDto userResponseDto;
+        UserResponseDto userResponseDto;
 
-            user.setNickname(requestUser.getNickname());
-            user.setProfileImage(requestUser.getProfileImage());
-            user.setSelfDescription(requestUser.getSelfDescription());
+        user.setNickname(requestUser.getNickname());
+        user.setProfileImage(requestUser.getProfileImage());
+        user.setSelfDescription(requestUser.getSelfDescription());
 
-            userResponseDto = UserResponseDto.builder()
-                    .userId(user.getUserId())
-                    .email(user.getEmail())
-                    .nickname(user.getNickname())
-                    .profileImage(user.getProfileImage())
-                    .selfDescription(user.getSelfDescription())
-                    .categories(user.getCategories().stream()
-                            .map(category -> category.toDto(category))
-                            .collect(Collectors.toList()))
-                    .build();
+        userResponseDto = UserResponseDto.builder()
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .profileImage(user.getProfileImage())
+                .selfDescription(user.getSelfDescription())
+                .categories(user.getCategories().stream()
+                        .map(category -> category.toDto(category))
+                        .collect(Collectors.toList()))
+                .build();
 
-            return DataResponseDto.of(userResponseDto, "회원 정보를 성공적으로 수정하였습니다.");
-//        }
-//        catch (Exception e){
-//            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, "회원 정보 수정에 실패하였습니다.");
-//        }
+        return DataResponseDto.of(userResponseDto, "회원 정보를 성공적으로 수정하였습니다.");
     }
 
     // 유저 프로필 삭제
