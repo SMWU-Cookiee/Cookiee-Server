@@ -21,6 +21,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     // common 에러 처리 (대부분의 에러)
     @ExceptionHandler({Exception.class})
     public ResponseEntity<Object> exception(final Exception e) {
+        log.warn("common 에러 처리");
         ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
         String errorMessage = e.getMessage();
 
@@ -30,6 +31,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     // custom한 예외 처리
     @ExceptionHandler(value = GeneralException.class)
     public ResponseEntity<Object> onThrowException(final GeneralException generalException) {
+        log.warn("커스텀 에러 처리");
         ErrorCode errorCode = generalException.getErrorCode();
 
         return handleExceptionInternal(errorCode, errorCode.getMessage());

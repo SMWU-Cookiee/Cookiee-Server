@@ -37,7 +37,7 @@ public class CategoryController {
     public BaseResponseDto<CategoryResponseDto> postCategory(@PathVariable Long userId,
                                                   @RequestBody CategoryCreateRequestDto requestDto){
         CategoryResponseDto categoryResponseDto;
-        try {
+//        try {
             Optional<User> user = userService.findOneById(userId);
             if(user.isEmpty()){
                 return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
@@ -50,10 +50,10 @@ public class CategoryController {
                         .categoryColor(newCategory.getCategoryColor())
                         .build();
             }
-        }
-        catch (Exception e){
-            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, e.getMessage());
-        }
+//        }
+//        catch (Exception e){
+//            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, e.getMessage());
+//        }
         return DataResponseDto.of(categoryResponseDto, "카테고리 등록에 성공하였습니다.");
     }
 
@@ -61,23 +61,23 @@ public class CategoryController {
     @GetMapping("/category/{userId}")
     public BaseResponseDto<List<CategoryResponseDto>> getCategory(@PathVariable Long userId){
         List<CategoryResponseDto> result;
-        try {
+//        try {
             Optional<User> user = userService.findOneById(userId);
             if(user.isEmpty()){
                 return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
             }
             else{
-                try{
+//                try{
                     result = categoryService.getAllCategories(userId);
-                }
-                catch (Exception e) {
-                    return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, "해당 사용자의 카테고리 조회 요청에 실패하였습니다.");
-                }
+//                }
+//                catch (Exception e) {
+//                    return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, "해당 사용자의 카테고리 조회 요청에 실패하였습니다.");
+//                }
             }
-        }
-        catch(Exception e){
-            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
-        }
+//        }
+//        catch(Exception e){
+//            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
+//        }
 
         return DataResponseDto.of(result, "카테고리 조회 요청에 성공하였습니다.");
     }
@@ -89,25 +89,25 @@ public class CategoryController {
                                                     @RequestBody CategoryUpdateRequestDto requestDto){
         CategoryResponseDto result;
 
-        try{
+//        try{
             Optional<User> user = userService.findOneById(userId);
             if(user.isEmpty()){
                 return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
             }
             else {
-                try {
+//                try {
                     result = categoryService.update(userId, categoryId, requestDto);
-                } catch (NotFoundException e) {
-                    return ErrorResponseDto.of(StatusCode.NOT_FOUND, e.getMessage());
+//                } catch (NotFoundException e) {
+//                    return ErrorResponseDto.of(StatusCode.NOT_FOUND, e.getMessage());
                 }
-                catch (Exception e){
-                    return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
-                }
-            }
-        }
-        catch(Exception e){
-            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
-        }
+//                catch (Exception e){
+//                    return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
+//                }
+//            }
+//        }
+//        catch(Exception e){
+//            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
+//        }
 
         return DataResponseDto.of(result, "카테고리 수정에 성공하였습니다.");
     }
@@ -116,17 +116,17 @@ public class CategoryController {
     @DeleteMapping("/category/{userId}/{categoryId}")
     public BaseResponseDto deleteCategory(@PathVariable Long userId,
                                           @PathVariable Long categoryId){
-        try {
+//        try {
             User user = userService.findOneById(userId)
                     .orElseThrow(()-> new IllegalArgumentException("해당 id의 사용자가 존재하지 않습니다."));
             categoryService.delete(userId, categoryId);
-        }
-        catch(NotFoundException e){
-            return ErrorResponseDto.of(StatusCode.NOT_FOUND, e.getMessage());
-        }
-        catch(Exception e){
-            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
-        }
+//        }
+//        catch(NotFoundException e){
+//            return ErrorResponseDto.of(StatusCode.NOT_FOUND, e.getMessage());
+//        }
+//        catch(Exception e){
+//            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
+//        }
 
         return DataResponseDto.of(null, "카테고리 삭제에 성공하였습니다.");
     }
@@ -137,7 +137,7 @@ public class CategoryController {
                                                                       @PathVariable Long categoryId){
         EventCategoryGetResponseDto result;
 
-        try {
+//        try {
             // 유저 유효성 먼저 확인
 //            User user = userService.findOneById(userId)
 //                    .orElseThrow(()-> new IllegalArgumentException("해당 id의 사용자가 존재하지 않습니다."));
@@ -151,13 +151,13 @@ public class CategoryController {
 
             // 모아보기 데이터 리턴
             result = categoryService.findByIdForCollection(categoryId);
-        }
-        catch(NotFoundException e){
-            return ErrorResponseDto.of(StatusCode.NOT_FOUND, e.getMessage());
-        }
-        catch(Exception e){
-            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
-        }
+//        }
+//        catch(NotFoundException e){
+//            return ErrorResponseDto.of(StatusCode.NOT_FOUND, e.getMessage());
+//        }
+//        catch(Exception e){
+//            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
+//        }
 
         return DataResponseDto.of(result, "카테고리 모아보기 조회 요청에 성공하였습니다.");
     }
