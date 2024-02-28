@@ -21,7 +21,7 @@ public enum ErrorCode {
     REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "해당 refresh token은 만료되었습니다."),
 
     // 유저
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "NO USER FOUND"),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다"),
 
     // 카테고리
     CATEGORY_EXSITS(HttpStatus.BAD_REQUEST, "이미 존재하는 카테고리 이름 혹은 색상입니다."),

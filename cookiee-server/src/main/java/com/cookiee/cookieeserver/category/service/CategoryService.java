@@ -14,6 +14,7 @@ import com.cookiee.cookieeserver.category.dto.response.CategoryResponseDto;
 import com.cookiee.cookieeserver.event.dto.response.EventCategoryGetResponseDto;
 import com.cookiee.cookieeserver.category.repository.CategoryRepository;
 import com.cookiee.cookieeserver.global.repository.EventCategoryRepository;
+import com.cookiee.cookieeserver.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final EventCategoryRepository eventCategoryRepository;
+    private final UserService userService;
 
     // 카테고리 생성
     @Transactional
@@ -66,7 +68,9 @@ public class CategoryService {
 
     @Transactional
     public List<CategoryResponseDto> getAllCategories(Long userId) {
-        List<CategoryResponseDto> list = categoryRepository.findCategoriesByUserUserId(userId);
+        User user = userService.findOneById(userId);
+
+        List<CategoryResponseDto> list = categoryRepository.findCategoriesByUserUserId(user.getUserId());
 
         if(list.isEmpty())
             throw new GeneralException(CATEGORY_NOT_FOUND);
@@ -92,13 +96,15 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponseDto update(Long userId, Long categoryId, CategoryUpdateRequestDto requestDto){
+        User user = userService.findOneById(userId);
+
         Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow(() ->
                 new NotFoundException(("해당 id의 카테고리가 존재하지 않습니다."))
         );
 
         // 유저 아이디와 카테고리 아이디가 부합하는지 확인
         category = categoryRepository
-                .findByUserUserIdAndCategoryId(userId, categoryId)
+                .findByUserUserIdAndCategoryId(user.getUserId(), categoryId)
                 .orElse(null);
 
         if(category == null){
@@ -123,13 +129,15 @@ public class CategoryService {
 
     @Transactional
     public void delete(Long userId, Long categoryId) {
+        User user = userService.findOneById(userId);
+
         // 카테고리 아이디 존재 유무 확인
         Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow(() ->
                 new GeneralException(CATEGORY_NOT_FOUND)
         );
 
         // 유저 아이디와 카테고리 아이디가 부합하는지 확인
-        if (categoryRepository.existsByCategoryIdInUser(userId, categoryId) == 1) {
+        if (categoryRepository.existsByCategoryIdInUser(user.getUserId(), categoryId) == 1) {
             // 외래키로 엮였기 때문에 해당 카테고리 아이디를 갖고 있는 EventCategory를 지워야 함
             eventCategoryRepository.deleteByCategoryCategoryId(categoryId);
 

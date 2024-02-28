@@ -52,12 +52,12 @@ public class EventController {
             EventRegisterRequestDto eventRegisterRequestDto) throws IOException {
         EventResponseDto event;
         try {
-            Optional<User> user = userService.findOneById(userId);
-            if (user.isEmpty()) {
-                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
-            } else {
-                event = eventService.createEvent(imageUrl, eventRegisterRequestDto, userId);
-            }
+            User user = userService.findOneById(userId);
+//            if (user.isEmpty()) {
+//                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
+//            } else {
+                event = eventService.createEvent(imageUrl, eventRegisterRequestDto, user.getUserId());
+//            }
         } catch (Exception e) {
             return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 등록에 실패하였습니다.");
         }
@@ -70,12 +70,12 @@ public class EventController {
     public BaseResponseDto<EventResponseDto> getEventDetail(@PathVariable long userId, @PathVariable long eventId) {
         EventResponseDto event;
         try {
-            Optional<User> user = userService.findOneById(userId);
-            if (user.isEmpty()) {
-                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
-            } else {
-                event = eventService.getEventDetail(userId,eventId);
-            }
+            User user = userService.findOneById(userId);
+//            if (user.isEmpty()) {
+//                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
+//            } else {
+                event = eventService.getEventDetail(user.getUserId(),eventId);
+//            }
         } catch (Exception e) {
             return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 조회에 실패하였습니다.");
         }
@@ -88,12 +88,12 @@ public class EventController {
     public BaseResponseDto<EventResponseDto> getEventList(@PathVariable long userId, EventGetRequestDto eventGetRequestDto) {
         List<EventResponseDto> events;
         try {
-            Optional<User> user = userService.findOneById(userId);
-            if (user.isEmpty()) {
-                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
-            } else {
-                events = eventService.getEventList(userId, eventGetRequestDto);
-            }
+            User user = userService.findOneById(userId);
+//            if (user.isEmpty()) {
+//                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
+//            } else {
+                events = eventService.getEventList(user.getUserId(), eventGetRequestDto);
+//            }
         } catch (Exception e) {
             return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 조회에 실패하였습니다.");
         }
@@ -107,12 +107,12 @@ public class EventController {
     public BaseResponseDto<EventResponseDto> updateEvent(@PathVariable long userId, @PathVariable long eventId, @RequestParam(value = "images", required = false) List<MultipartFile> imageUrl, EventUpdateRequestDto eventUpdateRequestDto) {
         EventResponseDto event;
         try {
-            Optional<User> user = userService.findOneById(userId);
-            if(user.isEmpty()){
-                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
-            } else{
-                event = eventService.updateEvent(userId, eventId,eventUpdateRequestDto, imageUrl);
-            }
+            User user = userService.findOneById(userId);
+//            if(user.isEmpty()){
+//                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
+//            } else{
+                event = eventService.updateEvent(user.getUserId(), eventId,eventUpdateRequestDto, imageUrl);
+//            }
         } catch ( Exception e){
             return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 수정에 실패하였습니다.");
         }
@@ -124,13 +124,13 @@ public class EventController {
     @DeleteMapping("/event/del/{userId}/{eventId}")
     public BaseResponseDto<EventResponseDto> deleteEvent(@PathVariable long userId, @PathVariable long eventId) {
         try {
-            Optional<User> user = userService.findOneById(userId);
-            if (user.isEmpty()) {
-                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 회원이 존재하지 않습니다.");
-            } else {
-                eventService.deleteEvent(userId, eventId);
+            User user = userService.findOneById(userId);
+//            if (user.isEmpty()) {
+//                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 회원이 존재하지 않습니다.");
+//            } else {
+                eventService.deleteEvent(user.getUserId(), eventId);
                 return DataResponseDto.of(null, "이벤트 삭제에 성공하였습니다.");
-            }
+//            }
         } catch (Exception e) {
             return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 삭제에 실패했습니다");
         }

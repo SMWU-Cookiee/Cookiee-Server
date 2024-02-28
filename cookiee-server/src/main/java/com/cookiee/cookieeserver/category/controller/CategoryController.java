@@ -1,8 +1,8 @@
 package com.cookiee.cookieeserver.category.controller;
 
-import com.amazonaws.services.kms.model.NotFoundException;
 import com.cookiee.cookieeserver.category.domain.Category;
 import com.cookiee.cookieeserver.global.StatusCode;
+import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.global.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.global.dto.DataResponseDto;
@@ -37,17 +37,17 @@ public class CategoryController {
     public BaseResponseDto<CategoryResponseDto> postCategory(@PathVariable Long userId,
                                                   @RequestBody CategoryCreateRequestDto requestDto){
         CategoryResponseDto categoryResponseDto;
-        Optional<User> user = userService.findOneById(userId);
-        if (user.isEmpty()) {
-            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
-        } else {
-            Category newCategory = categoryService.create(user.get(), requestDto);
+        User user = userService.findOneById(userId);
+//        if (user.isEmpty()) {
+//            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
+//        } else {
+            Category newCategory = categoryService.create(user, requestDto);
             categoryResponseDto = CategoryResponseDto.builder()
                     .categoryId(newCategory.getCategoryId())
                     .categoryName(newCategory.getCategoryName())
                     .categoryColor(newCategory.getCategoryColor())
                     .build();
-        }
+//        }
         return DataResponseDto.of(categoryResponseDto, "카테고리 등록에 성공하였습니다.");
     }
 
@@ -55,13 +55,13 @@ public class CategoryController {
     @GetMapping("/category/{userId}")
     public BaseResponseDto<List<CategoryResponseDto>> getCategory(@PathVariable Long userId){
         List<CategoryResponseDto> result;
-        Optional<User> user = userService.findOneById(userId);
-        if(user.isEmpty()){
-            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
-        }
-        else{
+//        User user = userService.findOneById(userId);
+//        if(user.isEmpty()){
+//            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
+//        }
+//        else{
                 result = categoryService.getAllCategories(userId);
-        }
+//        }
 
         return DataResponseDto.of(result, "카테고리 조회 요청에 성공하였습니다.");
     }
@@ -73,13 +73,13 @@ public class CategoryController {
                                                     @RequestBody CategoryUpdateRequestDto requestDto){
         CategoryResponseDto result;
 
-        Optional<User> user = userService.findOneById(userId);
-        if(user.isEmpty()){
-            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
-        }
-        else {
+//        User user = userService.findOneById(userId);
+//        if(user.isEmpty()){
+//            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
+//        }
+//        else {
             result = categoryService.update(userId, categoryId, requestDto);
-        }
+//        }
 
         return DataResponseDto.of(result, "카테고리 수정에 성공하였습니다.");
     }
@@ -89,8 +89,8 @@ public class CategoryController {
     public BaseResponseDto deleteCategory(@PathVariable Long userId,
                                           @PathVariable Long categoryId){
 
-        User user = userService.findOneById(userId)
-                .orElseThrow(()-> new IllegalArgumentException("해당 id의 사용자가 존재하지 않습니다."));
+//        User user = userService.findOneById(userId)
+//                .orElseThrow(()-> new GeneralException(USER_NOT_FOUND);
         categoryService.delete(userId, categoryId);
 
         return DataResponseDto.of(null, "카테고리 삭제에 성공하였습니다.");
