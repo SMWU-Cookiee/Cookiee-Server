@@ -1,10 +1,8 @@
 package com.cookiee.cookieeserver.category.service;
 
-import com.amazonaws.services.kms.model.AlreadyExistsException;
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.cookiee.cookieeserver.category.domain.Category;
 import com.cookiee.cookieeserver.event.domain.Event;
-import com.cookiee.cookieeserver.global.ErrorCode;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
 import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.user.domain.User;
@@ -38,7 +36,7 @@ public class CategoryService {
         // 중복 검사
         if(categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryColor(), user.getUserId())
                 || categoryRepository.existsByCategoryNameAndUserUserId(requestDto.getCategoryName(), user.getUserId())){
-            throw new GeneralException(CATEGORY_EXSITS);
+            throw new GeneralException(CATEGORY_EXISTS);
         }
 
         return categoryRepository.save(requestDto.toEntity(user));
@@ -113,7 +111,7 @@ public class CategoryService {
         else{
             if(categoryRepository.existsByCategoryNameAndUserUserId(requestDto.getCategoryName(), userId)
             || categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryColor(), userId))
-                throw new GeneralException(CATEGORY_EXSITS);
+                throw new GeneralException(CATEGORY_EXISTS);
             else
                 category.update(requestDto.getCategoryName(), requestDto.getCategoryColor());
         }
