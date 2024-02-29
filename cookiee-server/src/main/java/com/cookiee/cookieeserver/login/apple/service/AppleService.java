@@ -1,5 +1,7 @@
 package com.cookiee.cookieeserver.login.apple.service;
 
+import com.cookiee.cookieeserver.global.exception.GeneralException;
+import com.cookiee.cookieeserver.global.exception.handler.AppleAuthException;
 import com.cookiee.cookieeserver.login.apple.controller.AppleClient;
 import com.cookiee.cookieeserver.global.domain.AuthProvider;
 import com.cookiee.cookieeserver.login.OAuthResponse;
@@ -9,11 +11,9 @@ import com.cookiee.cookieeserver.login.apple.dto.response.AppleTokenResponse;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.*;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -33,14 +33,19 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+
+import static com.cookiee.cookieeserver.global.ErrorCode.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -167,7 +172,7 @@ public class AppleService {
             String headerOfIdentityToken = identityToken.substring(0, identityToken.indexOf("."));
             Map<String, String> header = new ObjectMapper().readValue(new String(Base64.getDecoder().decode(headerOfIdentityToken), "UTF-8"), Map.class);
             ApplePublicKeyResponse.Key key = response.getMatchedKeyBy(header.get("kid"), header.get("alg"))
-                    .orElseThrow(() -> new NullPointerException("Failed get public key from apple's id server."));
+                    .orElseThrow(() -> new AppleAuthException(INVALID_APPLE_PUBLIC_KEY));
 
             // 응답받은 n, e 값은 base64 url-safe로 인코딩 되어 있기 때문에 반드시 디코딩하고나서 public key로 만들어야 한다.
             byte[] nBytes = Base64.getUrlDecoder().decode(key.getN());
@@ -186,14 +191,15 @@ public class AppleService {
             return Jwts.parser().setSigningKey(publicKey).parseClaimsJws(identityToken).getBody();
 
         } catch (MalformedJwtException e) {
-            //토큰 서명 검증 or 구조 문제 (Invalid token)
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+            throw new AppleAuthException(MALFORMED_TOKEN);
         } catch (ExpiredJwtException e) {
-            throw new IllegalArgumentException("만료된 토큰입니다.");
+            throw new AppleAuthException(EXPIRED_TOKEN);
+        } catch(UnsupportedJwtException | IllegalArgumentException e) {
+            throw new AppleAuthException(INVALID_TOKEN);
         } catch (Exception e) {
-
+            throw new GeneralException(INTERNAL_SERVER_ERROR);
         }
-        return null;
+        //return null;
     }
 
     /**
@@ -210,7 +216,7 @@ public class AppleService {
      */
     public AppleTokenResponse generateAuthToken(String code) throws IOException {
 
-        if (code == null) throw new IllegalArgumentException("Failed to get authorization code");
+        if (code == null) throw new AppleAuthException(INVALID_APPLE_PUBLIC_KEY);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
@@ -243,7 +249,7 @@ public class AppleService {
             // 응답으로 받은 json 데이터를 AppleTokenResponse로 변환해서 리턴
             return new ObjectMapper().readValue(response.getBody(), AppleTokenResponse.class);
         } catch (HttpClientErrorException e) {
-            throw new IllegalArgumentException("애플에서 public key 받기를 실패하였습니다.");
+            throw new AppleAuthException(INVALID_APPLE_PUBLIC_KEY);
         }
     }
 

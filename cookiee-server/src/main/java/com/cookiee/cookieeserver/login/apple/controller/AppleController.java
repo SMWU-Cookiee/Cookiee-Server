@@ -24,14 +24,14 @@ public class AppleController {
     @ResponseBody
     public BaseResponseDto<?> appleOAuthRequest(@RequestHeader(HEADER_IDENTITY_TOKEN) String idToken,
                                                 @RequestHeader(HEADER_APPLE_AUTHORIZATION_CODE) String authorizationCode) {
-        try{
+//        try{
             OAuthResponse response = appleService.login(idToken, authorizationCode);
             return DataResponseDto.of(response, "애플 로그인에 성공하였습니다.");
-        }
+//        }
         // 애플 회원가입 또는 로그인 실패
-        catch(Exception e){
-            return ErrorResponseDto.of(StatusCode.VALIDATION_ERROR, e.getMessage());
-        }
+//        catch(Exception e){
+//            return ErrorResponseDto.of(StatusCode.VALIDATION_ERROR, e.getMessage());
+//        }
     }
 
 //    @RequestMapping("/login/apple/callback")
