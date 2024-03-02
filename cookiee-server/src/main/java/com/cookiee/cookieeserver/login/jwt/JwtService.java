@@ -11,14 +11,12 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.antlr.v4.runtime.Token;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Objects;
 
 import static com.cookiee.cookieeserver.global.ErrorCode.*;
 
@@ -173,9 +171,14 @@ public class JwtService {
                 .build();
     }
 
-    public User getCurrentUser(){
+    public User getAndValidateCurrentUser(Long requestedUserId){
         String accessToken = JwtHeaderUtil.getAccessToken();
         Long id = getUserId(accessToken);
-        return userService.findOneById(id);
+
+        if(id.equals(requestedUserId))
+            return userService.findOneById(id);
+        else {
+            throw new GeneralException(TOKEN_AND_USER_NOT_CORRESPONDS);
+        }
     }
 }
