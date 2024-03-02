@@ -1,10 +1,10 @@
 package com.cookiee.cookieeserver.category.service;
 
-import com.amazonaws.services.kms.model.AlreadyExistsException;
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.cookiee.cookieeserver.category.domain.Category;
 import com.cookiee.cookieeserver.event.domain.Event;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
+import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.category.dto.request.CategoryCreateRequestDto;
 import com.cookiee.cookieeserver.category.dto.request.CategoryUpdateRequestDto;
@@ -12,6 +12,7 @@ import com.cookiee.cookieeserver.category.dto.response.CategoryResponseDto;
 import com.cookiee.cookieeserver.event.dto.response.EventCategoryGetResponseDto;
 import com.cookiee.cookieeserver.category.repository.CategoryRepository;
 import com.cookiee.cookieeserver.global.repository.EventCategoryRepository;
+import com.cookiee.cookieeserver.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.cookiee.cookieeserver.global.ErrorCode.*;
+
 @RequiredArgsConstructor
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final EventCategoryRepository eventCategoryRepository;
+    private final UserService userService;
 
     // 카테고리 생성
     @Transactional
@@ -32,8 +36,7 @@ public class CategoryService {
         // 중복 검사
         if(categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryColor(), user.getUserId())
                 || categoryRepository.existsByCategoryNameAndUserUserId(requestDto.getCategoryName(), user.getUserId())){
-            throw new IllegalArgumentException("카테고리 등록에 실패하였습니다. 중복되는 카테고리 이름 혹은 색상입니다.");
-
+            throw new GeneralException(CATEGORY_EXISTS);
         }
 
         return categoryRepository.save(requestDto.toEntity(user));
@@ -42,7 +45,7 @@ public class CategoryService {
     @Transactional
     public EventCategoryGetResponseDto findByIdForCollection(Long id){
         Category categoryEntity = categoryRepository.findByCategoryId(id).orElseThrow(
-                () -> new AlreadyExistsException("해당 아이디로 카테고리를 찾을 수 없습니다.")
+                () -> new GeneralException(CATEGORY_NOT_FOUND)
         );
 
         List<EventCategory> eventCategory = eventCategoryRepository.findByCategoryId(categoryEntity);
@@ -63,7 +66,14 @@ public class CategoryService {
 
     @Transactional
     public List<CategoryResponseDto> getAllCategories(Long userId) {
-        return categoryRepository.findCategoriesByUserUserId(userId);
+        User user = userService.findOneById(userId);
+
+        List<CategoryResponseDto> list = categoryRepository.findCategoriesByUserUserId(user.getUserId());
+
+//        if(list.isEmpty())
+//            throw new GeneralException(CATEGORY_NOT_FOUND);
+//        else
+            return list;
     }
 
 //    @Transactional
@@ -84,22 +94,24 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponseDto update(Long userId, Long categoryId, CategoryUpdateRequestDto requestDto){
+        User user = userService.findOneById(userId);
+
         Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow(() ->
                 new NotFoundException(("해당 id의 카테고리가 존재하지 않습니다."))
         );
 
         // 유저 아이디와 카테고리 아이디가 부합하는지 확인
         category = categoryRepository
-                .findByUserUserIdAndCategoryId(userId, categoryId)
+                .findByUserUserIdAndCategoryId(user.getUserId(), categoryId)
                 .orElse(null);
 
         if(category == null){
-            throw new NotFoundException("해당 유저에게 요청한 카테고리가 존재하지 않습니다.");
+            throw new GeneralException(CATEGORY_NOT_FOUND);
         }
         else{
             if(categoryRepository.existsByCategoryNameAndUserUserId(requestDto.getCategoryName(), userId)
             || categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryColor(), userId))
-                throw new AlreadyExistsException("이미 존재하는 카테고리 이름 혹은 색상입니다.");
+                throw new GeneralException(CATEGORY_EXISTS);
             else
                 category.update(requestDto.getCategoryName(), requestDto.getCategoryColor());
         }
@@ -115,20 +127,22 @@ public class CategoryService {
 
     @Transactional
     public void delete(Long userId, Long categoryId) {
+        User user = userService.findOneById(userId);
+
         // 카테고리 아이디 존재 유무 확인
         Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow(() ->
-                new NotFoundException(("해당 id의 카테고리가 존재하지 않습니다."))
+                new GeneralException(CATEGORY_NOT_FOUND)
         );
 
         // 유저 아이디와 카테고리 아이디가 부합하는지 확인
-        if (categoryRepository.existsByCategoryIdInUser(userId, categoryId) == 1) {
+        if (categoryRepository.existsByCategoryIdInUser(user.getUserId(), categoryId) == 1) {
             // 외래키로 엮였기 때문에 해당 카테고리 아이디를 갖고 있는 EventCategory를 지워야 함
             eventCategoryRepository.deleteByCategoryCategoryId(categoryId);
 
             // 그 다음에 카테고리 삭제
             categoryRepository.delete(category);
         } else {
-            throw new NotFoundException("해당 유저에게 요청한 카테고리가 존재하지 않습니다.");
+            throw new GeneralException(CATEGORY_NOT_FOUND);
         }
     }
 }

@@ -1,26 +1,31 @@
 package com.cookiee.cookieeserver.login.jwt;
 
+import com.cookiee.cookieeserver.global.exception.GeneralException;
+import com.cookiee.cookieeserver.global.exception.handler.TokenException;
 import com.cookiee.cookieeserver.login.dto.response.AccessTokenResponse;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
+import com.cookiee.cookieeserver.user.service.UserService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Objects;
+
+import static com.cookiee.cookieeserver.global.ErrorCode.*;
 
 @Getter
 @Service
 @RequiredArgsConstructor
 public class JwtService {
     private final UserRepository userRepository;
+    private final UserService userService;
     private final long accessTokenExpirationTime = 1000L * 60 * 60;  // 액세스 토큰 만료 기간: 1시간
     private final long refreshTokenExpirationTime = 1000L * 60 * 60 * 24 * 30;  // 리프레쉬 토큰 만료 기간: 30일
 
@@ -75,14 +80,14 @@ public class JwtService {
         User user = userRepository.findByUserId(userId).orElse(null);
 
         if (user == null){
-            throw new JwtException("해당 액세스 토큰으로 사용자를 찾을 수 없습니다.");
+            throw new TokenException(INVALID_TOKEN);
         }
         else{
             if (user.getRefreshToken() == null)
-                throw new JwtException("리프레쉬 토큰이 존재하지 않습니다.");
+                throw new TokenException(NULL_REFRESH_TOKEN);
 
             if (!user.getRefreshToken().equals(refreshToken))
-                throw new JwtException("유효하지 않은 리프레쉬 토큰입니다.");
+                throw new TokenException(INVALID_REFRESH_TOKEN);
         }
 
         return user.getUserId();
@@ -104,11 +109,11 @@ public class JwtService {
         } catch (SecurityException | MalformedJwtException e) {
             throw new JwtException("Invalid token,"+e.getMessage());
         }catch (ExpiredJwtException e) {
-            throw new JwtException("만료된 토큰입니다.");
+            throw new JwtException(EXPIRED_TOKEN.getMessage());
         } catch (UnsupportedJwtException e) {
-            throw new JwtException("지원되지 않는 토큰입니다.");
+            throw new JwtException(UNSUPPORTED_TOKEN.getMessage());
         } catch (IllegalArgumentException e) {
-            throw new JwtException("해당 토큰으로 데이터가 존재하지 않습니다.");
+            throw new JwtException(INVALID_TOKEN.getMessage());
         }
     }
 
@@ -142,7 +147,7 @@ public class JwtService {
      * 액세스 토큰 갱신
      * @return
      */
-    public AccessTokenResponse reissueAccessToken() throws Exception {
+    public AccessTokenResponse reissueAccessToken(){
         // 요청에 함께 온 헤더에서 액세스 토큰 가져오기
         String accessToken = JwtHeaderUtil.getAccessToken();
         // 요청에 함께 온 헤더에서 리프레쉬 토큰 가져오기
@@ -150,10 +155,10 @@ public class JwtService {
 
         // 리프레쉬 토큰이 없는 경우
         if (refreshToken == null)
-            throw new Exception("리프레쉬 토큰이 없습니다.");
+            throw new GeneralException(NULL_REFRESH_TOKEN);
         // 유효한 리프레쉬 토큰이 아닌 경우
         else if (!validate(refreshToken))
-            throw new Exception("유효하지 않은 리프레쉬 토큰입니다.");
+            throw new GeneralException(INVALID_REFRESH_TOKEN);
 
         // 두 토큰으로 사용자 아이디 가져오기
         Long userId = validateRefreshToken(accessToken, refreshToken);
@@ -164,5 +169,16 @@ public class JwtService {
         return AccessTokenResponse.builder()
                 .accessToken(newAccessToken)
                 .build();
+    }
+
+    public User getAndValidateCurrentUser(Long requestedUserId){
+        String accessToken = JwtHeaderUtil.getAccessToken();
+        Long id = getUserId(accessToken);
+
+        if(id.equals(requestedUserId))
+            return userService.findOneById(id);
+        else {
+            throw new GeneralException(TOKEN_AND_USER_NOT_CORRESPONDS);
+        }
     }
 }

@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.cookiee.cookieeserver.category.domain.Category;
 import com.cookiee.cookieeserver.event.domain.Event;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
+import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.event.dto.request.EventGetRequestDto;
 import com.cookiee.cookieeserver.event.dto.request.EventRegisterRequestDto;
@@ -26,6 +27,8 @@ import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.cookiee.cookieeserver.global.ErrorCode.*;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -47,16 +50,15 @@ public class EventService  {
 
 
     @Transactional
-    public EventResponseDto createEvent(List<MultipartFile> images, EventRegisterRequestDto eventRegisterRequestDto, Long userId) throws IOException {
+    public EventResponseDto createEvent(List<MultipartFile> images, EventRegisterRequestDto eventRegisterRequestDto, Long userId){
         User user = userRepository.findByUserId(userId).orElseThrow(
-                () -> new IllegalArgumentException("해당 id의 사용자가 없습니다.")
+                () -> new GeneralException(USER_NOT_FOUND)
         );
-
 
         List<Category> categoryList = eventRegisterRequestDto.categoryIds().stream()
                 .map(
                         id -> categoryRepository.findByCategoryId(id).orElseThrow(
-                                () -> new IllegalArgumentException("해당 id의 카테고리 없습니다...")
+                                () -> new GeneralException(CATEGORY_NOT_FOUND)
                         )
                 )
                 .collect(Collectors.toList());
@@ -80,7 +82,7 @@ public class EventService  {
             return EventResponseDto.from(savedEvent);
         }
 
-        throw new NullPointerException("사진이 없습니다.");
+        throw new GeneralException(IMAGE_IS_NULL);
     }
 
     @Transactional
@@ -98,7 +100,7 @@ public class EventService  {
     }
 
     @Transactional
-    public EventResponseDto updateEvent(long userId, long eventId, EventUpdateRequestDto eventUpdateRequestDto, List<MultipartFile> images) throws IOException {
+    public EventResponseDto updateEvent(long userId, long eventId, EventUpdateRequestDto eventUpdateRequestDto, List<MultipartFile> images) {
         Event updatedEvent = eventRepository.findByUserUserIdAndEventId(userId, eventId);
 
         List<String> imageUrls = updatedEvent.getImageUrl();
@@ -117,7 +119,7 @@ public class EventService  {
         List<Category> categoryList = eventUpdateRequestDto.categoryIds().stream()
                 .map(
                         id -> categoryRepository.findByCategoryId(id).orElseThrow(
-                                () -> new IllegalArgumentException("해당 id의 카테고리 없습니다...")
+                                () -> new GeneralException(CATEGORY_NOT_FOUND)
                         )
                 )
                 .collect(Collectors.toList());

@@ -1,6 +1,7 @@
 package com.cookiee.cookieeserver.global.dto;
 
 import com.cookiee.cookieeserver.global.StatusCode;
+import org.springframework.http.HttpStatus;
 
 /* 통신 실패했을 때 Response Dto */
 public class ErrorResponseDto extends BaseResponseDto {
@@ -20,6 +21,9 @@ public class ErrorResponseDto extends BaseResponseDto {
         super(false, errorCode.getCode(), errorCode.getMessage(message));
     }
 
+    private ErrorResponseDto(HttpStatus httpStatus, String message) {
+        super(false, httpStatus.value(), message);
+    }
 
     public static ErrorResponseDto of(StatusCode errorCode) {
         return new ErrorResponseDto(errorCode);
@@ -31,5 +35,10 @@ public class ErrorResponseDto extends BaseResponseDto {
 
     public static ErrorResponseDto of(StatusCode errorCode, String message) {
         return new ErrorResponseDto(errorCode, message);
+    }
+
+    // TODO: 형식 다 변경해야 함
+    public static ErrorResponseDto of(HttpStatus status, String message) {
+        return new ErrorResponseDto(StatusCode.valueOf(status), message);
     }
 }

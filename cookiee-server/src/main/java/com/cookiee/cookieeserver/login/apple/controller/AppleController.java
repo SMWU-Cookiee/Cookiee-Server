@@ -1,17 +1,13 @@
 package com.cookiee.cookieeserver.login.apple.controller;
 
-import com.cookiee.cookieeserver.global.StatusCode;
 import com.cookiee.cookieeserver.global.dto.BaseResponseDto;
-import com.cookiee.cookieeserver.global.dto.DataResponseDto;
-import com.cookiee.cookieeserver.global.dto.ErrorResponseDto;
 import com.cookiee.cookieeserver.login.OAuthResponse;
 import com.cookiee.cookieeserver.login.apple.service.AppleService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import static com.cookiee.cookieeserver.global.Constant.*;
+import static com.cookiee.cookieeserver.global.SuccessCode.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,14 +20,8 @@ public class AppleController {
     @ResponseBody
     public BaseResponseDto<?> appleOAuthRequest(@RequestHeader(HEADER_IDENTITY_TOKEN) String idToken,
                                                 @RequestHeader(HEADER_APPLE_AUTHORIZATION_CODE) String authorizationCode) {
-        try{
-            OAuthResponse response = appleService.login(idToken, authorizationCode);
-            return DataResponseDto.of(response, "애플 로그인에 성공하였습니다.");
-        }
-        // 애플 회원가입 또는 로그인 실패
-        catch(Exception e){
-            return ErrorResponseDto.of(StatusCode.VALIDATION_ERROR, e.getMessage());
-        }
+        OAuthResponse response = appleService.login(idToken, authorizationCode);
+        return BaseResponseDto.ofSuccess(APPLE_LOGIN_SUCCESS, response);
     }
 
 //    @RequestMapping("/login/apple/callback")
