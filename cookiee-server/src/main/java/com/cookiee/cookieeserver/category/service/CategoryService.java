@@ -43,20 +43,15 @@ public class CategoryService {
     }
 
     @Transactional
-    public EventCategoryGetResponseDto findByIdForCollection(Long id){
-        Category categoryEntity = categoryRepository.findByCategoryId(id).orElseThrow(
+    public EventCategoryGetResponseDto findByIdForCollection(User user, Long categoryId){
+        Category categoryEntity = categoryRepository.findByUserUserIdAndCategoryId(user.getUserId(), categoryId)
+                .orElseThrow(
                 () -> new GeneralException(CATEGORY_NOT_FOUND)
         );
-
-        List<EventCategory> eventCategory = eventCategoryRepository.findByCategoryId(categoryEntity);
 
         List<Event> eventList = categoryEntity.getEventCategories().stream()
                 .map(EventCategory::getEvent)
                 .collect(Collectors.toList());
-
-//        List<Event> eventList = eventCategories.stream()
-//                .map(EventCategory::getEvent)
-//                .collect(Collectors.toList());
 
         return EventCategoryGetResponseDto.builder()
                 .category(categoryEntity)
@@ -65,15 +60,9 @@ public class CategoryService {
     }
 
     @Transactional
-    public List<CategoryResponseDto> getAllCategories(Long userId) {
-        User user = userService.findOneById(userId);
-
+    public List<CategoryResponseDto> getAllCategories(User user) {
         List<CategoryResponseDto> list = categoryRepository.findCategoriesByUserUserId(user.getUserId());
-
-//        if(list.isEmpty())
-//            throw new GeneralException(CATEGORY_NOT_FOUND);
-//        else
-            return list;
+        return list;
     }
 
 //    @Transactional
@@ -93,8 +82,9 @@ public class CategoryService {
 //    }
 
     @Transactional
-    public CategoryResponseDto update(Long userId, Long categoryId, CategoryUpdateRequestDto requestDto){
-        User user = userService.findOneById(userId);
+    public CategoryResponseDto update(User user, Long categoryId, CategoryUpdateRequestDto requestDto){
+        //User user = userService.findOneById(userId);
+        Long userId = user.getUserId();
 
         Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow(() ->
                 new NotFoundException(("해당 id의 카테고리가 존재하지 않습니다."))
@@ -102,7 +92,7 @@ public class CategoryService {
 
         // 유저 아이디와 카테고리 아이디가 부합하는지 확인
         category = categoryRepository
-                .findByUserUserIdAndCategoryId(user.getUserId(), categoryId)
+                .findByUserUserIdAndCategoryId(userId, categoryId)
                 .orElse(null);
 
         if(category == null){
@@ -115,19 +105,12 @@ public class CategoryService {
             else
                 category.update(requestDto.getCategoryName(), requestDto.getCategoryColor());
         }
-//        if(categoryRepository.existsByCategoryIdInUser(userId, categoryId) == 1){
-//            category.update(requestDto.getCategoryName(), requestDto.getCategoryColor());
-//        }
-//        else{
-//            throw new NotFoundException("해당 유저에게 요청한 카테고리가 존재하지 않습니다.");
-//        }
 
         return new CategoryResponseDto(category.getCategoryId(), category.getCategoryName(), category.getCategoryColor());
     }
 
     @Transactional
-    public void delete(Long userId, Long categoryId) {
-        User user = userService.findOneById(userId);
+    public void delete(User user, Long categoryId) {
 
         // 카테고리 아이디 존재 유무 확인
         Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow(() ->
