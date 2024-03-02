@@ -10,11 +10,12 @@ public enum ErrorCode {
     // 일반적인 응답
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러, 문의 바랍니다"),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
+    IO_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "IO 예외입니다."),
 
     // 인증 & 인가
     INVALID_TOKEN(HttpStatus.BAD_REQUEST, "유효한 토큰이 아닙니다."),
     //INVALID_TOKEN_SIGNATURE(BAD_REQUEST, "LOGIN4002", "잘못된 토큰 서명입니다."),
-    UNSUPPORTED_TOKEN_FORM(HttpStatus.BAD_REQUEST, "지원하지 않는 형식의 토큰입니다."),  // bearer
+    UNSUPPORTED_TOKEN(HttpStatus.BAD_REQUEST, "지원하지 않는 토큰입니다."),  // bearer
     MALFORMED_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 구성의 토큰입니다."),
     //NULL_TOKEN(HttpStatus.BAD_REQUEST, "토큰이 존재하지 않습니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "잘못된 리프레시 토큰입니다."),
@@ -28,6 +29,7 @@ public enum ErrorCode {
 
     // 유저
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다"),
+    USER_EXISTS(HttpStatus.BAD_REQUEST, "이미 존재하는 사용자입니다."),
 
     // 카테고리
     CATEGORY_EXISTS(HttpStatus.BAD_REQUEST, "이미 존재하는 카테고리 이름 혹은 색상입니다."),

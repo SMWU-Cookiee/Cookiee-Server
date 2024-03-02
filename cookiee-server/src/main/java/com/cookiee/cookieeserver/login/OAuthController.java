@@ -11,16 +11,13 @@ import com.cookiee.cookieeserver.login.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.swing.plaf.basic.BasicEditorPaneUI;
 import java.io.IOException;
 
-@Controller
-@RequestMapping("/auth")
+@RestController
+//@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class OAuthController {
     private final JwtService jwtService;
@@ -30,22 +27,22 @@ public class OAuthController {
      * 새로 가입한 사용자가 소셜 로그인 후 회원 정보 입력할 때
      * @return
      */
-    @PostMapping(value = "/signup", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = "/auth/signup", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public BaseResponseDto<?> signup(UserSignupRequestDto userSignupRequestDto) {
-        try{
+//        try{
             OAuthResponse response = oAuthService.signup(userSignupRequestDto);
             return DataResponseDto.of(response);
-        }
-        catch(Exception e){
-            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
-        }
+//        }
+//        catch(Exception e){
+//            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
+//        }
     }
 
     /**
      * 회원 탈퇴
      * @return
      */
-    @DeleteMapping("/signout")
+    @DeleteMapping("/auth/signout")
     public BaseResponseDto<?> signout() throws Exception {
         String accessToken = JwtHeaderUtil.getAccessToken();
         Long userId = jwtService.getUserId(accessToken);

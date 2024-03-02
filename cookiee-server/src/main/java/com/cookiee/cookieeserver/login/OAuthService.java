@@ -3,6 +3,7 @@ package com.cookiee.cookieeserver.login;
 import com.cookiee.cookieeserver.event.service.S3Uploader;
 import com.cookiee.cookieeserver.global.domain.AuthProvider;
 import com.cookiee.cookieeserver.global.domain.Role;
+import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.login.apple.service.AppleService;
 import com.cookiee.cookieeserver.login.dto.request.UserSignupRequestDto;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Optional;
+
+import static com.cookiee.cookieeserver.global.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -32,13 +35,13 @@ public class OAuthService {
      * @throws Exception
      */
     @Transactional
-    public OAuthResponse signup(UserSignupRequestDto signupUserInfo) throws Exception {
+    public OAuthResponse signup(UserSignupRequestDto signupUserInfo) {
         Optional<User> foundUser = userRepository.findBySocialId(signupUserInfo.getSocialId());
 
         // 이미 유저가 존재하는 경우
         if(foundUser.isPresent()){
             log.debug("OAuthService, signup - 이미 존재하는 사용자");
-            throw new Exception("이미 존재하는 사용자입니다.");
+            throw new GeneralException(USER_EXISTS);
         }
 
         // 그게 아니면 새로운 유저 생성
@@ -52,10 +55,16 @@ public class OAuthService {
                 .socialRefreshToken(signupUserInfo.getSocialRefreshToken())
                 .build();
 
+        String storedFileName;
         // 프로필 이미지 s3에 생성 후 저장된 파일명 가져오기
-        String storedFileName = s3Uploader.saveFile(signupUserInfo.getProfileImage(),
-                                                    String.valueOf(newUser.getUserId()),
-                                                    "profile");
+        try {
+            storedFileName = s3Uploader.saveFile(signupUserInfo.getProfileImage(),
+                    String.valueOf(newUser.getUserId()),
+                    "profile");
+        }
+        catch(IOException e){
+            throw new GeneralException(IO_EXCEPTION);
+        }
 
         // 새로운 유저의 리프레쉬, 액세스 토큰 생성
         String refreshToken = jwtService.createRefreshToken();
