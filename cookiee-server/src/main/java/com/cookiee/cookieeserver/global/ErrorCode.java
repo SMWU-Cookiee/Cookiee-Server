@@ -30,6 +30,7 @@ public enum ErrorCode {
     // 유저
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다"),
     USER_EXISTS(HttpStatus.BAD_REQUEST, "이미 존재하는 사용자입니다."),
+    TOKEN_AND_USER_NOT_CORRESPONDS(HttpStatus.BAD_REQUEST, "토큰 정보와 유저 정보가 일치하지 않습니다"),
 
     // 카테고리
     CATEGORY_EXISTS(HttpStatus.BAD_REQUEST, "이미 존재하는 카테고리 이름 혹은 색상입니다."),

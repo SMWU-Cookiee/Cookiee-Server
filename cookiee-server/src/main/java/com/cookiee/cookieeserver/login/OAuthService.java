@@ -66,18 +66,19 @@ public class OAuthService {
             throw new GeneralException(IO_EXCEPTION);
         }
 
-        // 새로운 유저의 리프레쉬, 액세스 토큰 생성
-        String refreshToken = jwtService.createRefreshToken();
-        String accessToken = jwtService.createAccessToken(newUser.getUserId());
-
-        log.debug("app refresh token: {}", refreshToken);
-        log.debug("app access token: {}", accessToken);
-
-        // 새로운 유저에 리프레쉬 토큰, 프로필 이미지 저장하기
-        newUser.setRefreshToken(refreshToken);
         newUser.setProfileImage(storedFileName);
 
+        // 리프레쉬 토큰 먼저 생성, 저장
+        String refreshToken = jwtService.createRefreshToken();
+        newUser.setRefreshToken(refreshToken);
+
+        // 유저 저장
         userRepository.save(newUser);
+
+        // 액세스 토큰 생성
+        String accessToken = jwtService.createAccessToken(newUser.getUserId());
+        log.debug("app refresh token: {}", refreshToken);
+        log.debug("app access token: {}", accessToken);
 
         return OAuthResponse.builder()
                 .isNewMember(false)
