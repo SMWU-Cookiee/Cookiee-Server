@@ -89,7 +89,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     error.getMessage()));
             response.getWriter().write(json);
         } catch (Exception e) {
-
+            throw new RuntimeException(e);
         }
     }
 }

@@ -147,7 +147,7 @@ public class JwtService {
      * 액세스 토큰 갱신
      * @return
      */
-    public AccessTokenResponse reissueAccessToken() throws Exception {
+    public AccessTokenResponse reissueAccessToken(){
         // 요청에 함께 온 헤더에서 액세스 토큰 가져오기
         String accessToken = JwtHeaderUtil.getAccessToken();
         // 요청에 함께 온 헤더에서 리프레쉬 토큰 가져오기

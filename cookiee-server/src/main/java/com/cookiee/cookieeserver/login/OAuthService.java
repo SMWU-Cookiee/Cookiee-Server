@@ -57,14 +57,9 @@ public class OAuthService {
 
         String storedFileName;
         // 프로필 이미지 s3에 생성 후 저장된 파일명 가져오기
-        try {
-            storedFileName = s3Uploader.saveFile(signupUserInfo.getProfileImage(),
+        storedFileName = s3Uploader.saveFile(signupUserInfo.getProfileImage(),
                     String.valueOf(newUser.getUserId()),
                     "profile");
-        }
-        catch(IOException e){
-            throw new GeneralException(IO_EXCEPTION);
-        }
 
         newUser.setProfileImage(storedFileName);
 
@@ -97,7 +92,7 @@ public class OAuthService {
         final User user = userRepository.findByUserId(userId).orElse(null);
 
         if(user == null){
-            throw new IllegalArgumentException("해당 id의 유저가 없습니다.");
+            throw new GeneralException(USER_NOT_FOUND);
         }
 
         // 애플 로그인한 유저라면 다시 애플 서버에 요청해야 함

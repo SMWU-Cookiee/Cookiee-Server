@@ -40,6 +40,10 @@ public enum ErrorCode {
 
     // 컬렉션
 
+    // 사진
+    IMAGE_IS_NULL(HttpStatus.BAD_REQUEST, "사진이 없습니다. 사진을 넣어주세요."),
+    S3_UPLOAD_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "S3 업로드에 실패하였습니다."),
+
     ;
 
 

@@ -1,6 +1,8 @@
 package com.cookiee.cookieeserver.global.dto;
 
+import com.cookiee.cookieeserver.global.ErrorCode;
 import com.cookiee.cookieeserver.global.StatusCode;
+import com.cookiee.cookieeserver.global.SuccessCode;
 import lombok.*;
 
 @Getter
@@ -19,8 +21,17 @@ public class BaseResponseDto<T> {
 //    public static <T> BaseResponseDto<T> ofSuccess() {
 //        return new BaseResponseDto<>(true, 1000,"요청에 성공하였습니다.", null);
 //    }
-    public static BaseResponseDto of(Boolean isSuccess, StatusCode code) {
-        return new BaseResponseDto(isSuccess, code.getCode(), code.getMessage());
+
+    public static BaseResponseDto<?> ofSuccess(SuccessCode code) {
+        return DataResponseDto.of(code.getMessage());
+    }
+
+    public static <T> DataResponseDto<T> ofSuccess(SuccessCode code, T result) {
+        return DataResponseDto.of(code.getMessage(), result);
+    }
+
+    public static BaseResponseDto ofFailure(ErrorCode code) {
+        return ErrorResponseDto.of(code.getHttpStatus(), code.getMessage());
     }
 
     // success -> response with data

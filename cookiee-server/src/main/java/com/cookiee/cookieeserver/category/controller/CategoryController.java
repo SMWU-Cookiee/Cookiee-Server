@@ -1,12 +1,10 @@
 package com.cookiee.cookieeserver.category.controller;
 
 import com.cookiee.cookieeserver.category.domain.Category;
-import com.cookiee.cookieeserver.global.StatusCode;
-import com.cookiee.cookieeserver.global.exception.GeneralException;
+import com.cookiee.cookieeserver.login.jwt.JwtService;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.global.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.global.dto.DataResponseDto;
-import com.cookiee.cookieeserver.global.dto.ErrorResponseDto;
 import com.cookiee.cookieeserver.category.dto.request.CategoryCreateRequestDto;
 import com.cookiee.cookieeserver.category.dto.request.CategoryUpdateRequestDto;
 import com.cookiee.cookieeserver.category.dto.response.CategoryResponseDto;
@@ -18,7 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+
+import static com.cookiee.cookieeserver.global.SuccessCode.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +25,8 @@ public class CategoryController {
     private final UserService userService;
     private final CategoryService categoryService;
     private final CategoryRepository categoryRepository;
+
+    private final JwtService jwtService;
 
     /***
      * 카테고리 등록
@@ -36,25 +37,29 @@ public class CategoryController {
     @PostMapping("/category/{userId}")
     public BaseResponseDto<CategoryResponseDto> postCategory(@PathVariable Long userId,
                                                   @RequestBody CategoryCreateRequestDto requestDto){
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+
+
         CategoryResponseDto categoryResponseDto;
-        User user = userService.findOneById(userId);
-        Category newCategory = categoryService.create(user, requestDto);
+        Category newCategory = categoryService.create(currentUser, requestDto);
         categoryResponseDto = CategoryResponseDto.builder()
                 .categoryId(newCategory.getCategoryId())
                 .categoryName(newCategory.getCategoryName())
                 .categoryColor(newCategory.getCategoryColor())
                 .build();
 
-        return DataResponseDto.of(categoryResponseDto, "카테고리 등록에 성공하였습니다.");
+        return BaseResponseDto.ofSuccess(CREATE_CATEGORY_SUCCESS, categoryResponseDto);
     }
 
     // 특정 유저의 카테고리 전체 조회
     @GetMapping("/category/{userId}")
     public BaseResponseDto<List<CategoryResponseDto>> getCategory(@PathVariable Long userId){
-        List<CategoryResponseDto> result;
-        result = categoryService.getAllCategories(userId);
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
 
-        return DataResponseDto.of(result, "카테고리 조회 요청에 성공하였습니다.");
+        List<CategoryResponseDto> result;
+        result = categoryService.getAllCategories(currentUser.getUserId());
+
+        return BaseResponseDto.ofSuccess(GET_CATEGORY_SUCCESS, result);
     }
 
     // 카테고리 수정
@@ -65,17 +70,16 @@ public class CategoryController {
         CategoryResponseDto result;
         result = categoryService.update(userId, categoryId, requestDto);
 
-        return DataResponseDto.of(result, "카테고리 수정에 성공하였습니다.");
+        return BaseResponseDto.ofSuccess(MODIFY_CATEGORY_SUCCESS, result);
     }
 
     // 카테고리 삭제
     @DeleteMapping("/category/{userId}/{categoryId}")
-    public BaseResponseDto deleteCategory(@PathVariable Long userId,
+    public BaseResponseDto<?> deleteCategory(@PathVariable Long userId,
                                           @PathVariable Long categoryId){
-
         categoryService.delete(userId, categoryId);
 
-        return DataResponseDto.of(null, "카테고리 삭제에 성공하였습니다.");
+        return BaseResponseDto.ofSuccess(DELETE_CATEGORY_SUCCESS);
     }
 
     // 카테고리 모아보기....
@@ -87,6 +91,6 @@ public class CategoryController {
         // 모아보기 데이터 리턴
         result = categoryService.findByIdForCollection(categoryId);
 
-        return DataResponseDto.of(result, "카테고리 모아보기 조회 요청에 성공하였습니다.");
+        return BaseResponseDto.ofSuccess(GET_COLLECTION_SUCCESS, result);
     }
 }

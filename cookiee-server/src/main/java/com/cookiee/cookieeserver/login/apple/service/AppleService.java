@@ -95,30 +95,13 @@ public class AppleService {
         Claims claims = getClaimsBy(idToken);
 
         try {
-            //JSONParser jsonParser = new JSONParser();
-            // 생성한 auth token을 파싱
-            //JSONObject jsonObj = (JSONObject) jsonParser.parse(generateAuthToken(authorizationCode));
-
             // access token 등.. 생성해서 그 내용을 appleTokenResponse에 받아온다.
             AppleTokenResponse appleTokenResponse = generateAuthToken(authorizationCode);
             appleRefreshToken = appleTokenResponse.getRefreshToken();
             log.debug("애플 로그인 - 애플 고유 리프레쉬 토큰은 {}", appleRefreshToken);
-            //refreshToken = String.valueOf(jsonObj.get("refresh_token"));
-
-            // ID TOKEN을 통해 회원 고유 식별자 받기
-            // SignedJWT signedJWT = SignedJWT.parse(String.valueOf(jsonObj.get("id_token")));
-
-//            SignedJWT signedJWT = SignedJWT.parse(appleTokenResponse.getIdToken());
-//            JWTClaimsSet getPayload = signedJWT.getJWTClaimsSet();
-//
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            JSONObject payload = objectMapper.readValue(getPayload.toJSONObject().toString(), JSONObject.class);
 
             socialId = String.valueOf(claims.get("sub"));  // sub는 애플에서 제공하는 사용자 식별 값
             email = String.valueOf(claims.get("email"));
-
-            // userId = String.valueOf(payload.get("sub"));
-            // email = String.valueOf(payload.get("email"));
 
             // 로그인 요청하면서 받아온 소셜 아이디와 해당 소셜 로그인 타입의 조합으로 유저 찾아오기 -> 없으면 null(새로운 사용자임)
             User foundUser = userRepository
@@ -254,7 +237,7 @@ public class AppleService {
     }
 
     // 애플의 client secret을 얻기 위해 사용하는 메소드이다.
-    public String createClientSecretKey() throws IOException {
+    public String createClientSecretKey() {
         Date expirationDate = Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
         // headerParams 적재
         // 1. JWT header 생성
@@ -279,7 +262,7 @@ public class AppleService {
     }
 
     // 애플의 client secret을 얻기 위해 사용하는 메소드이다. key 받아오는 메소드
-    private PrivateKey getPrivateKey() throws IOException {
+    private PrivateKey getPrivateKey() {
         try {
             ClassPathResource resource = new ClassPathResource(APPLE_KEY_PATH);
             String privateKey = new String(resource.getInputStream().readAllBytes());
@@ -292,7 +275,7 @@ public class AppleService {
             return converter.getPrivateKey(object);
         }
         catch(IOException e){
-            throw new IOException("Failed to get private key");
+            throw new RuntimeException("Failed to get private key");
         }
     }
 
@@ -300,7 +283,7 @@ public class AppleService {
      * 애플 로그인한 유저 탈퇴
      * @param appleRefreshToken
      */
-    public void revoke(String appleRefreshToken) throws IOException {
+    public void revoke(String appleRefreshToken){
         // 헤더에 넣을 파라미터 값 만들기
         LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("client_id", APPLE_CLIENT_ID);

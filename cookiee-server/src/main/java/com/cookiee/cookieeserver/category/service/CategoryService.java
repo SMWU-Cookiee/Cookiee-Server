@@ -70,9 +70,9 @@ public class CategoryService {
 
         List<CategoryResponseDto> list = categoryRepository.findCategoriesByUserUserId(user.getUserId());
 
-        if(list.isEmpty())
-            throw new GeneralException(CATEGORY_NOT_FOUND);
-        else
+//        if(list.isEmpty())
+//            throw new GeneralException(CATEGORY_NOT_FOUND);
+//        else
             return list;
     }
 
