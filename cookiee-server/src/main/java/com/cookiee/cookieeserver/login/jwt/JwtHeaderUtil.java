@@ -1,19 +1,20 @@
 package com.cookiee.cookieeserver.login.jwt;
 
-import com.nimbusds.oauth2.sdk.GeneralException;
+import com.cookiee.cookieeserver.global.exception.GeneralException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import static com.cookiee.cookieeserver.global.Constant.*;
+import static com.cookiee.cookieeserver.global.ErrorCode.NULL_AUTHORIZATION_HEADER;
 
 public class JwtHeaderUtil {
     /**
      * 액세스 토큰 가져오기
      * @return
      */
-    public static String getAccessToken() throws Exception {
+    public static String getAccessToken() {
         return getToken(HEADER_AUTHORIZATION);
     }
 
@@ -21,7 +22,7 @@ public class JwtHeaderUtil {
      * 리프레쉬 토큰 가져오기
      * @return
      */
-    public static String getRefreshToken() throws Exception {
+    public static String getRefreshToken() {
         return getToken(HEADER_REFRESH_TOKEN);
     }
 
@@ -30,10 +31,10 @@ public class JwtHeaderUtil {
      * @param tokenHeader
      * @return
      */
-    private static String getToken(String tokenHeader) throws Exception {
+    private static String getToken(String tokenHeader) {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         String headerValue = request.getHeader(tokenHeader);
-        if (headerValue == null) throw new Exception("토큰 인증이 필요합니다.");
+        if (headerValue == null) throw new GeneralException(NULL_AUTHORIZATION_HEADER);
 
         // Bearer로 시작하고 토큰이 맞는지 확인
         if (StringUtils.hasText(headerValue) && headerValue.startsWith(TOKEN_PREFIX)) {

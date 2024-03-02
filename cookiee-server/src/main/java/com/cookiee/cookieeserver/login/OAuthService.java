@@ -3,6 +3,7 @@ package com.cookiee.cookieeserver.login;
 import com.cookiee.cookieeserver.event.service.S3Uploader;
 import com.cookiee.cookieeserver.global.domain.AuthProvider;
 import com.cookiee.cookieeserver.global.domain.Role;
+import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.login.apple.service.AppleService;
 import com.cookiee.cookieeserver.login.dto.request.UserSignupRequestDto;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Optional;
+
+import static com.cookiee.cookieeserver.global.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -32,13 +35,13 @@ public class OAuthService {
      * @throws Exception
      */
     @Transactional
-    public OAuthResponse signup(UserSignupRequestDto signupUserInfo) throws Exception {
+    public OAuthResponse signup(UserSignupRequestDto signupUserInfo) {
         Optional<User> foundUser = userRepository.findBySocialId(signupUserInfo.getSocialId());
 
         // 이미 유저가 존재하는 경우
         if(foundUser.isPresent()){
             log.debug("OAuthService, signup - 이미 존재하는 사용자");
-            throw new Exception("이미 존재하는 사용자입니다.");
+            throw new GeneralException(USER_EXISTS);
         }
 
         // 그게 아니면 새로운 유저 생성
@@ -52,24 +55,25 @@ public class OAuthService {
                 .socialRefreshToken(signupUserInfo.getSocialRefreshToken())
                 .build();
 
+        String storedFileName;
         // 프로필 이미지 s3에 생성 후 저장된 파일명 가져오기
-        String storedFileName = s3Uploader.saveFile(signupUserInfo.getProfileImage(),
-                                                    String.valueOf(newUser.getUserId()),
-                                                    "profile");
-        log.info("[OAuthService] storedFileName: {}", storedFileName);
+        storedFileName = s3Uploader.saveFile(signupUserInfo.getProfileImage(),
+                    String.valueOf(newUser.getUserId()),
+                    "profile");
 
-        // 새로운 유저의 리프레쉬, 액세스 토큰 생성
-        String refreshToken = jwtService.createRefreshToken();
-        String accessToken = jwtService.createAccessToken(newUser.getUserId());
-
-        log.debug("app refresh token: {}", refreshToken);
-        log.debug("app access token: {}", accessToken);
-
-        // 새로운 유저에 리프레쉬 토큰, 프로필 이미지 저장하기
-        newUser.setRefreshToken(refreshToken);
         newUser.setProfileImage(storedFileName);
 
+        // 리프레쉬 토큰 먼저 생성, 저장
+        String refreshToken = jwtService.createRefreshToken();
+        newUser.setRefreshToken(refreshToken);
+
+        // 유저 저장
         userRepository.save(newUser);
+
+        // 액세스 토큰 생성
+        String accessToken = jwtService.createAccessToken(newUser.getUserId());
+        log.debug("app refresh token: {}", refreshToken);
+        log.debug("app access token: {}", accessToken);
 
         return OAuthResponse.builder()
                 .isNewMember(true)
@@ -88,7 +92,7 @@ public class OAuthService {
         final User user = userRepository.findByUserId(userId).orElse(null);
 
         if(user == null){
-            throw new IllegalArgumentException("해당 id의 유저가 없습니다.");
+            throw new GeneralException(USER_NOT_FOUND);
         }
 
         // 애플 로그인한 유저라면 다시 애플 서버에 요청해야 함

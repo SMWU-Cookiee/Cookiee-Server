@@ -1,5 +1,7 @@
 package com.cookiee.cookieeserver.login.apple.service;
 
+import com.cookiee.cookieeserver.global.exception.GeneralException;
+import com.cookiee.cookieeserver.global.exception.handler.AppleAuthException;
 import com.cookiee.cookieeserver.login.apple.controller.AppleClient;
 import com.cookiee.cookieeserver.global.domain.AuthProvider;
 import com.cookiee.cookieeserver.login.OAuthResponse;
@@ -9,11 +11,9 @@ import com.cookiee.cookieeserver.login.apple.dto.response.AppleTokenResponse;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.*;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -33,14 +33,19 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+
+import static com.cookiee.cookieeserver.global.ErrorCode.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -90,30 +95,13 @@ public class AppleService {
         Claims claims = getClaimsBy(idToken);
 
         try {
-            //JSONParser jsonParser = new JSONParser();
-            // 생성한 auth token을 파싱
-            //JSONObject jsonObj = (JSONObject) jsonParser.parse(generateAuthToken(authorizationCode));
-
             // access token 등.. 생성해서 그 내용을 appleTokenResponse에 받아온다.
             AppleTokenResponse appleTokenResponse = generateAuthToken(authorizationCode);
             appleRefreshToken = appleTokenResponse.getRefreshToken();
             log.debug("애플 로그인 - 애플 고유 리프레쉬 토큰은 {}", appleRefreshToken);
-            //refreshToken = String.valueOf(jsonObj.get("refresh_token"));
-
-            // ID TOKEN을 통해 회원 고유 식별자 받기
-            // SignedJWT signedJWT = SignedJWT.parse(String.valueOf(jsonObj.get("id_token")));
-
-//            SignedJWT signedJWT = SignedJWT.parse(appleTokenResponse.getIdToken());
-//            JWTClaimsSet getPayload = signedJWT.getJWTClaimsSet();
-//
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            JSONObject payload = objectMapper.readValue(getPayload.toJSONObject().toString(), JSONObject.class);
 
             socialId = String.valueOf(claims.get("sub"));  // sub는 애플에서 제공하는 사용자 식별 값
             email = String.valueOf(claims.get("email"));
-
-            // userId = String.valueOf(payload.get("sub"));
-            // email = String.valueOf(payload.get("email"));
 
             // 로그인 요청하면서 받아온 소셜 아이디와 해당 소셜 로그인 타입의 조합으로 유저 찾아오기 -> 없으면 null(새로운 사용자임)
             User foundUser = userRepository
@@ -167,7 +155,7 @@ public class AppleService {
             String headerOfIdentityToken = identityToken.substring(0, identityToken.indexOf("."));
             Map<String, String> header = new ObjectMapper().readValue(new String(Base64.getDecoder().decode(headerOfIdentityToken), "UTF-8"), Map.class);
             ApplePublicKeyResponse.Key key = response.getMatchedKeyBy(header.get("kid"), header.get("alg"))
-                    .orElseThrow(() -> new NullPointerException("Failed get public key from apple's id server."));
+                    .orElseThrow(() -> new AppleAuthException(INVALID_APPLE_PUBLIC_KEY));
 
             // 응답받은 n, e 값은 base64 url-safe로 인코딩 되어 있기 때문에 반드시 디코딩하고나서 public key로 만들어야 한다.
             byte[] nBytes = Base64.getUrlDecoder().decode(key.getN());
@@ -186,14 +174,15 @@ public class AppleService {
             return Jwts.parser().setSigningKey(publicKey).parseClaimsJws(identityToken).getBody();
 
         } catch (MalformedJwtException e) {
-            //토큰 서명 검증 or 구조 문제 (Invalid token)
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+            throw new AppleAuthException(MALFORMED_TOKEN);
         } catch (ExpiredJwtException e) {
-            throw new IllegalArgumentException("만료된 토큰입니다.");
+            throw new AppleAuthException(EXPIRED_TOKEN);
+        } catch(UnsupportedJwtException | IllegalArgumentException e) {
+            throw new AppleAuthException(INVALID_TOKEN);
         } catch (Exception e) {
-
+            throw new GeneralException(INTERNAL_SERVER_ERROR);
         }
-        return null;
+        //return null;
     }
 
     /**
@@ -210,7 +199,7 @@ public class AppleService {
      */
     public AppleTokenResponse generateAuthToken(String code) throws IOException {
 
-        if (code == null) throw new IllegalArgumentException("Failed to get authorization code");
+        if (code == null) throw new AppleAuthException(INVALID_APPLE_PUBLIC_KEY);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
@@ -243,12 +232,12 @@ public class AppleService {
             // 응답으로 받은 json 데이터를 AppleTokenResponse로 변환해서 리턴
             return new ObjectMapper().readValue(response.getBody(), AppleTokenResponse.class);
         } catch (HttpClientErrorException e) {
-            throw new IllegalArgumentException("애플에서 public key 받기를 실패하였습니다.");
+            throw new AppleAuthException(INVALID_APPLE_PUBLIC_KEY);
         }
     }
 
     // 애플의 client secret을 얻기 위해 사용하는 메소드이다.
-    public String createClientSecretKey() throws IOException {
+    public String createClientSecretKey() {
         Date expirationDate = Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
         // headerParams 적재
         // 1. JWT header 생성
@@ -273,7 +262,7 @@ public class AppleService {
     }
 
     // 애플의 client secret을 얻기 위해 사용하는 메소드이다. key 받아오는 메소드
-    private PrivateKey getPrivateKey() throws IOException {
+    private PrivateKey getPrivateKey() {
         try {
             ClassPathResource resource = new ClassPathResource(APPLE_KEY_PATH);
             String privateKey = new String(resource.getInputStream().readAllBytes());
@@ -286,7 +275,7 @@ public class AppleService {
             return converter.getPrivateKey(object);
         }
         catch(IOException e){
-            throw new IOException("Failed to get private key");
+            throw new RuntimeException("Failed to get private key");
         }
     }
 
@@ -294,7 +283,7 @@ public class AppleService {
      * 애플 로그인한 유저 탈퇴
      * @param appleRefreshToken
      */
-    public void revoke(String appleRefreshToken) throws IOException {
+    public void revoke(String appleRefreshToken){
         // 헤더에 넣을 파라미터 값 만들기
         LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("client_id", APPLE_CLIENT_ID);

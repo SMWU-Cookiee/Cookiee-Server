@@ -1,18 +1,17 @@
 package com.cookiee.cookieeserver.login.jwt;
 
-import com.cookiee.cookieeserver.login.CustomHttpServletRequestWrapper;
-import com.cookiee.cookieeserver.login.CustomHttpServletResponseWrapper;
+import com.cookiee.cookieeserver.global.dto.ErrorResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.CharEncoding;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,7 +19,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -77,13 +75,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 // 2. 토큰 유효성 검사 (Bearer로 시작하고 값이 있으면)
                 if (headerValue != null && headerValue.startsWith(TOKEN_PREFIX)) {
                     String accessToken = headerValue.substring(TOKEN_PREFIX.length());
-                    // 정상 토큰이면 해당 토큰으로 authentication을 가져와 SecurityContext에 저장
-                    if (jwtService.validate(accessToken)) {
-                        log.info("[Authorization Filter] Normal JWT");
-                        Authentication authentication = getAuthentication(accessToken);
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
-                    filterChain.doFilter(request, response);
+//                    try {
+                        if (jwtService.validate(accessToken)) {  // 토큰 검증
+                            Authentication authentication = getAuthentication(accessToken);
+                            SecurityContextHolder.getContext().setAuthentication(authentication);
+                        }
+//                    } catch (io.jsonwebtoken.JwtException)
                 }
             } catch (JwtException e) {
                 log.debug("===Exception===");
@@ -108,12 +105,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     // jwt 예외 처리
     public void jwtExceptionHandler(HttpServletResponse response, Throwable error) throws IOException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        Map<String, Object> body = new HashMap<>();
-        body.put("message", error.getMessage());
-        body.put("isSuccess", false);
-        body.put("code", HttpServletResponse.SC_UNAUTHORIZED);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(response.getOutputStream(), body);
+        response.setCharacterEncoding(CharEncoding.UTF_8);
+        response.setStatus(HttpServletResponse.SC_OK);
+        try {
+            String json = new ObjectMapper().writeValueAsString(ErrorResponseDto.of(HttpStatus.valueOf(HttpServletResponse.SC_UNAUTHORIZED),
+                    error.getMessage()));
+            response.getWriter().write(json);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
