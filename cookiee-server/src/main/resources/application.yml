@@ -41,7 +41,6 @@ logging:
   level:
     org.hibernate.SQL: debug
     com.cookiee.cookieeserver: debug
-    org.springframework.boot.autoconfigure: debug
   logback:
     rollingpolicy:
       max-history: 7

@@ -1,6 +1,6 @@
 package com.cookiee.cookieeserver.event.controller;
 
-import com.cookiee.cookieeserver.global.StatusCode;
+import com.cookiee.cookieeserver.login.jwt.JwtService;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.global.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.global.dto.DataResponseDto;
@@ -33,6 +33,8 @@ public class EventController {
     @Autowired
     private final UserService userService;
 
+    private final JwtService jwtService;
+
     // 등록
     @Operation(summary = "캘린더에서 이벤트 등록")
 /*    @ApiImplicitParam(
@@ -49,10 +51,12 @@ public class EventController {
             @PathVariable Long userId,
             @RequestParam(value = "images") List<MultipartFile> imageUrl,
             EventRegisterRequestDto eventRegisterRequestDto) {
-        EventResponseDto event;
 
-            User user = userService.findOneById(userId);
-            event = eventService.createEvent(imageUrl, eventRegisterRequestDto, user.getUserId());
+        // 액세스 토큰 정보에 해당하는 유저 가져오기
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+
+        EventResponseDto event;
+        event = eventService.createEvent(imageUrl, eventRegisterRequestDto, currentUser);
         return BaseResponseDto.ofSuccess(CREATE_EVENT_SUCCESS, event);
     }
 
@@ -60,13 +64,10 @@ public class EventController {
     @ResponseBody
     @GetMapping("/event/view/{userId}/{eventId}")
     public BaseResponseDto<EventResponseDto> getEventDetail(@PathVariable long userId, @PathVariable long eventId) {
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
         EventResponseDto event;
-//        try {
-            User user = userService.findOneById(userId);
-            event = eventService.getEventDetail(user.getUserId(),eventId);
-//        } catch (Exception e) {
-//            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 조회에 실패하였습니다.");
-//        }
+        event = eventService.getEventDetail(currentUser.getUserId(),eventId);
+
         return BaseResponseDto.ofSuccess(GET_EVENT_SUCCESS, event);
     }
 
@@ -74,13 +75,11 @@ public class EventController {
     @ResponseBody
     @GetMapping("/event/view/{userId}")
     public BaseResponseDto<EventResponseDto> getEventList(@PathVariable long userId, EventGetRequestDto eventGetRequestDto) {
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
         List<EventResponseDto> events;
-//        try {
-            User user = userService.findOneById(userId);
-            events = eventService.getEventList(user.getUserId(), eventGetRequestDto);
-//        } catch (Exception e) {
-//            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 조회에 실패하였습니다.");
-//        }
+
+        events = eventService.getEventList(currentUser.getUserId(), eventGetRequestDto);
+
         return BaseResponseDto.ofSuccess(GET_EVENT_SUCCESS, events);
     }
 
@@ -89,27 +88,22 @@ public class EventController {
     @ResponseBody
     @PutMapping("/event/update/{userId}/{eventId}")
     public BaseResponseDto<EventResponseDto> updateEvent(@PathVariable long userId, @PathVariable long eventId, @RequestParam(value = "images", required = false) List<MultipartFile> imageUrl, EventUpdateRequestDto eventUpdateRequestDto) {
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+
         EventResponseDto event;
-//        try {
-            User user = userService.findOneById(userId);
-            event = eventService.updateEvent(user.getUserId(), eventId,eventUpdateRequestDto, imageUrl);
-//        } catch ( Exception e){
-//            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 수정에 실패하였습니다.");
-//        }
+        event = eventService.updateEvent(currentUser.getUserId(), eventId,eventUpdateRequestDto, imageUrl);
+
         return BaseResponseDto.ofSuccess(MODIFY_EVENT_SUCCESS, event);
     }
 
     //삭제
     @ResponseBody
     @DeleteMapping("/event/del/{userId}/{eventId}")
-    public BaseResponseDto<EventResponseDto> deleteEvent(@PathVariable long userId, @PathVariable long eventId) {
-//        try {
-            User user = userService.findOneById(userId);
-            eventService.deleteEvent(user.getUserId(), eventId);
-            return BaseResponseDto.ofSuccess(DELETE_EVENT_SUCCESS, null);
-//        } catch (Exception e) {
-//            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "이벤트 삭제에 실패했습니다");
-//        }
+    public BaseResponseDto<?> deleteEvent(@PathVariable long userId, @PathVariable long eventId) {
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+
+        eventService.deleteEvent(currentUser.getUserId(), eventId);
+        return BaseResponseDto.ofSuccess(DELETE_EVENT_SUCCESS);
     }
 
 }

@@ -37,6 +37,7 @@ public enum ErrorCode {
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리가 존재하지 않습니다"),
 
     // 이벤트
+    EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 이벤트 아이디입니다."),
 
     // 컬렉션
 

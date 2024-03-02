@@ -50,24 +50,26 @@ public class EventService  {
 
 
     @Transactional
-    public EventResponseDto createEvent(List<MultipartFile> images, EventRegisterRequestDto eventRegisterRequestDto, Long userId){
-        User user = userRepository.findByUserId(userId).orElseThrow(
-                () -> new GeneralException(USER_NOT_FOUND)
-        );
+    public EventResponseDto createEvent(List<MultipartFile> images, EventRegisterRequestDto eventRegisterRequestDto, User user){
 
         List<Category> categoryList = eventRegisterRequestDto.categoryIds().stream()
                 .map(
-                        id -> categoryRepository.findByCategoryId(id).orElseThrow(
+                        // 유저 아이디랑 카테고리 아이디랑 부합해야하므로 findByUserUserIdAndCategoryId로 변경함!
+                        id -> categoryRepository.findByUserUserIdAndCategoryId(user.getUserId(), id).orElseThrow(
                                 () -> new GeneralException(CATEGORY_NOT_FOUND)
                         )
                 )
                 .collect(Collectors.toList());
 
+        if (images == null)
+            throw new GeneralException(IMAGE_IS_NULL);
+
+        // TODO: 근데 null이 아닌데 이미지 없어도 추가됨
         if (!images.isEmpty()) {
             List<String> storedFileNames = new ArrayList<>();
 
             for (MultipartFile image : images) {
-                String storedFileName = s3Uploader.saveFile(image, String.valueOf(userId), "event");
+                String storedFileName = s3Uploader.saveFile(image, String.valueOf(user.getUserId()), "event");
                 storedFileNames.add(storedFileName);
                 System.out.println(storedFileName);
             }
@@ -81,12 +83,14 @@ public class EventService  {
             savedEvent.setEventCategories(eventCategoryList);
             return EventResponseDto.from(savedEvent);
         }
-
-        throw new GeneralException(IMAGE_IS_NULL);
+        else {
+            throw new GeneralException(IMAGE_IS_NULL);
+        }
     }
 
     @Transactional
     public EventResponseDto getEventDetail(long userId, long eventId){
+        // 이것도 optional로 바꿔서 orElseThrow로 유저아이디-이벤트 아이디 부합하는지 확인해야할거같은디..
         Event event = eventRepository.findByUserUserIdAndEventId(userId, eventId);
         return EventResponseDto.from(event);
     }
@@ -102,6 +106,9 @@ public class EventService  {
     @Transactional
     public EventResponseDto updateEvent(long userId, long eventId, EventUpdateRequestDto eventUpdateRequestDto, List<MultipartFile> images) {
         Event updatedEvent = eventRepository.findByUserUserIdAndEventId(userId, eventId);
+        if(updatedEvent == null){
+            throw new GeneralException(EVENT_NOT_FOUND);
+        }
 
         List<String> imageUrls = updatedEvent.getImageUrl();
         for (String imageUrl : imageUrls){
