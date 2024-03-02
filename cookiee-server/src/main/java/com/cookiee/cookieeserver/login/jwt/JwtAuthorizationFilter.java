@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 import static com.cookiee.cookieeserver.global.Constant.*;
 
 @RequiredArgsConstructor
-@Slf4j
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
@@ -47,44 +46,23 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        log.info("===doFilterInternal Started===");
-
         String servletPath = request.getServletPath();
-        log.info("===request path: {}===", servletPath);
-
-        // 1. Request Header에서 토큰 추출
-        final String headerValue = request.getHeader(HEADER_AUTHORIZATION);
-
-        //HttpServletRequest newRequest = new CustomHttpServletRequestWrapper(request);
-        HttpServletResponse newResponse = new CustomHttpServletResponseWrapper(response);
-
-        if (servletPath.contains("auth")) {
-            log.info("contains 'auth'");
-//            filterChain.doFilter(request, response);
-            // 새로운 HttpServletRequest 객체 생성
-            HttpServletRequest newRequest = new HttpServletRequestWrapper(request) {
-                @Override
-                public String getServletPath() {
-                    return "/auth/signup";  // 원하는 서블릿 경로로 수정
-                }
-            };
-
-            filterChain.doFilter(newRequest, response);
+        final String headerValue = request.getHeader(HEADER_AUTHORIZATION);  // Request Header에서 토큰 추출
+        if (servletPath.equals("/auth/refresh")) {
+            filterChain.doFilter(request, response);
         } else {
             try {
-                // 2. 토큰 유효성 검사 (Bearer로 시작하고 값이 있으면)
-                if (headerValue != null && headerValue.startsWith(TOKEN_PREFIX)) {
+                if (headerValue != null && headerValue.startsWith(TOKEN_PREFIX)) {  // Bearer로 시작하고 값이 있으면
                     String accessToken = headerValue.substring(TOKEN_PREFIX.length());
 //                    try {
-                        if (jwtService.validate(accessToken)) {  // 토큰 검증
-                            Authentication authentication = getAuthentication(accessToken);
-                            SecurityContextHolder.getContext().setAuthentication(authentication);
-                        }
+                    if (jwtService.validate(accessToken)) {  // 토큰 검증
+                        Authentication authentication = getAuthentication(accessToken);
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
 //                    } catch (io.jsonwebtoken.JwtException)
                 }
+                filterChain.doFilter(request, response);
             } catch (JwtException e) {
-                log.debug("===Exception===");
-                request.setAttribute("exception", e);
                 jwtExceptionHandler(response, e);
             }
         }
@@ -98,7 +76,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
         User principal = new User(claims.getSubject(), "", authorities);
-        log.debug("=== getting {} authentication ===", principal);
         return new UsernamePasswordAuthenticationToken(principal, accessToken, authorities);
     }
 
