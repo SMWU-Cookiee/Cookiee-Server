@@ -109,11 +109,11 @@ public class JwtService {
         } catch (SecurityException | MalformedJwtException e) {
             throw new JwtException("Invalid token,"+e.getMessage());
         }catch (ExpiredJwtException e) {
-            throw new GeneralException(EXPIRED_TOKEN);
+            throw new JwtException(EXPIRED_TOKEN.getMessage());
         } catch (UnsupportedJwtException e) {
-            throw new GeneralException(UNSUPPORTED_TOKEN);
+            throw new JwtException(UNSUPPORTED_TOKEN.getMessage());
         } catch (IllegalArgumentException e) {
-            throw new GeneralException(INVALID_TOKEN);
+            throw new JwtException(INVALID_TOKEN.getMessage());
         }
     }
 
