@@ -16,7 +16,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @RequiredArgsConstructor
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @Configuration
 @Slf4j
 public class SecurityConfig {
@@ -37,9 +37,7 @@ public class SecurityConfig {
                                 .permitAll()
                 )
                 // JWT 인증을 위하여 직접 구현한 jwtAuthorizationFilter 필터를 UsernamePasswordAuthenticationFilter 전에 실행
-                .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
-                // exception handler
-                .exceptionHandling(handler -> handler.authenticationEntryPoint(entryPoint));
+                .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
