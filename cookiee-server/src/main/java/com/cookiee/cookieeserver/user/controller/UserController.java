@@ -1,9 +1,11 @@
 package com.cookiee.cookieeserver.user.controller;
 
 import com.cookiee.cookieeserver.global.SuccessCode;
+import com.cookiee.cookieeserver.login.jwt.JwtService;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.global.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.global.dto.DataResponseDto;
+import com.cookiee.cookieeserver.user.dto.request.UpdateUserRequestDto;
 import com.cookiee.cookieeserver.user.dto.response.UserResponseDto;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
 import com.cookiee.cookieeserver.user.service.UserService;
@@ -19,10 +21,9 @@ import static com.cookiee.cookieeserver.global.SuccessCode.*;
 @RestController
 @RequiredArgsConstructor
 public class UserController {
-    @Autowired
     private final UserService userService;
-    @Autowired
     private final UserRepository userRepository;
+    private final JwtService jwtService;
 
     // health check에 대한 상태 반환 위해서
     @GetMapping("/healthcheck")
@@ -33,16 +34,15 @@ public class UserController {
     // 유저 프로필 조회
     @GetMapping("/users/{userId}")
     public BaseResponseDto<UserResponseDto> getUser(@PathVariable Long userId){
-        User user = userService.findOneById(userId);
-        UserResponseDto userResponseDto;
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
 
-        userResponseDto = UserResponseDto.builder()
-                .userId(user.getUserId())
-                .email(user.getEmail())
-                .nickname(user.getNickname())
-                .profileImage(user.getProfileImage())
-                .selfDescription(user.getSelfDescription())
-                .categories(user.getCategories().stream()
+        UserResponseDto userResponseDto = UserResponseDto.builder()
+                .userId(currentUser.getUserId())
+                .email(currentUser.getEmail())
+                .nickname(currentUser.getNickname())
+                .profileImage(currentUser.getProfileImage())
+                .selfDescription(currentUser.getSelfDescription())
+                .categories(currentUser.getCategories().stream()
                         .map(category -> category.toDto(category))
                         .collect(Collectors.toList()))
                 .build();
@@ -53,22 +53,21 @@ public class UserController {
     // 유저 프로필 수정 (닉네임, 한줄 소개, 프로필사진)
     @Transactional
     @PutMapping("/users/{userId}")
-    public BaseResponseDto<UserResponseDto> updateUser(@PathVariable Long userId, @RequestBody User requestUser){
-        User user = userService.findOneById(userId);
+    public BaseResponseDto<UserResponseDto> updateUser(@PathVariable Long userId,
+                                                       @RequestBody UpdateUserRequestDto requestUser){
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
 
-        UserResponseDto userResponseDto;
+        currentUser.update(requestUser.getNickname(),
+                requestUser.getProfileImage(),
+                requestUser.getSelfDescription());
 
-        user.setNickname(requestUser.getNickname());
-        user.setProfileImage(requestUser.getProfileImage());
-        user.setSelfDescription(requestUser.getSelfDescription());
-
-        userResponseDto = UserResponseDto.builder()
-                .userId(user.getUserId())
-                .email(user.getEmail())
-                .nickname(user.getNickname())
-                .profileImage(user.getProfileImage())
-                .selfDescription(user.getSelfDescription())
-                .categories(user.getCategories().stream()
+        UserResponseDto userResponseDto = UserResponseDto.builder()
+                .userId(currentUser.getUserId())
+                .email(currentUser.getEmail())
+                .nickname(currentUser.getNickname())
+                .profileImage(currentUser.getProfileImage())
+                .selfDescription(currentUser.getSelfDescription())
+                .categories(currentUser.getCategories().stream()
                         .map(category -> category.toDto(category))
                         .collect(Collectors.toList()))
                 .build();

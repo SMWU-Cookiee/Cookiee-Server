@@ -7,6 +7,7 @@ import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.CharEncoding;
@@ -47,7 +48,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String servletPath = request.getServletPath();
         final String headerValue = request.getHeader(HEADER_AUTHORIZATION);  // Request Header에서 토큰 추출
-
         if (servletPath.equals("/auth/refresh")) {
             filterChain.doFilter(request, response);
         } else {
@@ -55,10 +55,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 if (headerValue != null && headerValue.startsWith(TOKEN_PREFIX)) {  // Bearer로 시작하고 값이 있으면
                     String accessToken = headerValue.substring(TOKEN_PREFIX.length());
 //                    try {
-                        if (jwtService.validate(accessToken)) {  // 토큰 검증
-                            Authentication authentication = getAuthentication(accessToken);
-                            SecurityContextHolder.getContext().setAuthentication(authentication);
-                        }
+                    if (jwtService.validate(accessToken)) {  // 토큰 검증
+                        Authentication authentication = getAuthentication(accessToken);
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
 //                    } catch (io.jsonwebtoken.JwtException)
                 }
                 filterChain.doFilter(request, response);

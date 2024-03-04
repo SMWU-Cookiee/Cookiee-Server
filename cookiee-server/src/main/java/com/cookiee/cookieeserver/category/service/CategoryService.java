@@ -1,6 +1,5 @@
 package com.cookiee.cookieeserver.category.service;
 
-import com.amazonaws.services.kms.model.NotFoundException;
 import com.cookiee.cookieeserver.category.domain.Category;
 import com.cookiee.cookieeserver.event.domain.Event;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
@@ -12,7 +11,6 @@ import com.cookiee.cookieeserver.category.dto.response.CategoryResponseDto;
 import com.cookiee.cookieeserver.event.dto.response.EventCategoryGetResponseDto;
 import com.cookiee.cookieeserver.category.repository.CategoryRepository;
 import com.cookiee.cookieeserver.global.repository.EventCategoryRepository;
-import com.cookiee.cookieeserver.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,35 +26,28 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final EventCategoryRepository eventCategoryRepository;
-    private final UserService userService;
 
     // 카테고리 생성
     @Transactional
     public Category create(User user, CategoryCreateRequestDto requestDto) {
-        // 중복 검사
-        if(categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryColor(), user.getUserId())
-                || categoryRepository.existsByCategoryNameAndUserUserId(requestDto.getCategoryName(), user.getUserId())){
-            throw new GeneralException(CATEGORY_EXISTS);
+        // 이름만 중복 검사
+        if(categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryColor(), user.getUserId())){
+            throw new GeneralException(CATEGORY_NAME_EXISTS);
         }
 
         return categoryRepository.save(requestDto.toEntity(user));
     }
 
     @Transactional
-    public EventCategoryGetResponseDto findByIdForCollection(Long id){
-        Category categoryEntity = categoryRepository.findByCategoryId(id).orElseThrow(
+    public EventCategoryGetResponseDto findByIdForCollection(User user, Long categoryId){
+        Category categoryEntity = categoryRepository.findByUserUserIdAndCategoryId(user.getUserId(), categoryId)
+                .orElseThrow(
                 () -> new GeneralException(CATEGORY_NOT_FOUND)
         );
-
-        List<EventCategory> eventCategory = eventCategoryRepository.findByCategoryId(categoryEntity);
 
         List<Event> eventList = categoryEntity.getEventCategories().stream()
                 .map(EventCategory::getEvent)
                 .collect(Collectors.toList());
-
-//        List<Event> eventList = eventCategories.stream()
-//                .map(EventCategory::getEvent)
-//                .collect(Collectors.toList());
 
         return EventCategoryGetResponseDto.builder()
                 .category(categoryEntity)
@@ -65,15 +56,9 @@ public class CategoryService {
     }
 
     @Transactional
-    public List<CategoryResponseDto> getAllCategories(Long userId) {
-        User user = userService.findOneById(userId);
-
+    public List<CategoryResponseDto> getAllCategories(User user) {
         List<CategoryResponseDto> list = categoryRepository.findCategoriesByUserUserId(user.getUserId());
-
-//        if(list.isEmpty())
-//            throw new GeneralException(CATEGORY_NOT_FOUND);
-//        else
-            return list;
+        return list;
     }
 
 //    @Transactional
@@ -93,41 +78,26 @@ public class CategoryService {
 //    }
 
     @Transactional
-    public CategoryResponseDto update(Long userId, Long categoryId, CategoryUpdateRequestDto requestDto){
-        User user = userService.findOneById(userId);
-
-        Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow(() ->
-                new NotFoundException(("해당 id의 카테고리가 존재하지 않습니다."))
-        );
+    public CategoryResponseDto update(User user, Long categoryId, CategoryUpdateRequestDto requestDto){
+        Long userId = user.getUserId();
 
         // 유저 아이디와 카테고리 아이디가 부합하는지 확인
-        category = categoryRepository
-                .findByUserUserIdAndCategoryId(user.getUserId(), categoryId)
-                .orElse(null);
+        Category category = categoryRepository
+                .findByUserUserIdAndCategoryId(userId, categoryId)
+                .orElseThrow(() -> new GeneralException(CATEGORY_NOT_FOUND));
 
-        if(category == null){
-            throw new GeneralException(CATEGORY_NOT_FOUND);
-        }
-        else{
-            if(categoryRepository.existsByCategoryNameAndUserUserId(requestDto.getCategoryName(), userId)
-            || categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryColor(), userId))
-                throw new GeneralException(CATEGORY_EXISTS);
-            else
-                category.update(requestDto.getCategoryName(), requestDto.getCategoryColor());
-        }
-//        if(categoryRepository.existsByCategoryIdInUser(userId, categoryId) == 1){
-//            category.update(requestDto.getCategoryName(), requestDto.getCategoryColor());
-//        }
-//        else{
-//            throw new NotFoundException("해당 유저에게 요청한 카테고리가 존재하지 않습니다.");
-//        }
+        // 카테고리 이름이 변경됐으면(같지 않으면) -> 중복 체크
+        if(!category.getCategoryName().equals(requestDto.getCategoryName()) &
+                categoryRepository.existsByCategoryNameAndUserUserId(requestDto.getCategoryName(), userId))
+            throw new GeneralException(CATEGORY_NAME_EXISTS);
+        else
+            category.update(requestDto.getCategoryName(), requestDto.getCategoryColor());
 
         return new CategoryResponseDto(category.getCategoryId(), category.getCategoryName(), category.getCategoryColor());
     }
 
     @Transactional
-    public void delete(Long userId, Long categoryId) {
-        User user = userService.findOneById(userId);
+    public void delete(User user, Long categoryId) {
 
         // 카테고리 아이디 존재 유무 확인
         Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow(() ->

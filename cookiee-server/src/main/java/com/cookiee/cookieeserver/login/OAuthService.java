@@ -76,7 +76,7 @@ public class OAuthService {
         log.debug("app access token: {}", accessToken);
 
         return OAuthResponse.builder()
-                .isNewMember(false)
+                .isNewMember(true)
                 .userId(newUser.getUserId())  // 나머지 api 접근에는 유저 아이디가 필요함
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)

@@ -1,6 +1,5 @@
 package com.cookiee.cookieeserver.global.dto;
 
-import com.cookiee.cookieeserver.global.StatusCode;
 import com.cookiee.cookieeserver.global.SuccessCode;
 import lombok.Getter;
 

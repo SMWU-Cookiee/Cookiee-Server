@@ -1,6 +1,6 @@
 package com.cookiee.cookieeserver.thumbnail.controller;
 
-import com.cookiee.cookieeserver.global.StatusCode;
+import com.cookiee.cookieeserver.login.jwt.JwtService;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.global.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.global.dto.DataResponseDto;
@@ -42,6 +42,8 @@ public class ThumbnailController {
     @Autowired
     private final ThumbnailService thumbnailService;
 
+    private final JwtService jwtService;
+
     //등록
     @ResponseBody
     @PostMapping(value = "/thumbnail/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -49,9 +51,9 @@ public class ThumbnailController {
                                                     HttpServletRequest request,
                                                     @RequestParam(value = "thumbnail") MultipartFile thumbnailUrl,
                                                     ThumbnailRegisterRequestDto thumbnailRegisterRequestDto) throws IOException {
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
         ThumbnailResponseDto thumbnail;
-        User user = userService.findOneById(userId);
-        thumbnail = thumbnailService.createThumbnail(thumbnailUrl, thumbnailRegisterRequestDto, userId);
+        thumbnail = thumbnailService.createThumbnail(thumbnailUrl, thumbnailRegisterRequestDto, currentUser.getUserId());
         return BaseResponseDto.ofSuccess(CREATE_THUMBNAIL_SUCCESS, thumbnail);
     }
 
@@ -59,13 +61,10 @@ public class ThumbnailController {
     @ResponseBody
     @GetMapping(value="/thumbnail/view/{userId}")
     public BaseResponseDto<ThumbnailResponseDto> getThumbnail(@PathVariable Long userId) {
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+
         List<ThumbnailResponseDto> thumbnail;
-//        try {
-            User user = userService.findOneById(userId);
-            thumbnail = thumbnailService.getThumbnail(userId);
-//        } catch (Exception e) {
-//            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "썸네일 조회에 실패하였습니다.");
-//        }
+        thumbnail = thumbnailService.getThumbnail(currentUser.getUserId());
         return BaseResponseDto.ofSuccess(GET_THUMBNAIL_SUCCESS, thumbnail);
     }
 
@@ -75,14 +74,9 @@ public class ThumbnailController {
     public BaseResponseDto<ThumbnailResponseDto> updateThumbnail(@PathVariable long userId, @PathVariable long thumbnailId,
                                                                                   @RequestParam(value = "thumbnail") MultipartFile thumbnailUrl,
                                                                                   ThumbnailUpdateRequestDto thumbnailUpdateRequestDto) throws IOException {
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
         ThumbnailResponseDto updated;
-//        try {
-            User user = userService.findOneById(userId);
-            updated = thumbnailService.updateThumbnail(thumbnailUrl, thumbnailUpdateRequestDto, userId, thumbnailId);
-//        }
-//        catch (Exception e){
-//            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "썸네일 수정에 실패하였습니다.");
-//        }
+        updated = thumbnailService.updateThumbnail(thumbnailUrl, thumbnailUpdateRequestDto, currentUser.getUserId(), thumbnailId);
         return BaseResponseDto.ofSuccess(MODIFY_THUMBNAIL_SUCCESS, updated);
     }
 
@@ -90,13 +84,9 @@ public class ThumbnailController {
     //삭제
     @ResponseBody
     @DeleteMapping(value="/thumbnail/del/{userId}/{thumbnailId}")
-    public BaseResponseDto deleteThumbnail(@PathVariable Long userId, @PathVariable Long thumbnailId){
-//        try {
-            User user = userService.findOneById(userId);
-            thumbnailService.deleteThumbnail(userId, thumbnailId);
-            return BaseResponseDto.ofSuccess(DELETE_THUMBNAIL_SUCCESS);
-//        } catch (Exception e){
-//            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "썸네일 삭제에 실패하였습니다.");
-//        }
+    public BaseResponseDto<?> deleteThumbnail(@PathVariable Long userId, @PathVariable Long thumbnailId){
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+        thumbnailService.deleteThumbnail(currentUser.getUserId(), thumbnailId);
+        return BaseResponseDto.ofSuccess(DELETE_THUMBNAIL_SUCCESS);
     }
 }

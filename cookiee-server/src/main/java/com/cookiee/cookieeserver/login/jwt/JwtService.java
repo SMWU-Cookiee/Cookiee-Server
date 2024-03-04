@@ -20,6 +20,8 @@ import java.util.Objects;
 
 import static com.cookiee.cookieeserver.global.ErrorCode.*;
 
+import static com.cookiee.cookieeserver.global.Constant.AUTHORITIES_KEY;
+
 @Getter
 @Service
 @RequiredArgsConstructor
@@ -50,7 +52,7 @@ public class JwtService {
         Date now = new Date();
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
-                .claim("role", "ROLE_USER")
+                .claim(AUTHORITIES_KEY, "ROLE_USER")
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + accessTokenExpirationTime))
                 .signWith(key, SignatureAlgorithm.HS256)
