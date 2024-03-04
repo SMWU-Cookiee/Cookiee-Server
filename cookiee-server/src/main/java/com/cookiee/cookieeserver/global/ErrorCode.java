@@ -33,7 +33,7 @@ public enum ErrorCode {
     TOKEN_AND_USER_NOT_CORRESPONDS(HttpStatus.BAD_REQUEST, "토큰 정보와 유저 정보가 일치하지 않습니다"),
 
     // 카테고리
-    CATEGORY_EXISTS(HttpStatus.BAD_REQUEST, "이미 존재하는 카테고리 이름 혹은 색상입니다."),
+    CATEGORY_NAME_EXISTS(HttpStatus.BAD_REQUEST, "이미 존재하는 카테고리 이름입니다."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리가 존재하지 않습니다"),
 
     // 이벤트
