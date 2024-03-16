@@ -58,15 +58,15 @@ public class UserController {
                                                         UpdateUserRequestDto requestUser){
         final User currentUser = jwtService.getAndValidateCurrentUser(userId);
 
-        User updatedUser = userService.updateUser(currentUser, requestUser);
+        userService.updateUser(currentUser, requestUser);
 
         UserResponseDto userResponseDto = UserResponseDto.builder()
-                .userId(updatedUser.getUserId())
-                .email(updatedUser.getEmail())
-                .nickname(updatedUser.getNickname())
-                .profileImage(updatedUser.getProfileImage())
-                .selfDescription(updatedUser.getSelfDescription())
-                .categories(updatedUser.getCategories().stream()
+                .userId(currentUser.getUserId())
+                .email(currentUser.getEmail())
+                .nickname(currentUser.getNickname())
+                .profileImage(currentUser.getProfileImage())
+                .selfDescription(currentUser.getSelfDescription())
+                .categories(currentUser.getCategories().stream()
                         .map(category -> category.toDto(category))
                         .collect(Collectors.toList()))
                 .build();
