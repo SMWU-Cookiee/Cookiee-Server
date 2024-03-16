@@ -58,7 +58,8 @@ public class UserController {
                                                         UpdateUserRequestDto requestUser){
         final User currentUser = jwtService.getAndValidateCurrentUser(userId);
 
-        userService.updateUser(currentUser, requestUser);
+        User newUser = userService.updateUser(currentUser, requestUser);
+        userRepository.save(newUser);
 
         UserResponseDto userResponseDto = UserResponseDto.builder()
                 .userId(currentUser.getUserId())
