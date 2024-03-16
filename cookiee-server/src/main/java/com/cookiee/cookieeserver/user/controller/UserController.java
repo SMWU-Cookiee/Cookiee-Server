@@ -12,7 +12,9 @@ import com.cookiee.cookieeserver.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.stream.Collectors;
 
@@ -51,23 +53,20 @@ public class UserController {
     }
 
     // 유저 프로필 수정 (닉네임, 한줄 소개, 프로필사진)
-    @Transactional
-    @PutMapping("/users/{userId}")
+    @PutMapping(value = "/users/{userId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public BaseResponseDto<UserResponseDto> updateUser(@PathVariable Long userId,
-                                                       @RequestBody UpdateUserRequestDto requestUser){
+                                                        UpdateUserRequestDto requestUser){
         final User currentUser = jwtService.getAndValidateCurrentUser(userId);
 
-        currentUser.update(requestUser.getNickname(),
-                requestUser.getProfileImage(),
-                requestUser.getSelfDescription());
+        User updatedUser = userService.updateUser(currentUser, requestUser);
 
         UserResponseDto userResponseDto = UserResponseDto.builder()
-                .userId(currentUser.getUserId())
-                .email(currentUser.getEmail())
-                .nickname(currentUser.getNickname())
-                .profileImage(currentUser.getProfileImage())
-                .selfDescription(currentUser.getSelfDescription())
-                .categories(currentUser.getCategories().stream()
+                .userId(updatedUser.getUserId())
+                .email(updatedUser.getEmail())
+                .nickname(updatedUser.getNickname())
+                .profileImage(updatedUser.getProfileImage())
+                .selfDescription(updatedUser.getSelfDescription())
+                .categories(updatedUser.getCategories().stream()
                         .map(category -> category.toDto(category))
                         .collect(Collectors.toList()))
                 .build();
