@@ -206,7 +206,7 @@ public class AppleService {
         params.add("client_id", APPLE_CLIENT_ID);
         params.add("client_secret", createClientSecretKey());  // public key를 받기 위해서는 client secret key 생성
         params.add("code", code);
-        //params.add("redirect_uri", APPLE_REDIRECT_URL);  // 추가 안해도 되는 것 같음..
+        params.add("redirect_uri", APPLE_REDIRECT_URL);  // 추가 안해도 되는 것 같음..
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -289,9 +289,9 @@ public class AppleService {
         params.add("client_id", APPLE_CLIENT_ID);
         params.add("client_secret", createClientSecretKey());
         params.add("token", appleRefreshToken);
+        params.add("token_type_hint", "refresh_token");
 
         // 통신할 rest template 만들기
-
         RestTemplate restTemplate = new RestTemplate();
 
         // 헤더 생성

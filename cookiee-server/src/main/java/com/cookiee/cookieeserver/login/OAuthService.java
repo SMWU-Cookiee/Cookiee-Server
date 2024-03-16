@@ -1,22 +1,33 @@
 package com.cookiee.cookieeserver.login;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.cookiee.cookieeserver.category.repository.CategoryRepository;
+import com.cookiee.cookieeserver.event.repository.EventRepository;
+import com.cookiee.cookieeserver.event.service.EventService;
 import com.cookiee.cookieeserver.event.service.S3Uploader;
 import com.cookiee.cookieeserver.global.domain.AuthProvider;
 import com.cookiee.cookieeserver.global.domain.Role;
 import com.cookiee.cookieeserver.global.exception.GeneralException;
+import com.cookiee.cookieeserver.global.repository.EventCategoryRepository;
 import com.cookiee.cookieeserver.login.apple.service.AppleService;
 import com.cookiee.cookieeserver.login.dto.request.UserSignupRequestDto;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
+import com.cookiee.cookieeserver.thumbnail.domain.Thumbnail;
+import com.cookiee.cookieeserver.thumbnail.repository.ThumbnailRepository;
+import com.cookiee.cookieeserver.thumbnail.service.ThumbnailService;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
+import static com.cookiee.cookieeserver.event.service.EventService.extractFileNameFromUrl;
 import static com.cookiee.cookieeserver.global.ErrorCode.*;
 
 @Slf4j
@@ -24,9 +35,19 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 @RequiredArgsConstructor
 public class OAuthService {
     private final UserRepository userRepository;
+    private final EventService eventService;
+    private final EventCategoryRepository eventCategoryRepository;
+    private final EventRepository eventRepository;
+    private final CategoryRepository categoryRepository;
+    private final ThumbnailRepository thumbnailRepository;
+    private final ThumbnailService thumbnailService;
     private final AppleService appleService;
     private final S3Uploader s3Uploader;
     private final JwtService jwtService;
+    private final AmazonS3 amazonS3Client;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucketName;
 
     /**
      * 회원가입
@@ -88,7 +109,7 @@ public class OAuthService {
      * @param userId
      */
     @Transactional
-    public void signout(final Long userId) throws IOException {
+    public void signout(final Long userId) {
         final User user = userRepository.findByUserId(userId).orElse(null);
 
         if(user == null){
@@ -97,9 +118,18 @@ public class OAuthService {
 
         // 애플 로그인한 유저라면 다시 애플 서버에 요청해야 함
         if (user.getSocialLoginType().equals(AuthProvider.APPLE)) {
-            appleService.revoke(user.getRefreshToken());
+            appleService.revoke(user.getSocialRefreshToken());
         }
 
+        // TODO: 너무 비효율적인듯 ㅠㅠ
+        List<Thumbnail> thumbnailList = thumbnailRepository.findThumbnailsByUserUserId(userId);
+        for(Thumbnail thumbnail: thumbnailList){
+            thumbnailService.deleteThumbnail(userId, thumbnail.getThumbnailId());
+        }
+        eventService.deleteAllEvent(user.getUserId());
+        categoryRepository.deleteCategoryByUserUserId(user.getUserId());
+        String fileName = extractFileNameFromUrl(user.getProfileImage());
+        amazonS3Client.deleteObject(bucketName, fileName);
         userRepository.delete(user);
     }
 }

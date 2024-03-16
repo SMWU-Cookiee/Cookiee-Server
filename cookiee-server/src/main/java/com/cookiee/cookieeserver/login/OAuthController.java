@@ -34,7 +34,7 @@ public class OAuthController {
      * @return
      */
     @DeleteMapping("/auth/signout")
-    public BaseResponseDto<?> signout() throws Exception {
+    public BaseResponseDto<?> signout(){
         String accessToken = JwtHeaderUtil.getAccessToken();
         Long userId = jwtService.getUserId(accessToken);
 

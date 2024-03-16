@@ -17,4 +17,6 @@ public interface EventCategoryRepository extends JpaRepository<EventCategory, In
     List<EventCategory> findEventCategoriesByEventEventId(Long eventId);
 
     void deleteByCategoryCategoryId(Long categoryId);
+
+//    void deleteEventCategoryByUserUserId(Long userId);
 }
