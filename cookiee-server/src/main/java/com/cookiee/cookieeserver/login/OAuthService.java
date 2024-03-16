@@ -132,4 +132,20 @@ public class OAuthService {
         amazonS3Client.deleteObject(bucketName, fileName);
         userRepository.delete(user);
     }
+
+    /**
+     * 로그아웃 - 유저의 리프레쉬토큰을 삭제한다. (액세스 토큰은 30분마다 만료되기 때문에)
+     * @param userId
+     */
+    @Transactional
+    public void logout(final Long userId){
+        final User user = userRepository.findByUserId(userId).orElse(null);
+
+        if(user == null){
+            throw new GeneralException(USER_NOT_FOUND);
+        }
+
+        user.setRefreshToken(null);
+        userRepository.save(user);
+    }
 }

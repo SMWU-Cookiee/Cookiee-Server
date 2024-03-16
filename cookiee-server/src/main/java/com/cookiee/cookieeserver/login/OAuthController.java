@@ -60,9 +60,13 @@ public class OAuthController {
 
     /**
      * 로그아웃
+     * @return
      */
-//    @PutMapping("/logout")
-//    public BaseResponseDto<?> logout() {
-//
-//    }
+    @PutMapping("/auth/logout")
+    public BaseResponseDto<?> logout() {
+        String accessToken = JwtHeaderUtil.getAccessToken();
+        Long userId = jwtService.getUserId(accessToken);
+        oAuthService.logout(userId);
+        return BaseResponseDto.ofSuccess(LOGOUT_SUCCESS);
+    }
 }
