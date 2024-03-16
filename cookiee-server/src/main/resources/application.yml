@@ -36,11 +36,11 @@ spring:
       hibernate.format_sql: true
 
 logging:
-  file:
-    path: logs/test.log  # 로깅 파일 위치이다.
-  level:
-    org.hibernate.SQL: debug
-    com.cookiee.cookieeserver: debug
+#  file:
+#    path: logs/test.log  # 로깅 파일 위치이다.
+#  level:
+#    org.hibernate.SQL: debug
+#    com.cookiee.cookieeserver: debug
   logback:
     rollingpolicy:
       max-history: 7
