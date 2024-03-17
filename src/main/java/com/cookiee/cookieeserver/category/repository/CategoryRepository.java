@@ -31,4 +31,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
             "FROM category WHERE category_id IN (:categoryIDs)",
             nativeQuery = true)
     List<Category> findAllByCategoryIdList(List<Long> categoryIDs);
+
+    void deleteCategoryByUserUserId(Long userId);
 }

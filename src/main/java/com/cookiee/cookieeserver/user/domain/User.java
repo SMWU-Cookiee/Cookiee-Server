@@ -36,7 +36,7 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private Role role;  // 소셜 로그인 하려면 role 필요함
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private String refreshToken;  // 리프레쉬 토큰
 
     @Enumerated(EnumType.STRING)
