@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -63,4 +63,3 @@ jobs:
                 --deployment-config-name CodeDeployDefault.AllAtOnce
                 --deployment-group-name $DEPLOYMENT_GROUP_NAME 
                 --s3-location bucket=$BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
-                
