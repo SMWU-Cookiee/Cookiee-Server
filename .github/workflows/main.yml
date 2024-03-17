@@ -6,8 +6,8 @@ on:
     
 env:
   PROJECT_NAME: cookiee-
-  BUCKET_NAME: cookiee-cicd-bucket
-  CODE_DEPLOY_APP_NAME: cookiee_codedeploy
+  BUCKET_NAME: cookiee-cicde-bucket
+  CODE_DEPLOY_APP_NAME: cookiee-cicd
   DEPLOYMENT_GROUP_NAME: cookiee_instance
 
 jobs:
