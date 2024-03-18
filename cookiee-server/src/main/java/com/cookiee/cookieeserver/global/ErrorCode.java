@@ -26,7 +26,6 @@ public enum ErrorCode {
     // APPLE
     INVALID_APPLE_PUBLIC_KEY(HttpStatus.BAD_REQUEST, "Apple 공개키를 가져올 수 없습니다."),
     INVALID_OAUTH_TOKEN(HttpStatus.BAD_REQUEST, "토큰을 가져올 수 없습니다."),
-    APPLE_SIGNOUT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Apple 탈퇴 실패"),
 
     // 유저
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다"),

@@ -167,16 +167,7 @@ public class EventService  {
         eventRepository.delete(deletedevent);
 
     }
-
-    @Transactional
-    public void deleteAllEvent(Long userId){
-        List<Event> eventList = eventRepository.findAllByUserUserId(userId);
-        for (Event event: eventList){
-            deleteEvent(userId, event.getEventId());
-        }
-    }
-
-    public static String extractFileNameFromUrl(String imageUrl) {
+    private static String extractFileNameFromUrl(String imageUrl) {
         try {
             URI uri = new URI(imageUrl);
             String path = uri.getPath();

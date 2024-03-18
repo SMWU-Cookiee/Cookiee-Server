@@ -12,9 +12,7 @@ import com.cookiee.cookieeserver.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.stream.Collectors;
 
@@ -53,13 +51,15 @@ public class UserController {
     }
 
     // 유저 프로필 수정 (닉네임, 한줄 소개, 프로필사진)
-    @PutMapping(value = "/users/{userId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Transactional
+    @PutMapping("/users/{userId}")
     public BaseResponseDto<UserResponseDto> updateUser(@PathVariable Long userId,
-                                                        UpdateUserRequestDto requestUser){
+                                                       @RequestBody UpdateUserRequestDto requestUser){
         final User currentUser = jwtService.getAndValidateCurrentUser(userId);
 
-        User newUser = userService.updateUser(currentUser, requestUser);
-        userRepository.save(newUser);
+        currentUser.update(requestUser.getNickname(),
+                requestUser.getProfileImage(),
+                requestUser.getSelfDescription());
 
         UserResponseDto userResponseDto = UserResponseDto.builder()
                 .userId(currentUser.getUserId())
