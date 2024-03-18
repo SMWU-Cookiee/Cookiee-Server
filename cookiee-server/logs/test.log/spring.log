@@ -1,0 +1,190 @@
+2024-02-13T01:31:11.043+09:00  INFO 19816 --- [main] c.c.c.CookieeServerApplication           : Starting CookieeServerApplication using Java 17.0.9 with PID 19816 (C:\github\2023-COOKIEE-server\cookiee-server\out\production\classes started by CYS in C:\github\2023-COOKIEE-server\cookiee-server)
+2024-02-13T01:31:11.048+09:00 DEBUG 19816 --- [main] c.c.c.CookieeServerApplication           : Running with Spring Boot v3.1.1, Spring v6.0.10
+2024-02-13T01:31:11.049+09:00  INFO 19816 --- [main] c.c.c.CookieeServerApplication           : The following 1 profile is active: "oauth"
+2024-02-13T01:31:12.006+09:00  INFO 19816 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-02-13T01:31:12.061+09:00  INFO 19816 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 49 ms. Found 5 JPA repository interfaces.
+2024-02-13T01:31:12.227+09:00  INFO 19816 --- [main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=6dc0957a-fdd8-36eb-ad91-fc91459801d0
+2024-02-13T01:31:12.312+09:00  INFO 19816 --- [main] trationDelegate$BeanPostProcessorChecker : Bean 'com.cookiee.cookieeserver.login.apple.controller.AppleClient' of type [org.springframework.cloud.openfeign.FeignClientFactoryBean] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2024-02-13T01:31:12.661+09:00  INFO 19816 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2024-02-13T01:31:12.673+09:00  INFO 19816 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-02-13T01:31:12.674+09:00  INFO 19816 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.10]
+2024-02-13T01:31:12.794+09:00  INFO 19816 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-02-13T01:31:12.795+09:00  INFO 19816 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1703 ms
+2024-02-13T01:31:12.933+09:00  INFO 19816 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-02-13T01:31:12.995+09:00  INFO 19816 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.5.Final
+2024-02-13T01:31:12.998+09:00  INFO 19816 --- [main] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2024-02-13T01:31:13.119+09:00  INFO 19816 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2024-02-13T01:31:13.246+09:00  INFO 19816 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-02-13T01:31:13.257+09:00  INFO 19816 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-02-13T01:31:13.706+09:00  INFO 19816 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@588d630d
+2024-02-13T01:31:13.712+09:00  INFO 19816 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-02-13T01:31:13.784+09:00  WARN 19816 --- [main] org.hibernate.orm.deprecation            : HHH90000026: MySQL57Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2024-02-13T01:31:13.980+09:00  INFO 19816 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2024-02-13T01:31:14.548+09:00  INFO 19816 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2024-02-13T01:31:14.647+09:00 DEBUG 19816 --- [main] org.hibernate.SQL                        : 
+    alter table category 
+       modify column created_date  datetime(6)
+2024-02-13T01:31:14.758+09:00 DEBUG 19816 --- [main] org.hibernate.SQL                        : 
+    alter table category 
+       modify column modified_date  datetime(6)
+2024-02-13T01:31:14.815+09:00 DEBUG 19816 --- [main] org.hibernate.SQL                        : 
+    alter table event 
+       modify column created_date  datetime(6)
+2024-02-13T01:31:15.137+09:00 DEBUG 19816 --- [main] org.hibernate.SQL                        : 
+    alter table event 
+       modify column modified_date  datetime(6)
+2024-02-13T01:31:15.446+09:00 DEBUG 19816 --- [main] org.hibernate.SQL                        : 
+    alter table event_category 
+       modify column created_date  datetime(6)
+2024-02-13T01:31:15.501+09:00 DEBUG 19816 --- [main] org.hibernate.SQL                        : 
+    alter table event_category 
+       modify column modified_date  datetime(6)
+2024-02-13T01:31:15.567+09:00 DEBUG 19816 --- [main] org.hibernate.SQL                        : 
+    alter table thumbnail 
+       modify column created_date  datetime(6)
+2024-02-13T01:31:15.628+09:00 DEBUG 19816 --- [main] org.hibernate.SQL                        : 
+    alter table thumbnail 
+       modify column modified_date  datetime(6)
+2024-02-13T01:31:15.687+09:00 DEBUG 19816 --- [main] org.hibernate.SQL                        : 
+    alter table user 
+       modify column created_date  datetime(6)
+2024-02-13T01:31:15.763+09:00 DEBUG 19816 --- [main] org.hibernate.SQL                        : 
+    alter table user 
+       modify column modified_date  datetime(6)
+2024-02-13T01:31:15.827+09:00 DEBUG 19816 --- [main] org.hibernate.SQL                        : 
+    alter table user 
+       modify column role  enum ('USER') not null
+2024-02-13T01:31:15.898+09:00 DEBUG 19816 --- [main] org.hibernate.SQL                        : 
+    alter table user 
+       modify column social_login_type  enum ('APPLE','GOOGLE') not null
+2024-02-13T01:31:16.664+09:00  INFO 19816 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-02-13T01:31:16.859+09:00  WARN 19816 --- [main] ocalVariableTableParameterNameDiscoverer : Using deprecated '-debug' fallback for parameter name resolution. Compile the affected code with '-parameters' instead or avoid its introspection: com.cookiee.cookieeserver.user.repository.UserRepository
+2024-02-13T01:31:16.941+09:00 DEBUG 19816 --- [main] c.c.c.login.jwt.JwtAuthorizationFilter   : Filter 'jwtAuthorizationFilter' configured for use
+2024-02-13T01:31:16.976+09:00  WARN 19816 --- [main] ocalVariableTableParameterNameDiscoverer : Using deprecated '-debug' fallback for parameter name resolution. Compile the affected code with '-parameters' instead or avoid its introspection: com.cookiee.cookieeserver.category.repository.CategoryRepository
+2024-02-13T01:31:16.994+09:00  INFO 19816 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2024-02-13T01:31:17.002+09:00  WARN 19816 --- [main] ocalVariableTableParameterNameDiscoverer : Using deprecated '-debug' fallback for parameter name resolution. Compile the affected code with '-parameters' instead or avoid its introspection: com.cookiee.cookieeserver.category.dto.response.CategoryResponseDto
+2024-02-13T01:31:17.022+09:00  WARN 19816 --- [main] ocalVariableTableParameterNameDiscoverer : Using deprecated '-debug' fallback for parameter name resolution. Compile the affected code with '-parameters' instead or avoid its introspection: com.cookiee.cookieeserver.global.repository.EventCategoryRepository
+2024-02-13T01:31:17.315+09:00  WARN 19816 --- [main] ocalVariableTableParameterNameDiscoverer : Using deprecated '-debug' fallback for parameter name resolution. Compile the affected code with '-parameters' instead or avoid its introspection: com.cookiee.cookieeserver.event.repository.EventRepository
+2024-02-13T01:31:17.834+09:00  WARN 19816 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-02-13T01:31:17.909+09:00  WARN 19816 --- [main] ocalVariableTableParameterNameDiscoverer : Using deprecated '-debug' fallback for parameter name resolution. Compile the affected code with '-parameters' instead or avoid its introspection: com.cookiee.cookieeserver.thumbnail.repository.ThumbnailRepository
+2024-02-13T01:31:17.913+09:00  INFO 19816 --- [main] f.a.AutowiredAnnotationBeanPostProcessor : Autowired annotation is not supported on static fields: private static java.lang.String com.cookiee.cookieeserver.thumbnail.service.ThumbnailService.bucketName
+2024-02-13T01:31:18.715+09:00  INFO 19816 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@271ced5f, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@20f1e26, org.springframework.security.web.context.SecurityContextHolderFilter@2471cfa0, org.springframework.security.web.header.HeaderWriterFilter@a6017f9, org.springframework.security.web.authentication.logout.LogoutFilter@cee1b4c, com.cookiee.cookieeserver.login.jwt.JwtAuthorizationFilter@38d9c9c4, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@52c22bc5, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@48ca44cd, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@1db077a4, org.springframework.security.web.session.SessionManagementFilter@4dd4a4e, org.springframework.security.web.access.ExceptionTranslationFilter@2d0f850, org.springframework.security.web.access.intercept.AuthorizationFilter@65f809cb]
+2024-02-13T01:31:19.133+09:00  INFO 19816 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-02-13T01:31:19.133+09:00  INFO 19816 --- [main] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-02-13T01:31:19.134+09:00  INFO 19816 --- [main] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2024-02-13T01:31:19.134+09:00  INFO 19816 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2024-02-13T01:31:19.268+09:00  INFO 19816 --- [main] c.c.c.CookieeServerApplication           : Started CookieeServerApplication in 8.77 seconds (process running for 9.126)
+2024-02-13T01:32:10.362+09:00  WARN 19816 --- [http-nio-8080-exec-3] ocalVariableTableParameterNameDiscoverer : Using deprecated '-debug' fallback for parameter name resolution. Compile the affected code with '-parameters' instead or avoid its introspection: com.cookiee.cookieeserver.thumbnail.controller.ThumbnailController
+2024-02-13T01:32:10.703+09:00 DEBUG 19816 --- [http-nio-8080-exec-3] org.hibernate.SQL                        : 
+    select
+        u1_0.user_id,
+        u1_0.created_date,
+        u1_0.email,
+        u1_0.modified_date,
+        u1_0.nickname,
+        u1_0.profile_image,
+        u1_0.refresh_token,
+        u1_0.role,
+        u1_0.self_description,
+        u1_0.social_id,
+        u1_0.social_login_type,
+        u1_0.social_refresh_token 
+    from
+        user u1_0 
+    where
+        u1_0.user_id=?
+2024-02-13T01:32:29.786+09:00 DEBUG 19816 --- [http-nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        u1_0.user_id,
+        u1_0.created_date,
+        u1_0.email,
+        u1_0.modified_date,
+        u1_0.nickname,
+        u1_0.profile_image,
+        u1_0.refresh_token,
+        u1_0.role,
+        u1_0.self_description,
+        u1_0.social_id,
+        u1_0.social_login_type,
+        u1_0.social_refresh_token 
+    from
+        user u1_0 
+    where
+        u1_0.user_id=?
+2024-02-13T01:32:55.571+09:00 DEBUG 19816 --- [http-nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        u1_0.user_id,
+        u1_0.created_date,
+        u1_0.email,
+        u1_0.modified_date,
+        u1_0.nickname,
+        u1_0.profile_image,
+        u1_0.refresh_token,
+        u1_0.role,
+        u1_0.self_description,
+        u1_0.social_id,
+        u1_0.social_login_type,
+        u1_0.social_refresh_token 
+    from
+        user u1_0 
+    where
+        u1_0.user_id=?
+2024-02-13T01:33:15.626+09:00 DEBUG 19816 --- [http-nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        u1_0.user_id,
+        u1_0.created_date,
+        u1_0.email,
+        u1_0.modified_date,
+        u1_0.nickname,
+        u1_0.profile_image,
+        u1_0.refresh_token,
+        u1_0.role,
+        u1_0.self_description,
+        u1_0.social_id,
+        u1_0.social_login_type,
+        u1_0.social_refresh_token 
+    from
+        user u1_0 
+    where
+        u1_0.user_id=?
+2024-02-13T01:33:43.299+09:00 DEBUG 19816 --- [http-nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        u1_0.user_id,
+        u1_0.created_date,
+        u1_0.email,
+        u1_0.modified_date,
+        u1_0.nickname,
+        u1_0.profile_image,
+        u1_0.refresh_token,
+        u1_0.role,
+        u1_0.self_description,
+        u1_0.social_id,
+        u1_0.social_login_type,
+        u1_0.social_refresh_token 
+    from
+        user u1_0 
+    where
+        u1_0.user_id=?
+2024-02-13T01:34:16.033+09:00 DEBUG 19816 --- [http-nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        u1_0.user_id,
+        u1_0.created_date,
+        u1_0.email,
+        u1_0.modified_date,
+        u1_0.nickname,
+        u1_0.profile_image,
+        u1_0.refresh_token,
+        u1_0.role,
+        u1_0.self_description,
+        u1_0.social_id,
+        u1_0.social_login_type,
+        u1_0.social_refresh_token 
+    from
+        user u1_0 
+    where
+        u1_0.user_id=?
+2024-02-13T01:34:24.554+09:00  WARN 19816 --- [http-nio-8080-exec-1] ocalVariableTableParameterNameDiscoverer : Using deprecated '-debug' fallback for parameter name resolution. Compile the affected code with '-parameters' instead or avoid its introspection: com.cookiee.cookieeserver.event.controller.EventController
+2024-02-13T01:34:24.559+09:00  WARN 19816 --- [http-nio-8080-exec-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.method.annotation.ModelAttributeMethodProcessor$1: Validation failed for argument [1] in public com.cookiee.cookieeserver.global.dto.BaseResponseDto<com.cookiee.cookieeserver.event.dto.response.EventResponseDto> com.cookiee.cookieeserver.event.controller.EventController.getEventList(long,com.cookiee.cookieeserver.event.dto.request.EventGetRequestDto) with 3 errors: [Field error in object 'eventGetRequestDto' on field 'eventYear': rejected value [null]; codes [typeMismatch.eventGetRequestDto.eventYear,typeMismatch.eventYear,typeMismatch.int,typeMismatch]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [eventGetRequestDto.eventYear,eventYear]; arguments []; default message [eventYear]]; default message [Failed to convert value of type 'null' to required type 'int'; Failed to convert from type [null] to type [int] for value [null]]] [Field error in object 'eventGetRequestDto' on field 'eventMonth': rejected value [null]; codes [typeMismatch.eventGetRequestDto.eventMonth,typeMismatch.eventMonth,typeMismatch.int,typeMismatch]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [eventGetRequestDto.eventMonth,eventMonth]; arguments []; default message [eventMonth]]; default message [Failed to convert value of type 'null' to required type 'int'; Failed to convert from type [null] to type [int] for value [null]]] [Field error in object 'eventGetRequestDto' on field 'eventDate': rejected value [null]; codes [typeMismatch.eventGetRequestDto.eventDate,typeMismatch.eventDate,typeMismatch.int,typeMismatch]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [eventGetRequestDto.eventDate,eventDate]; arguments []; default message [eventDate]]; default message [Failed to convert value of type 'null' to required type 'int'; Failed to convert from type [null] to type [int] for value [null]]] ]
+2024-02-13T01:34:34.648+09:00  INFO 19816 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-02-13T01:34:34.649+09:00  INFO 19816 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2024-02-13T01:34:35.074+09:00  INFO 19816 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

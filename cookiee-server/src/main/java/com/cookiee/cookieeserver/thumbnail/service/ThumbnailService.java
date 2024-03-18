@@ -34,7 +34,7 @@ public class ThumbnailService {
     private S3Uploader s3Uploader;
     private final AmazonS3 amazonS3Client;
     @Value("${cloud.aws.s3.bucket}")
-    private String bucketName;
+    private static String bucketName;
 
 
     @Transactional
@@ -65,6 +65,7 @@ public class ThumbnailService {
         Thumbnail deletedthumbnail;
         deletedthumbnail = thumbnailRepository.findByUserUserIdAndThumbnailId(userId, thumbnailId);
         String fileName = extractFileNameFromUrl(deletedthumbnail.getThumbnailUrl());
+        System.out.println(bucketName);
         amazonS3Client.deleteObject(bucketName, fileName);
         thumbnailRepository.delete(deletedthumbnail);
     }
