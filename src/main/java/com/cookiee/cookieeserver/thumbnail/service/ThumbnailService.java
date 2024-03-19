@@ -2,6 +2,7 @@ package com.cookiee.cookieeserver.thumbnail.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.cookiee.cookieeserver.event.service.S3Uploader;
+import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.thumbnail.domain.Thumbnail;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.thumbnail.dto.request.ThumbnailRegisterRequestDto;
@@ -22,6 +23,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.net.URI;
 
+import static com.cookiee.cookieeserver.global.ErrorCode.*;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -38,9 +41,9 @@ public class ThumbnailService {
 
 
     @Transactional
-    public ThumbnailResponseDto createThumbnail(MultipartFile thumbnailUrl, ThumbnailRegisterRequestDto thumbnailRegisterRequestDto, Long userId) throws IOException {
+    public ThumbnailResponseDto createThumbnail(MultipartFile thumbnailUrl, ThumbnailRegisterRequestDto thumbnailRegisterRequestDto, Long userId) {
         User user = userRepository.findByUserId(userId).orElseThrow(
-                () -> new IllegalArgumentException("해당 id의 사용자가 없습니다.")
+                () -> new GeneralException(USER_NOT_FOUND)
         );
         Thumbnail savedThumbnail;
         String storedFileName = null;
@@ -81,7 +84,7 @@ public class ThumbnailService {
     }
 
     @Transactional
-    public ThumbnailResponseDto updateThumbnail(MultipartFile thumbnailUrl, ThumbnailUpdateRequestDto thumbnailUpdateRequestDto, long userId, long thumbnailId) throws IOException {
+    public ThumbnailResponseDto updateThumbnail(MultipartFile thumbnailUrl, ThumbnailUpdateRequestDto thumbnailUpdateRequestDto, long userId, long thumbnailId){
         Thumbnail updatedthumbnail = thumbnailRepository.findByUserUserIdAndThumbnailId(userId, thumbnailId);
         String fileName = extractFileNameFromUrl(updatedthumbnail.getThumbnailUrl());
         amazonS3Client.deleteObject(bucketName, fileName); //버킷에서 사진 삭제

@@ -1,12 +1,10 @@
 package com.cookiee.cookieeserver.category.controller;
 
-import com.amazonaws.services.kms.model.NotFoundException;
 import com.cookiee.cookieeserver.category.domain.Category;
-import com.cookiee.cookieeserver.global.StatusCode;
+import com.cookiee.cookieeserver.login.jwt.JwtService;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.global.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.global.dto.DataResponseDto;
-import com.cookiee.cookieeserver.global.dto.ErrorResponseDto;
 import com.cookiee.cookieeserver.category.dto.request.CategoryCreateRequestDto;
 import com.cookiee.cookieeserver.category.dto.request.CategoryUpdateRequestDto;
 import com.cookiee.cookieeserver.category.dto.response.CategoryResponseDto;
@@ -18,14 +16,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+
+import static com.cookiee.cookieeserver.global.SuccessCode.*;
 
 @RestController
 @RequiredArgsConstructor
 public class CategoryController {
-    private final UserService userService;
     private final CategoryService categoryService;
-    private final CategoryRepository categoryRepository;
+    private final JwtService jwtService;
 
     /***
      * 카테고리 등록
@@ -35,130 +33,62 @@ public class CategoryController {
      */
     @PostMapping("/category/{userId}")
     public BaseResponseDto<CategoryResponseDto> postCategory(@PathVariable Long userId,
-                                                  @RequestBody CategoryCreateRequestDto requestDto){
-        CategoryResponseDto categoryResponseDto;
-        try {
-            Optional<User> user = userService.findOneById(userId);
-            if(user.isEmpty()){
-                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
-            }
-            else{
-                Category newCategory = categoryService.create(user.get(), requestDto);
-                categoryResponseDto = CategoryResponseDto.builder()
-                        .categoryId(newCategory.getCategoryId())
-                        .categoryName(newCategory.getCategoryName())
-                        .categoryColor(newCategory.getCategoryColor())
-                        .build();
-            }
-        }
-        catch (Exception e){
-            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, e.getMessage());
-        }
-        return DataResponseDto.of(categoryResponseDto, "카테고리 등록에 성공하였습니다.");
+                                                             @RequestBody CategoryCreateRequestDto requestDto){
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+
+        Category newCategory = categoryService.create(currentUser, requestDto);
+        CategoryResponseDto categoryResponseDto = CategoryResponseDto.builder()
+                .categoryId(newCategory.getCategoryId())
+                .categoryName(newCategory.getCategoryName())
+                .categoryColor(newCategory.getCategoryColor())
+                .build();
+
+        return BaseResponseDto.ofSuccess(CREATE_CATEGORY_SUCCESS, categoryResponseDto);
     }
 
     // 특정 유저의 카테고리 전체 조회
     @GetMapping("/category/{userId}")
     public BaseResponseDto<List<CategoryResponseDto>> getCategory(@PathVariable Long userId){
-        List<CategoryResponseDto> result;
-        try {
-            Optional<User> user = userService.findOneById(userId);
-            if(user.isEmpty()){
-                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
-            }
-            else{
-                try{
-                    result = categoryService.getAllCategories(userId);
-                }
-                catch (Exception e) {
-                    return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, "해당 사용자의 카테고리 조회 요청에 실패하였습니다.");
-                }
-            }
-        }
-        catch(Exception e){
-            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
-        }
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
 
-        return DataResponseDto.of(result, "카테고리 조회 요청에 성공하였습니다.");
+        List<CategoryResponseDto> result;
+        result = categoryService.getAllCategories(currentUser);
+
+        return BaseResponseDto.ofSuccess(GET_CATEGORY_SUCCESS, result);
     }
 
     // 카테고리 수정
     @PutMapping("/category/{userId}/{categoryId}")
     public BaseResponseDto<CategoryResponseDto> updateCategory(@PathVariable Long userId,
-                                                    @PathVariable Long categoryId,
-                                                    @RequestBody CategoryUpdateRequestDto requestDto){
-        CategoryResponseDto result;
+                                                               @PathVariable Long categoryId,
+                                                               @RequestBody CategoryUpdateRequestDto requestDto){
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
 
-        try{
-            Optional<User> user = userService.findOneById(userId);
-            if(user.isEmpty()){
-                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
-            }
-            else {
-                try {
-                    result = categoryService.update(userId, categoryId, requestDto);
-                } catch (NotFoundException e) {
-                    return ErrorResponseDto.of(StatusCode.NOT_FOUND, e.getMessage());
-                }
-                catch (Exception e){
-                    return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
-                }
-            }
-        }
-        catch(Exception e){
-            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
-        }
+        CategoryResponseDto result = categoryService.update(currentUser, categoryId, requestDto);
 
-        return DataResponseDto.of(result, "카테고리 수정에 성공하였습니다.");
+        return BaseResponseDto.ofSuccess(MODIFY_CATEGORY_SUCCESS, result);
     }
 
     // 카테고리 삭제
     @DeleteMapping("/category/{userId}/{categoryId}")
-    public BaseResponseDto deleteCategory(@PathVariable Long userId,
-                                          @PathVariable Long categoryId){
-        try {
-            User user = userService.findOneById(userId)
-                    .orElseThrow(()-> new IllegalArgumentException("해당 id의 사용자가 존재하지 않습니다."));
-            categoryService.delete(userId, categoryId);
-        }
-        catch(NotFoundException e){
-            return ErrorResponseDto.of(StatusCode.NOT_FOUND, e.getMessage());
-        }
-        catch(Exception e){
-            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
-        }
+    public BaseResponseDto<?> deleteCategory(@PathVariable Long userId,
+                                             @PathVariable Long categoryId){
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
 
-        return DataResponseDto.of(null, "카테고리 삭제에 성공하였습니다.");
+        categoryService.delete(currentUser, categoryId);
+
+        return BaseResponseDto.ofSuccess(DELETE_CATEGORY_SUCCESS);
     }
 
     // 카테고리 모아보기....
     @GetMapping("/collection/{userId}/{categoryId}")
     public BaseResponseDto<EventCategoryGetResponseDto> getCollection(@PathVariable Long userId,
                                                                       @PathVariable Long categoryId){
-        EventCategoryGetResponseDto result;
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
 
-        try {
-            // 유저 유효성 먼저 확인
-//            User user = userService.findOneById(userId)
-//                    .orElseThrow(()-> new IllegalArgumentException("해당 id의 사용자가 존재하지 않습니다."));
-//
-//            final AtomicBoolean[] isValidCategoryId = {new AtomicBoolean(false)};
-//
-//            // 카테고리 유효성 먼저 확인
-//            Category category = categoryService.findOneById(categoryId).orElseThrow(
-//                    () -> new IllegalArgumentException("해당 id의 카테고리가 존재하지 않습니다.")
-//            );
+        // 모아보기 데이터 리턴
+        EventCategoryGetResponseDto result = categoryService.findByIdForCollection(currentUser, categoryId);
 
-            // 모아보기 데이터 리턴
-            result = categoryService.findByIdForCollection(categoryId);
-        }
-        catch(NotFoundException e){
-            return ErrorResponseDto.of(StatusCode.NOT_FOUND, e.getMessage());
-        }
-        catch(Exception e){
-            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, e.getMessage());
-        }
-
-        return DataResponseDto.of(result, "카테고리 모아보기 조회 요청에 성공하였습니다.");
+        return BaseResponseDto.ofSuccess(GET_COLLECTION_SUCCESS, result);
     }
 }

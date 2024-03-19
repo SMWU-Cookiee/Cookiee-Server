@@ -1,96 +1,82 @@
 package com.cookiee.cookieeserver.user.controller;
 
-import com.cookiee.cookieeserver.global.StatusCode;
+import com.cookiee.cookieeserver.global.SuccessCode;
+import com.cookiee.cookieeserver.login.jwt.JwtService;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.global.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.global.dto.DataResponseDto;
-import com.cookiee.cookieeserver.global.dto.ErrorResponseDto;
+import com.cookiee.cookieeserver.user.dto.request.UpdateUserRequestDto;
 import com.cookiee.cookieeserver.user.dto.response.UserResponseDto;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
 import com.cookiee.cookieeserver.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.cookiee.cookieeserver.global.SuccessCode.*;
 
 @RestController
 @RequiredArgsConstructor
 public class UserController {
-    @Autowired
     private final UserService userService;
-    @Autowired
     private final UserRepository userRepository;
+    private final JwtService jwtService;
 
     // health check에 대한 상태 반환 위해서
     @GetMapping("/healthcheck")
     public BaseResponseDto healthcheck() {
-        return BaseResponseDto.of(true, StatusCode.OK);
+        return BaseResponseDto.ofSuccess(SuccessCode.OK);
     }
 
     // 유저 프로필 조회
     @GetMapping("/users/{userId}")
     public BaseResponseDto<UserResponseDto> getUser(@PathVariable Long userId){
-        Optional<User> user = userRepository.findByUserId(userId);
-        UserResponseDto userResponseDto;
-        if (user.isEmpty()) {
-            return ErrorResponseDto.of(StatusCode.NOT_FOUND, "해당 id의 사용자가 존재하지 않습니다.");
-        }
-        else {
-            User u = user.get();
-            userResponseDto = UserResponseDto.builder()
-                    .userId(u.getUserId())
-                    .email(u.getEmail())
-                    .nickname(u.getNickname())
-                    .profileImage(u.getProfileImage())
-                    .selfDescription(u.getSelfDescription())
-                    .categories(u.getCategories().stream()
-                            .map(category -> category.toDto(category))
-                            .collect(Collectors.toList()))
-                    .build();
-        }
-        return DataResponseDto.of(userResponseDto, "회원 정보 조회 요청에 성공하였습니다.");
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+
+        UserResponseDto userResponseDto = UserResponseDto.builder()
+                .userId(currentUser.getUserId())
+                .email(currentUser.getEmail())
+                .nickname(currentUser.getNickname())
+                .profileImage(currentUser.getProfileImage())
+                .selfDescription(currentUser.getSelfDescription())
+                .categories(currentUser.getCategories().stream()
+                        .map(category -> category.toDto(category))
+                        .collect(Collectors.toList()))
+                .build();
+
+        return BaseResponseDto.ofSuccess(GET_USER_SUCCESS, userResponseDto);
     }
 
     // 유저 프로필 수정 (닉네임, 한줄 소개, 프로필사진)
-    @Transactional
-    @PutMapping("/users/{userId}")
-    public BaseResponseDto<UserResponseDto> updateUser(@PathVariable Long userId, @RequestBody User requestUser){
-        User user = userRepository.findByUserId(userId).orElseThrow(
-                () -> new IllegalArgumentException("해당 id의 사용자가 존재하지 않습니다.")
-        );
+    @PutMapping(value = "/users/{userId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public BaseResponseDto<UserResponseDto> updateUser(@PathVariable Long userId,
+                                                       UpdateUserRequestDto requestUser){
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
 
-        try {
-            UserResponseDto userResponseDto;
+        User newUser = userService.updateUser(currentUser, requestUser);
+        userRepository.save(newUser);
 
-            user.setNickname(requestUser.getNickname());
-            user.setProfileImage(requestUser.getProfileImage());
-            user.setSelfDescription(requestUser.getSelfDescription());
+        UserResponseDto userResponseDto = UserResponseDto.builder()
+                .userId(currentUser.getUserId())
+                .email(currentUser.getEmail())
+                .nickname(currentUser.getNickname())
+                .profileImage(currentUser.getProfileImage())
+                .selfDescription(currentUser.getSelfDescription())
+                .categories(currentUser.getCategories().stream()
+                        .map(category -> category.toDto(category))
+                        .collect(Collectors.toList()))
+                .build();
 
-            userResponseDto = UserResponseDto.builder()
-                    .userId(user.getUserId())
-                    .email(user.getEmail())
-                    .nickname(user.getNickname())
-                    .profileImage(user.getProfileImage())
-                    .selfDescription(user.getSelfDescription())
-                    .categories(user.getCategories().stream()
-                            .map(category -> category.toDto(category))
-                            .collect(Collectors.toList()))
-                    .build();
-
-            return DataResponseDto.of(userResponseDto, "회원 정보를 성공적으로 수정하였습니다.");
-        }
-        catch (Exception e){
-            return ErrorResponseDto.of(StatusCode.INTERNAL_ERROR, "회원 정보 수정에 실패하였습니다.");
-        }
+        return BaseResponseDto.ofSuccess(MODIFY_USER_SUCCESS, userResponseDto);
     }
 
-    // 유저 프로필 삭제
-    //@DeleteMapping("test/users/{userId}")
-
     // 임시로 User 추가
+    // TODO: 삭제하기
     @PostMapping("/users/join")
     public DataResponseDto<Object> postTestUser(User user) {
         System.out.println("id: " +user.getUserId());
@@ -103,6 +89,6 @@ public class UserController {
         userRepository.save(user);
 
         //return DataResponseDto.empty();
-        return DataResponseDto.of(null, "회원가입에 성공하였습니다.");
+        return DataResponseDto.of("회원가입에 성공하였습니다.", null);
     }
 }

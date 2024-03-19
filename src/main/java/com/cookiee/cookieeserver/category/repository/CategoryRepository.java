@@ -16,7 +16,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     @Query(value = "SELECT COUNT(category_id) > 0 " +
             "FROM category " +
             "WHERE category.category_id = :categoryId AND category.user_id = :userId",
-    nativeQuery = true)
+            nativeQuery = true)
     int existsByCategoryIdInUser(@Param("userId") Long userId, @Param("categoryId") Long categoryId);
 
     Optional<Category> findByUserUserIdAndCategoryId(Long userId, Long categoryId);

@@ -1,6 +1,6 @@
 package com.cookiee.cookieeserver.thumbnail.controller;
 
-import com.cookiee.cookieeserver.global.StatusCode;
+import com.cookiee.cookieeserver.login.jwt.JwtService;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.global.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.global.dto.DataResponseDto;
@@ -23,7 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
+
+import static com.cookiee.cookieeserver.global.SuccessCode.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,84 +42,51 @@ public class ThumbnailController {
     @Autowired
     private final ThumbnailService thumbnailService;
 
+    private final JwtService jwtService;
+
     //등록
     @ResponseBody
     @PostMapping(value = "/thumbnail/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponseDto<ThumbnailResponseDto> createThumbnail(@PathVariable Long userId,
-                                                    HttpServletRequest request,
-                                                    @RequestParam(value = "thumbnail") MultipartFile thumbnailUrl,
-                                                    ThumbnailRegisterRequestDto thumbnailRegisterRequestDto) throws IOException {
+                                                                 HttpServletRequest request,
+                                                                 @RequestParam(value = "thumbnail") MultipartFile thumbnailUrl,
+                                                                 ThumbnailRegisterRequestDto thumbnailRegisterRequestDto) throws IOException {
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
         ThumbnailResponseDto thumbnail;
-        try {
-            Optional<User> user = userService.findOneById(userId);
-            if (user.isEmpty()) {
-                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
-            } else {
-                thumbnail = thumbnailService.createThumbnail(thumbnailUrl, thumbnailRegisterRequestDto, userId);
-            }
-        }
-        catch (Exception e){
-            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "썸네일 등록에 실패하였습니다.");
-        }
-        return DataResponseDto.of(thumbnail, "썸네일 등록에 성공하였습니다.");
+        thumbnail = thumbnailService.createThumbnail(thumbnailUrl, thumbnailRegisterRequestDto, currentUser.getUserId());
+        return BaseResponseDto.ofSuccess(CREATE_THUMBNAIL_SUCCESS, thumbnail);
     }
 
     //조회
     @ResponseBody
     @GetMapping(value="/thumbnail/view/{userId}")
     public BaseResponseDto<ThumbnailResponseDto> getThumbnail(@PathVariable Long userId) {
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+
         List<ThumbnailResponseDto> thumbnail;
-        try {
-            Optional<User> user = userService.findOneById(userId);
-            if (user.isEmpty()) {
-                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
-            } else {
-                thumbnail = thumbnailService.getThumbnail(userId);
-            }
-        } catch (Exception e) {
-            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "썸네일 조회에 실패하였습니다.");
-        }
-        return DataResponseDto.of(thumbnail, "썸네일 조회에 성공하였습니다.");
+        thumbnail = thumbnailService.getThumbnail(currentUser.getUserId());
+        return BaseResponseDto.ofSuccess(GET_THUMBNAIL_SUCCESS, thumbnail);
     }
 
     //수정
     @ResponseBody
     @PutMapping(value = "/thumbnail/update/{userId}/{thumbnailId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponseDto<ThumbnailResponseDto> updateThumbnail(@PathVariable long userId, @PathVariable long thumbnailId,
-                                                                                  @RequestParam(value = "thumbnail") MultipartFile thumbnailUrl,
-                                                                                  ThumbnailUpdateRequestDto thumbnailUpdateRequestDto) throws IOException {
+                                                                 @RequestParam(value = "thumbnail") MultipartFile thumbnailUrl,
+                                                                 ThumbnailUpdateRequestDto thumbnailUpdateRequestDto) throws IOException {
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
         ThumbnailResponseDto updated;
-        try {
-            Optional<User> user = userService.findOneById(userId);
-            if (user.isEmpty()) {
-                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
-            } else {
-                updated = thumbnailService.updateThumbnail(thumbnailUrl, thumbnailUpdateRequestDto, userId, thumbnailId);
-            }
-        }
-        catch (Exception e){
-            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "썸네일 수정에 실패하였습니다.");
-        }
-        return DataResponseDto.of(updated, "썸네일 수정에 성공하였습니다.");
+        updated = thumbnailService.updateThumbnail(thumbnailUrl, thumbnailUpdateRequestDto, currentUser.getUserId(), thumbnailId);
+        return BaseResponseDto.ofSuccess(MODIFY_THUMBNAIL_SUCCESS, updated);
     }
 
 
     //삭제
     @ResponseBody
     @DeleteMapping(value="/thumbnail/del/{userId}/{thumbnailId}")
-    public BaseResponseDto deleteThumbnail(@PathVariable Long userId, @PathVariable Long thumbnailId){
-        try {
-            Optional<User> user = userService.findOneById(userId);
-            if (user.isEmpty()) {
-                return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "해당 id의 사용자가 존재하지 않습니다.");
-            } else {
-                thumbnailService.deleteThumbnail(userId, thumbnailId);
-                return DataResponseDto.of(null, "썸네일 삭제에 성공하였습니다.");
-            }
-        } catch (Exception e){
-            return ErrorResponseDto.of(StatusCode.BAD_REQUEST, "썸네일 삭제에 실패하였습니다.");
-        }
+    public BaseResponseDto<?> deleteThumbnail(@PathVariable Long userId, @PathVariable Long thumbnailId){
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+        thumbnailService.deleteThumbnail(currentUser.getUserId(), thumbnailId);
+        return BaseResponseDto.ofSuccess(DELETE_THUMBNAIL_SUCCESS);
     }
-
-
 }

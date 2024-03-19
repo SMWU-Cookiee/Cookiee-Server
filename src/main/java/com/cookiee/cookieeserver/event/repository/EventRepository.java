@@ -17,5 +17,3 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     void deleteAllByUserUserId(Long userId);
 }
-
-

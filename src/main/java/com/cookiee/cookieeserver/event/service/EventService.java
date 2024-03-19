@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.cookiee.cookieeserver.category.domain.Category;
 import com.cookiee.cookieeserver.event.domain.Event;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
+import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.event.dto.request.EventGetRequestDto;
 import com.cookiee.cookieeserver.event.dto.request.EventRegisterRequestDto;
@@ -26,6 +27,8 @@ import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.cookiee.cookieeserver.global.ErrorCode.*;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -47,25 +50,26 @@ public class EventService  {
 
 
     @Transactional
-    public EventResponseDto createEvent(List<MultipartFile> images, EventRegisterRequestDto eventRegisterRequestDto, Long userId) throws IOException {
-        User user = userRepository.findByUserId(userId).orElseThrow(
-                () -> new IllegalArgumentException("해당 id의 사용자가 없습니다.")
-        );
-
+    public EventResponseDto createEvent(List<MultipartFile> images, EventRegisterRequestDto eventRegisterRequestDto, User user){
 
         List<Category> categoryList = eventRegisterRequestDto.categoryIds().stream()
                 .map(
-                        id -> categoryRepository.findByCategoryId(id).orElseThrow(
-                                () -> new IllegalArgumentException("해당 id의 카테고리 없습니다...")
+                        // 유저 아이디랑 카테고리 아이디랑 부합해야하므로 findByUserUserIdAndCategoryId로 변경함!
+                        id -> categoryRepository.findByUserUserIdAndCategoryId(user.getUserId(), id).orElseThrow(
+                                () -> new GeneralException(CATEGORY_NOT_FOUND)
                         )
                 )
                 .collect(Collectors.toList());
 
+        if (images == null)
+            throw new GeneralException(IMAGE_IS_NULL);
+
+        // TODO: 근데 null이 아닌데 이미지 없어도 추가됨
         if (!images.isEmpty()) {
             List<String> storedFileNames = new ArrayList<>();
 
             for (MultipartFile image : images) {
-                String storedFileName = s3Uploader.saveFile(image, String.valueOf(userId), "event");
+                String storedFileName = s3Uploader.saveFile(image, String.valueOf(user.getUserId()), "event");
                 storedFileNames.add(storedFileName);
                 System.out.println(storedFileName);
             }
@@ -79,12 +83,14 @@ public class EventService  {
             savedEvent.setEventCategories(eventCategoryList);
             return EventResponseDto.from(savedEvent);
         }
-
-        throw new NullPointerException("사진이 없습니다.");
+        else {
+            throw new GeneralException(IMAGE_IS_NULL);
+        }
     }
 
     @Transactional
     public EventResponseDto getEventDetail(long userId, long eventId){
+        // 이것도 optional로 바꿔서 orElseThrow로 유저아이디-이벤트 아이디 부합하는지 확인해야할거같은디..
         Event event = eventRepository.findByUserUserIdAndEventId(userId, eventId);
         return EventResponseDto.from(event);
     }
@@ -98,8 +104,11 @@ public class EventService  {
     }
 
     @Transactional
-    public EventResponseDto updateEvent(long userId, long eventId, EventUpdateRequestDto eventUpdateRequestDto, List<MultipartFile> images) throws IOException {
+    public EventResponseDto updateEvent(long userId, long eventId, EventUpdateRequestDto eventUpdateRequestDto, List<MultipartFile> images) {
         Event updatedEvent = eventRepository.findByUserUserIdAndEventId(userId, eventId);
+        if(updatedEvent == null){
+            throw new GeneralException(EVENT_NOT_FOUND);
+        }
 
         List<String> imageUrls = updatedEvent.getImageUrl();
         for (String imageUrl : imageUrls){
@@ -117,7 +126,7 @@ public class EventService  {
         List<Category> categoryList = eventUpdateRequestDto.categoryIds().stream()
                 .map(
                         id -> categoryRepository.findByCategoryId(id).orElseThrow(
-                                () -> new IllegalArgumentException("해당 id의 카테고리 없습니다...")
+                                () -> new GeneralException(CATEGORY_NOT_FOUND)
                         )
                 )
                 .collect(Collectors.toList());
@@ -158,7 +167,16 @@ public class EventService  {
         eventRepository.delete(deletedevent);
 
     }
-    private static String extractFileNameFromUrl(String imageUrl) {
+
+    @Transactional
+    public void deleteAllEvent(Long userId){
+        List<Event> eventList = eventRepository.findAllByUserUserId(userId);
+        for (Event event: eventList){
+            deleteEvent(userId, event.getEventId());
+        }
+    }
+
+    public static String extractFileNameFromUrl(String imageUrl) {
         try {
             URI uri = new URI(imageUrl);
             String path = uri.getPath();
@@ -171,4 +189,3 @@ public class EventService  {
 
 
 }
-
