@@ -23,7 +23,6 @@ import java.util.List;
 
 import static com.cookiee.cookieeserver.global.SuccessCode.*;
 
-//@Api(tags = "event")
 @RestController
 @RequiredArgsConstructor
 @Controller
@@ -31,79 +30,45 @@ public class EventController {
     @Autowired
     private final EventService eventService;
     @Autowired
-    private final UserService userService;
-
     private final JwtService jwtService;
 
-    // 등록
-    @Operation(summary = "캘린더에서 이벤트 등록")
-/*    @ApiImplicitParam(
-            name = "userId",
-            value = "유저 아이디",
-            required = true,
-            dataType = "int",
-            paramType = "path",
-            defaultValue = "None"
-    )*/
     @ResponseBody
     @PostMapping(value = "/event/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BaseResponseDto<EventResponseDto> saveEvent(
-            @PathVariable Long userId,
-            @RequestParam(value = "images") List<MultipartFile> imageUrl,
-            EventRegisterRequestDto eventRegisterRequestDto) {
-
-        // 액세스 토큰 정보에 해당하는 유저 가져오기
-        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
-
-        EventResponseDto event;
-        event = eventService.createEvent(imageUrl, eventRegisterRequestDto, currentUser);
+    public BaseResponseDto<EventResponseDto> saveEvent(@PathVariable Long userId, @RequestParam(value = "images") List<MultipartFile> imageUrl, EventRegisterRequestDto eventRegisterRequestDto) {
+        final User user = jwtService.getAndValidateCurrentUser(userId);
+        EventResponseDto event = eventService.createEvent(imageUrl, eventRegisterRequestDto, user);
         return BaseResponseDto.ofSuccess(CREATE_EVENT_SUCCESS, event);
     }
 
-    //eventId별 상세조회
     @ResponseBody
     @GetMapping("/event/view/{userId}/{eventId}")
     public BaseResponseDto<EventResponseDto> getEventDetail(@PathVariable long userId, @PathVariable long eventId) {
-        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
-        EventResponseDto event;
-        event = eventService.getEventDetail(currentUser.getUserId(),eventId);
-
+        final User user = jwtService.getAndValidateCurrentUser(userId);
+        EventResponseDto event = eventService.getEventDetail(user.getUserId(),eventId);
         return BaseResponseDto.ofSuccess(GET_EVENT_SUCCESS, event);
     }
 
-    //날짜별 상세조회
     @ResponseBody
     @GetMapping("/event/view/{userId}")
     public BaseResponseDto<EventResponseDto> getEventList(@PathVariable long userId, EventGetRequestDto eventGetRequestDto) {
-        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
-        List<EventResponseDto> events;
-
-        events = eventService.getEventList(currentUser.getUserId(), eventGetRequestDto);
-
+        final User user = jwtService.getAndValidateCurrentUser(userId);
+        List<EventResponseDto> events = eventService.getEventList(user.getUserId(), eventGetRequestDto);
         return BaseResponseDto.ofSuccess(GET_EVENT_SUCCESS, events);
     }
 
-
-    // 수정
     @ResponseBody
     @PutMapping("/event/update/{userId}/{eventId}")
     public BaseResponseDto<EventResponseDto> updateEvent(@PathVariable long userId, @PathVariable long eventId, @RequestParam(value = "images", required = false) List<MultipartFile> imageUrl, EventUpdateRequestDto eventUpdateRequestDto) {
-        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
-
-        EventResponseDto event;
-        event = eventService.updateEvent(currentUser.getUserId(), eventId,eventUpdateRequestDto, imageUrl);
-
+        final User user = jwtService.getAndValidateCurrentUser(userId);
+        EventResponseDto event =  eventService.updateEvent(user.getUserId(), eventId,eventUpdateRequestDto, imageUrl);
         return BaseResponseDto.ofSuccess(MODIFY_EVENT_SUCCESS, event);
     }
 
-    //삭제
     @ResponseBody
     @DeleteMapping("/event/del/{userId}/{eventId}")
     public BaseResponseDto<?> deleteEvent(@PathVariable long userId, @PathVariable long eventId) {
-        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
-
-        eventService.deleteEvent(currentUser.getUserId(), eventId);
+        final User user = jwtService.getAndValidateCurrentUser(userId);
+        eventService.deleteEvent(user.getUserId(), eventId);
         return BaseResponseDto.ofSuccess(DELETE_EVENT_SUCCESS);
     }
-
 }

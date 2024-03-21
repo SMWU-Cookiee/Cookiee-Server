@@ -36,8 +36,6 @@ public class EventService  {
     @Autowired
     private final EventRepository eventRepository;
     @Autowired
-    private final UserRepository userRepository;
-    @Autowired
     private final CategoryRepository categoryRepository;
     @Autowired
     private final EventCategoryRepository eventCategoryRepository;
@@ -50,26 +48,21 @@ public class EventService  {
 
 
     @Transactional
-    public EventResponseDto createEvent(List<MultipartFile> images, EventRegisterRequestDto eventRegisterRequestDto, User user){
+    public EventResponseDto createEvent(List<MultipartFile> eventImages, EventRegisterRequestDto eventRegisterRequestDto, User user){
 
         List<Category> categoryList = eventRegisterRequestDto.categoryIds().stream()
                 .map(
-                        // 유저 아이디랑 카테고리 아이디랑 부합해야하므로 findByUserUserIdAndCategoryId로 변경함!
                         id -> categoryRepository.findByUserUserIdAndCategoryId(user.getUserId(), id).orElseThrow(
                                 () -> new GeneralException(CATEGORY_NOT_FOUND)
                         )
                 )
                 .collect(Collectors.toList());
 
-        if (images == null)
-            throw new GeneralException(IMAGE_IS_NULL);
-
-        // TODO: 근데 null이 아닌데 이미지 없어도 추가됨
-        if (!images.isEmpty()) {
+        if (!eventImages.isEmpty()) {
             List<String> storedFileNames = new ArrayList<>();
 
-            for (MultipartFile image : images) {
-                String storedFileName = s3Uploader.saveFile(image, String.valueOf(user.getUserId()), "event");
+            for (MultipartFile eventImage : eventImages) {
+                String storedFileName = s3Uploader.saveFile(eventImage, String.valueOf(user.getUserId()), "event");
                 storedFileNames.add(storedFileName);
                 System.out.println(storedFileName);
             }
@@ -90,9 +83,11 @@ public class EventService  {
 
     @Transactional
     public EventResponseDto getEventDetail(long userId, long eventId){
-        // 이것도 optional로 바꿔서 orElseThrow로 유저아이디-이벤트 아이디 부합하는지 확인해야할거같은디..
         Event event = eventRepository.findByUserUserIdAndEventId(userId, eventId);
-        return EventResponseDto.from(event);
+        if(event.getEventId() == eventId)
+            return EventResponseDto.from(event);
+        else
+            throw new GeneralException(EVENT_NOT_FOUND);
     }
 
     @Transactional
@@ -104,50 +99,51 @@ public class EventService  {
     }
 
     @Transactional
-    public EventResponseDto updateEvent(long userId, long eventId, EventUpdateRequestDto eventUpdateRequestDto, List<MultipartFile> images) {
+    public EventResponseDto updateEvent(long userId, long eventId, EventUpdateRequestDto eventUpdateRequestDto, List<MultipartFile> eventImanges) {
         Event updatedEvent = eventRepository.findByUserUserIdAndEventId(userId, eventId);
-        if(updatedEvent == null){
+        if(eventImanges != null) {
+            List<String> imageUrls = updatedEvent.getImageUrl();
+            for (String imageUrl : imageUrls){
+                String fileName = extractFileNameFromUrl(imageUrl);
+                amazonS3Client.deleteObject(bucketName, fileName);
+            }
+
+            List<String> storedFileNames = new ArrayList<>();
+            for (MultipartFile image : eventImanges) {
+                String storedFileName = s3Uploader.saveFile(image, String.valueOf(userId), "event");
+                storedFileNames.add(storedFileName);
+            }
+
+            eventCategoryRepository.deleteAll(updatedEvent.getEventCategories());
+            List<Category> categoryList = eventUpdateRequestDto.categoryIds().stream()
+                    .map(
+                            id -> categoryRepository.findByCategoryId(id).orElseThrow(
+                                    () -> new GeneralException(CATEGORY_NOT_FOUND)
+                            )
+                    )
+                    .collect(Collectors.toList());
+            List<EventCategory> eventCategoryList = categoryList.stream()
+                    .map(category ->
+                            EventCategory.builder().event(updatedEvent).category(category).build()
+                    ).collect(Collectors.toList());
+
+            eventCategoryRepository.saveAll(eventCategoryList);
+
+            updatedEvent.update(
+                    eventUpdateRequestDto.eventWhat(),
+                    eventUpdateRequestDto.eventWhere(),
+                    eventUpdateRequestDto.withWho(),
+                    eventUpdateRequestDto.startTime(),
+                    eventUpdateRequestDto.endTime(),
+                    storedFileNames,
+                    eventCategoryList
+            );
+
+            return EventResponseDto.from(updatedEvent);
+
+        } else
             throw new GeneralException(EVENT_NOT_FOUND);
-        }
 
-        List<String> imageUrls = updatedEvent.getImageUrl();
-        for (String imageUrl : imageUrls){
-            String fileName = extractFileNameFromUrl(imageUrl);
-            amazonS3Client.deleteObject(bucketName, fileName);
-        }
-
-        List<String> storedFileNames = new ArrayList<>();
-        for (MultipartFile image : images) {
-            String storedFileName = s3Uploader.saveFile(image, String.valueOf(userId), "event");
-            storedFileNames.add(storedFileName);
-        }
-
-        eventCategoryRepository.deleteAll(updatedEvent.getEventCategories());
-        List<Category> categoryList = eventUpdateRequestDto.categoryIds().stream()
-                .map(
-                        id -> categoryRepository.findByCategoryId(id).orElseThrow(
-                                () -> new GeneralException(CATEGORY_NOT_FOUND)
-                        )
-                )
-                .collect(Collectors.toList());
-        List<EventCategory> eventCategoryList = categoryList.stream()
-                .map(category ->
-                        EventCategory.builder().event(updatedEvent).category(category).build()
-                ).collect(Collectors.toList());
-
-        eventCategoryRepository.saveAll(eventCategoryList);
-
-        updatedEvent.update(
-                eventUpdateRequestDto.eventWhat(),
-                eventUpdateRequestDto.eventWhere(),
-                eventUpdateRequestDto.withWho(),
-                eventUpdateRequestDto.startTime(),
-                eventUpdateRequestDto.endTime(),
-                storedFileNames,
-                eventCategoryList
-        );
-
-        return EventResponseDto.from(updatedEvent);
     }
 
 
@@ -167,7 +163,6 @@ public class EventService  {
         eventRepository.delete(deletedevent);
 
     }
-
     @Transactional
     public void deleteAllEvent(Long userId){
         List<Event> eventList = eventRepository.findAllByUserUserId(userId);
@@ -176,9 +171,9 @@ public class EventService  {
         }
     }
 
-    public static String extractFileNameFromUrl(String imageUrl) {
+    public static String extractFileNameFromUrl(String EventImageUrl) {
         try {
-            URI uri = new URI(imageUrl);
+            URI uri = new URI(EventImageUrl);
             String path = uri.getPath();
             return path.substring(path.lastIndexOf('/') + 1);
         } catch (Exception e) {
