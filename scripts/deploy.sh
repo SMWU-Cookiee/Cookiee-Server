@@ -9,8 +9,8 @@ DEPLOY_LOG=/home/ubuntu/cookiee/application.log
 
 APP_NAME=2023-COOKIEE-server
 
-JAR_NAME=$(ls $REPOSITORY/build/libs/ | grep 'SNAPSHOT.jar' | tail -n 1)
-JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
+JAR_NAME=$(ls $REPOSITORY | grep 'SNAPSHOT.jar' | tail -n 1)
+JAR_PATH=$REPOSITORY/$JAR_NAME
 
 CURRENT_PID=$(pgrep -f $APP_NAME)
 
