@@ -1,7 +1,6 @@
 
 package com.cookiee.cookieeserver.event.dto.response;
 
-//import com.cookiee.cookieeserver.domain.Collection;
 import com.cookiee.cookieeserver.category.dto.response.CategoryGetResponseDto;
 import com.cookiee.cookieeserver.event.domain.Event;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
@@ -21,7 +20,7 @@ public record EventResponseDto(
         int EventDate,
         String startTime,
         String endTime,
-        List<String> imageUrlList,
+        List<String> eventImageUrlList,
         List<CategoryGetResponseDto> categories){
 
     public static EventResponseDto from(Event event){
@@ -49,18 +48,5 @@ public record EventResponseDto(
         );
     }
 }
-/*    @Builder
-    public EventResponseDto(Long eventId, String what, String eventWhere, String withWho, int EventYear, int EventMonth, int EventDate, Long userId, List<String> imageUrlList, List<EventCategory> eventCategories){
-        this.eventId = eventId;
-        this.what = what;
-        this.eventWhere = eventWhere;
-        this.withWho = withWho;
-        this.EventYear = EventYear;
-        this.EventMonth = EventMonth;
-        this.EventDate = EventDate;
-        this.userId = userId;
-        this.imageUrlList = imageUrlList;
-        this.Eventcategories = eventCategories;
-    }*/
 
 

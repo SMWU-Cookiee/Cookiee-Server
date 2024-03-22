@@ -41,14 +41,14 @@ public class ThumbnailService {
 
 
     @Transactional
-    public ThumbnailResponseDto createThumbnail(MultipartFile thumbnailUrl, ThumbnailRegisterRequestDto thumbnailRegisterRequestDto, Long userId) {
+    public ThumbnailResponseDto createThumbnail(MultipartFile thumbnailImage, ThumbnailRegisterRequestDto thumbnailRegisterRequestDto, Long userId) {
         User user = userRepository.findByUserId(userId).orElseThrow(
                 () -> new GeneralException(USER_NOT_FOUND)
         );
         Thumbnail savedThumbnail;
         String storedFileName = null;
-        if (!thumbnailUrl.isEmpty())
-            storedFileName = s3Uploader.saveFile(thumbnailUrl, String.valueOf(userId), "thumbnail");
+        if (!thumbnailImage.isEmpty())
+            storedFileName = s3Uploader.saveFile(thumbnailImage, String.valueOf(userId), "thumbnail");
         savedThumbnail = thumbnailRepository.save(thumbnailRegisterRequestDto.toEntity(user, storedFileName));
 
         return new ThumbnailResponseDto(savedThumbnail.getThumbnailId(), savedThumbnail.getEventYear(), savedThumbnail.getEventMonth(), savedThumbnail.getEventDate(), savedThumbnail.getThumbnailUrl());
@@ -84,7 +84,7 @@ public class ThumbnailService {
     }
 
     @Transactional
-    public ThumbnailResponseDto updateThumbnail(MultipartFile thumbnailUrl, ThumbnailUpdateRequestDto thumbnailUpdateRequestDto, long userId, long thumbnailId){
+    public ThumbnailResponseDto updateThumbnail(MultipartFile thumbnailUrl, long userId, long thumbnailId){
         Thumbnail updatedthumbnail = thumbnailRepository.findByUserUserIdAndThumbnailId(userId, thumbnailId);
         String fileName = extractFileNameFromUrl(updatedthumbnail.getThumbnailUrl());
         amazonS3Client.deleteObject(bucketName, fileName); //버킷에서 사진 삭제

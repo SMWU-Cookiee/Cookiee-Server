@@ -31,7 +31,7 @@ public class EventCategoryGetResponseDto {
                 .map(
                         eventResponseDto -> EventImageURLDto.builder()
                                 .eventId(eventResponseDto.eventId())
-                                .firstImageUrl(eventResponseDto.imageUrlList().get(0))
+                                .firstImageUrl(eventResponseDto.eventImageUrlList().get(0))
                                 .build()
                 )
                 .collect(Collectors.toList());
