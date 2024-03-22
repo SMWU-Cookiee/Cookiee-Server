@@ -3,9 +3,9 @@
 REPOSITORY=/home/ubuntu/2023-COOKIEE-server
 cd $REPOSITORY
 
-APP_LOG=/home/ubuntu/2023-COOKIEE-server/application.log
-ERROR_LOG=/home/ubuntu/2023-COOKIEE-server/error.log
-DEPLOY_LOG=/home/ubuntu/2023-COOKIEE-server/application.log
+APP_LOG=/home/ubuntu/cookiee/application.log
+ERROR_LOG=/home/ubuntu/cookiee/error.log
+DEPLOY_LOG=/home/ubuntu/cookiee/application.log
 
 APP_NAME=2023-COOKIEE-server
 
