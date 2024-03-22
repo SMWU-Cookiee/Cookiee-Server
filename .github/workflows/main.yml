@@ -9,7 +9,7 @@ env:
   BUCKET_NAME: cookiee-cicde-bucket
   CODE_DEPLOY_APP_NAME: cookiee-cicd
   DEPLOYMENT_GROUP_NAME: cookiee_instance
-  RESOURCE_PATH: ./src/main/resources/application.yml
+  RESOURCE_PATH: ../src/main/resources/application.yml
 
 jobs:
   deploy:
