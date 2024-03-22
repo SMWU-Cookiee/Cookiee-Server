@@ -35,7 +35,7 @@ public class AppleController {
     @ResponseBody
     public BaseResponseDto<?> callback(HttpServletRequest request, HttpServletResponse response) {
         log.info(String.valueOf(request));
-        OAuthResponse authResponse = appleService.login(request.getParameter("idToken"), request.getParameter("code"));
+        OAuthResponse authResponse = appleService.login(request.getParameter("id_token"), request.getParameter("code"));
         return BaseResponseDto.ofSuccess(APPLE_LOGIN_SUCCESS, authResponse);
     }
 }
