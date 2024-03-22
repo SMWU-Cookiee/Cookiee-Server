@@ -9,12 +9,14 @@ import com.cookiee.cookieeserver.login.apple.service.AppleService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import static com.cookiee.cookieeserver.global.Constant.*;
 import static com.cookiee.cookieeserver.global.SuccessCode.*;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 public class AppleController {
     private final AppleService appleService;
@@ -29,12 +31,11 @@ public class AppleController {
         return BaseResponseDto.ofSuccess(APPLE_LOGIN_SUCCESS, response);
     }
 
-//    @RequestMapping("/login/apple/callback")
-//    @ResponseBody
-//    public AppleLoginResponse callback(HttpServletRequest request, HttpServletResponse response) {
-//        return AppleLoginResponse.builder()
-//                .code(request.getParameter("code"))
-//                .idToken(request.getParameter("id_token"))
-//                .build();
-//    }
+    @RequestMapping("/login/apple/callback")
+    @ResponseBody
+    public BaseResponseDto<?> callback(HttpServletRequest request, HttpServletResponse response) {
+        log.info(String.valueOf(request));
+        OAuthResponse authResponse = appleService.login(request.getParameter("idToken"), request.getParameter("code"));
+        return BaseResponseDto.ofSuccess(APPLE_LOGIN_SUCCESS, authResponse);
+    }
 }
