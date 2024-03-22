@@ -31,7 +31,7 @@ public class AppleController {
         return BaseResponseDto.ofSuccess(APPLE_LOGIN_SUCCESS, response);
     }
 
-    @RequestMapping("/login/apple/callback")
+    @PostMapping("/login/apple/callback")
     @ResponseBody
     public BaseResponseDto<?> callback(HttpServletRequest request, HttpServletResponse response) {
         log.info(String.valueOf(request));
