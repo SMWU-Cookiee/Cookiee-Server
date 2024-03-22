@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPOSITORY=/home/ubuntu/2023-COOKIEE-server
+REPOSITORY=/home/ubuntu
 cd $REPOSITORY
 
 APP_LOG=/home/ubuntu/cookiee/application.log
