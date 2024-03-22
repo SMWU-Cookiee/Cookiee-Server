@@ -9,11 +9,25 @@ env:
   BUCKET_NAME: cookiee-cicde-bucket
   CODE_DEPLOY_APP_NAME: cookiee-cicd
   DEPLOYMENT_GROUP_NAME: cookiee_instance
+  RESOURCE_PATH: ./src/main/resources/application.yml
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Set yml file 
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: ${{ env.RESOURCE_PATH }} 
+        env:
+          DB_URL: ${{ secrets.DB_URL }} 
+          DB_USER: ${{ secrets.RDS_USERNAME }} 
+          DB_PASSWORD: ${{ secrets.RDS_PASSWORD }} 
+          ACCESS_KEY: ${{ secrets.JWT_KEY }}
+          JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -23,7 +37,7 @@ jobs:
           java-version: 17
           distribution: "corretto"
           
-      - name : Set up OPENAI.properties file
+      - name : Set up OAUTH file
         run : echo "${{ secrets.DEV_OAUTH }}" > ./src/main/resources/application-oauth.yml
         shell : bash
 
@@ -44,18 +58,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_PRIVATE_ACCESS_KEY }}
           aws-region: ap-northeast-2
-
-      - name: Set environment variables in application.yml
-        run: |
-          echo "DB_URL=${{ secrets.DB_URL }}" >> application.yml
-          echo "DB_USER=${{ secrets.DB_USER }}" >> application.yml
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> application.yml
-          echo "ACCESS_KEY=${{ secrets.ACCESS_KEY }}" >> application.yml
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> application.yml
-          echo "AWS_PRIVATE_ACCESS_KEY=${{ secrets.AWS_PRIVATE_ACCESS_KEY }}" >> application.yml
-          echo "JWT_ISSUER=${{ secrets.JWT_ISSUER }}" >> application.yml
-          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> application.yml
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> application.yml
       
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
