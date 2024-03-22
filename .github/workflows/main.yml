@@ -48,7 +48,6 @@ jobs:
       - name: Set environment variables in application.yml
         run: |
           echo "DB_URL=${{ secrets.DB_URL }}" >> application.yml
-          echo "DB_DRIVER=${{ secrets.DB_DRIVER }}" >> application.yml
           echo "DB_USER=${{ secrets.DB_USER }}" >> application.yml
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> application.yml
           echo "ACCESS_KEY=${{ secrets.ACCESS_KEY }}" >> application.yml
