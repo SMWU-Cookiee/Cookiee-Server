@@ -9,25 +9,11 @@ env:
   BUCKET_NAME: cookiee-cicde-bucket
   CODE_DEPLOY_APP_NAME: cookiee-cicd
   DEPLOYMENT_GROUP_NAME: cookiee_instance
-  RESOURCE_PATH: ../src/main/resources/application.yml
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Set yml file 
-        uses: microsoft/variable-substitution@v1
-        with:
-          files: ${{ env.RESOURCE_PATH }} 
-        env:
-          DB_URL: ${{ secrets.DB_URL }} 
-          DB_USER: ${{ secrets.RDS_USERNAME }} 
-          DB_PASSWORD: ${{ secrets.RDS_PASSWORD }} 
-          ACCESS_KEY: ${{ secrets.JWT_KEY }}
-          JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
-          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -39,6 +25,15 @@ jobs:
           
       - name : Set up OAUTH file
         run : echo "${{ secrets.DEV_OAUTH }}" > ./src/main/resources/application-oauth.yml
+        shell : bash
+      - name : Set up CREDENTIAL file
+        run : echo "${{ secrets.DEV_CREDENTIAL }}" > ./src/main/resources/application-credential.yml
+        shell : bash
+      - name : Set up DB file
+        run : echo "${{ secrets.DEV_DB }}" > ./src/main/resources/application-db.yml
+        shell : bash
+      - name : Set up JWT file
+        run : echo "${{ secrets.DEV_JWT }}" > ./src/main/resources/application-jwt.yml
         shell : bash
 
       - name: Grant execute permission for gradlew
