@@ -9,35 +9,11 @@ spring:
       max-file-size: 50MB
       max-request-size: 50MB
   profiles:
-    include: oauth
-
-  datasource:
-    url: ${DB_URL}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
-
-
-    hikari:
-      maximum-pool-size: 20  # thread starvation 해결 제발
-  jpa:
-    database: mysql
-    hibernate:
-      ddl-auto: update
-    #database-platform: org.hibernate.dialect.MySQL5Dialect
-    #defer-datasource-initialization: true
-
-    # 개발 초기 단계는 create 또는 update
-    # 테스트 서버는 update 또는 validate
-    # 스테이징과 운영 서버는 validate 또는 none
-
-    show-sql: true
-    properties:
-      hibernate.format_sql: true
+    include: oauth, db, credential, jwt
 
 logging:
   file:
-    name: logs/test.log  # 로깅 파일 위치이다.
+    name: logs/test.log  # 로깅 파일 위치
   level:
     org.hibernate.SQL: debug
     com.cookiee.cookieeserver: debug
@@ -45,19 +21,6 @@ logging:
     rollingpolicy:
       max-history: 7
       max-file-size: 10MB
-
-cloud:
-  aws:
-    region:
-      static: ap-northeast-2
-    s3:
-      bucket: cookiee-s3
-        # dir: S3 디렉토리 이름 # ex) /gyunny
-    credentials:
-      access-key: ${ACCESS_KEY}
-      secret-key: ${SECRET_KEY}
-    stack:
-      auto: false
 
 swagger:
   enabled: true
@@ -77,15 +40,3 @@ springdoc:
   default-produces-media-type: application/json
   paths-to-match:
     - /v1/**
-# 토큰 발급자
-jwt:
-  issuer: ${JWT_ISSUER}
-  # JWT 키 (여러 문자가 섞일수록 안전하다)
-  secret: ${JWT_SECRET_KEY}
-  #custom:
-  #s3url : ${s3url}
-# 임시로 포트 번호 지정
-#server:
-  #port: 3306
-#  servlet:
-#    context-path: /cookiee
