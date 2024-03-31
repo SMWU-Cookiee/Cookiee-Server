@@ -95,6 +95,7 @@ public class AppleService {
         Claims claims = getClaimsBy(idToken);
 
         try {
+            log.info("AppleService 로그인 try문 시작");
             // access token 등.. 생성해서 그 내용을 appleTokenResponse에 받아온다.
             AppleTokenResponse appleTokenResponse = generateAuthToken(authorizationCode);
             appleRefreshToken = appleTokenResponse.getRefreshToken();
@@ -264,6 +265,7 @@ public class AppleService {
     // 애플의 client secret을 얻기 위해 사용하는 메소드이다. key 받아오는 메소드
     private PrivateKey getPrivateKey() {
         try {
+            log.info("getPrivateKey시작");
             ClassPathResource resource = new ClassPathResource(APPLE_KEY_PATH);
             String privateKey = new String(resource.getInputStream().readAllBytes());
             log.debug("privateKey 읽기 완료");
