@@ -23,8 +23,17 @@ jobs:
           java-version: 17
           distribution: "corretto"
           
-      - name : Set up OPENAI.properties file
+      - name : Set up OAUTH file
         run : echo "${{ secrets.DEV_OAUTH }}" > ./src/main/resources/application-oauth.yml
+        shell : bash
+      - name : Set up CREDENTIAL file
+        run : echo "${{ secrets.DEV_CREDENTIAL }}" > ./src/main/resources/application-credential.yml
+        shell : bash
+      - name : Set up DB file
+        run : echo "${{ secrets.DEV_DB }}" > ./src/main/resources/application-db.yml
+        shell : bash
+      - name : Set up JWT file
+        run : echo "${{ secrets.DEV_JWT }}" > ./src/main/resources/application-jwt.yml
         shell : bash
 
       - name: Grant execute permission for gradlew
@@ -44,19 +53,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_PRIVATE_ACCESS_KEY }}
           aws-region: ap-northeast-2
-
-      - name: Set environment variables in application.yml
-        run: |
-          echo "DB_URL=${{ secrets.DB_URL }}" >> application.yml
-          echo "DB_DRIVER=${{ secrets.DB_DRIVER }}" >> application.yml
-          echo "DB_USER=${{ secrets.DB_USER }}" >> application.yml
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> application.yml
-          echo "ACCESS_KEY=${{ secrets.ACCESS_KEY }}" >> application.yml
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> application.yml
-          echo "AWS_PRIVATE_ACCESS_KEY=${{ secrets.AWS_PRIVATE_ACCESS_KEY }}" >> application.yml
-          echo "JWT_ISSUER=${{ secrets.JWT_ISSUER }}" >> application.yml
-          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> application.yml
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> application.yml
       
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip

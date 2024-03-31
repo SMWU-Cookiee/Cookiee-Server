@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPOSITORY=/home/ubuntu
+REPOSITORY=/home/ubuntu/cookiee/build/libs
 cd $REPOSITORY
 
 APP_LOG=/home/ubuntu/cookiee/application.log
