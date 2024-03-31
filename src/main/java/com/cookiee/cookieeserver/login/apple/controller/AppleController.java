@@ -41,7 +41,7 @@ public class AppleController {
         log.debug(code);
         //log.info(String.valueOf(response));
 //        request.getParameter("id_token"), request.getParameter("code")
-        OAuthResponse authResponse = appleService.login(request.getParameter("id_token"), request.getParameter("code"));
+        OAuthResponse authResponse = appleService.login(id_token, code);
         return BaseResponseDto.ofSuccess(APPLE_LOGIN_SUCCESS, authResponse);
     }
 }
