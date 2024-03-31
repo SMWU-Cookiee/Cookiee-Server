@@ -24,10 +24,13 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 
 
 @Slf4j
-@RequiredArgsConstructor    // final 멤버변수가 있으면 생성자 항목에 포함시킴
+@RequiredArgsConstructor
 @Component
 @Service
 public class S3Uploader {
+
+    @Value("${cloud.aws.s3.domain}")
+    private String CLOUD_FRONT_DOMAIN_NAME;
 
     private final AmazonS3 amazonS3Client;
 
@@ -48,6 +51,7 @@ public class S3Uploader {
             throw new GeneralException(S3_UPLOAD_ERROR);
         }
 
-        return amazonS3Client.getUrl(bucket, newFilename).toString();
+        //return amazonS3Client.getUrl(bucket, newFilename).toString();
+        return CLOUD_FRONT_DOMAIN_NAME+"/"+newFilename;
     }
 }
