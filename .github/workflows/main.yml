@@ -36,7 +36,7 @@ jobs:
         run : echo "${{ secrets.DEV_JWT }}" > ./src/main/resources/application-jwt.yml
         shell : bash
       - name : Set up APPLE file
-        run : echo "${{ secrets.DEV_APPLE }}" > ./src/main/resources/static/apple/Apple_AuthKey.p8
+        run : echo "${{ secrets.DEV_APPLE }}" > ./src/main/resources/static/Apple_AuthKey.p8
         shell : bash
 
       - name: Grant execute permission for gradlew
