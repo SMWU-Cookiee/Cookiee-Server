@@ -98,7 +98,7 @@ public class AppleService {
             // access token 등.. 생성해서 그 내용을 appleTokenResponse에 받아온다.
             AppleTokenResponse appleTokenResponse = generateAuthToken(authorizationCode);
             appleRefreshToken = appleTokenResponse.getRefreshToken();
-            log.debug("애플 로그인 - 애플 고유 리프레쉬 토큰은 {}", appleRefreshToken);
+            log.debug("애플 로그인-애플 고유 리프레쉬 토큰은 {}", appleRefreshToken);
 
             socialId = String.valueOf(claims.get("sub"));  // sub는 애플에서 제공하는 사용자 식별 값
             email = String.valueOf(claims.get("email"));
