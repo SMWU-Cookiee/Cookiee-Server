@@ -266,11 +266,14 @@ public class AppleService {
         try {
             ClassPathResource resource = new ClassPathResource(APPLE_KEY_PATH);
             String privateKey = new String(resource.getInputStream().readAllBytes());
+            log.debug("privateKey 읽기 완료");
 
             Reader pemReader = new StringReader(privateKey);
+            log.debug("pemReader 생성");
             PEMParser pemParser = new PEMParser(pemReader);
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
             PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
+            log.debug("pemParser.readObject 완료");
 
             return converter.getPrivateKey(object);
         }
