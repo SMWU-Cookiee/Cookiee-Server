@@ -19,6 +19,13 @@ public class GoogleLoginService {
     private final Environment env;
     private final RestTemplate restTemplate = new RestTemplate();
 
+    public void socialLoginTest(String code, String registrationId) {
+        System.out.println("code = " + code);
+        System.out.println("registrationId = " + registrationId);
+        String accessToken = getAccessToken(code, registrationId);
+        System.out.println("accessToken = " + accessToken);
+    }
+
     public void socialLogin(String code, String registrationId) {
         String accessToken = getAccessToken(code, registrationId);
         JsonNode userResourceNode = getUserResource(accessToken, registrationId);
