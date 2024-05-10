@@ -8,6 +8,7 @@ import lombok.Data;
 public class OAuthResponse {
     private String socialId;  // 소셜 아이디
     private Long userId;  // 유저 아이디
+    private String name; //유저 이름
     private String email;  // 회원 이메일
     private String socialType;  // 소셜 로그인 타입(구글 혹은 애플)
     private String accessToken;  // 액세스 토큰
