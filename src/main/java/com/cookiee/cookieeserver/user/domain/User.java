@@ -22,6 +22,9 @@ public class User extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)  // auto_increment
     private Long userId;  // 사용자 아이디
 
+    @Column(nullable = false)
+    private String name;
+
     @Column(nullable = false, length = 10)
     private String nickname;  // 사용자가 설정한 닉네임
 

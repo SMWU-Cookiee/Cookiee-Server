@@ -47,11 +47,15 @@ public class ThumbnailService {
         );
         Thumbnail savedThumbnail;
         String storedFileName = null;
-        if (!thumbnailImage.isEmpty())
+        if (!thumbnailImage.isEmpty()) {
             storedFileName = s3Uploader.saveFile(thumbnailImage, String.valueOf(userId), "thumbnail");
-        savedThumbnail = thumbnailRepository.save(thumbnailRegisterRequestDto.toEntity(user, storedFileName));
-
-        return new ThumbnailResponseDto(savedThumbnail.getThumbnailId(), savedThumbnail.getEventYear(), savedThumbnail.getEventMonth(), savedThumbnail.getEventDate(), savedThumbnail.getThumbnailUrl());
+            savedThumbnail = thumbnailRepository.save(thumbnailRegisterRequestDto.toEntity(user, storedFileName));
+            return ThumbnailResponseDto.from(savedThumbnail);
+        }
+        else {
+            throw new GeneralException(IMAGE_IS_NULL);
+        }
+        //return new ThumbnailResponseDto(savedThumbnail.getThumbnailId(), savedThumbnail.getEventYear(), savedThumbnail.getEventMonth(), savedThumbnail.getEventDate(), savedThumbnail.getThumbnailUrl());
     }
 
     @Transactional
