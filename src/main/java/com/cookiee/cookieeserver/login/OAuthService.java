@@ -68,11 +68,12 @@ public class OAuthService {
         // 그게 아니면 새로운 유저 생성
         User newUser = User.builder()
                 .role(Role.USER)
+                .name(signupUserInfo.getName())
                 .nickname(signupUserInfo.getNickname())
                 .selfDescription(signupUserInfo.getSelfDescription())
                 .email(signupUserInfo.getEmail())
                 .socialId(signupUserInfo.getSocialId())
-                .socialLoginType(AuthProvider.of(signupUserInfo.getSocialLoginType()))
+                .socialLoginType(AuthProvider.of(signupUserInfo.getSocialLoginType().name()))
                 .socialRefreshToken(signupUserInfo.getSocialRefreshToken())
                 .build();
 
@@ -97,6 +98,10 @@ public class OAuthService {
         log.debug("app access token: {}", accessToken);
 
         return OAuthResponse.builder()
+                .name(newUser.getName())
+                .socialId(newUser.getSocialId())
+                .email(newUser.getEmail())
+                .socialType(newUser.getSocialLoginType().name())
                 .isNewMember(true)
                 .userId(newUser.getUserId())  // 나머지 api 접근에는 유저 아이디가 필요함
                 .accessToken(accessToken)
