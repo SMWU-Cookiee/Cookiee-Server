@@ -95,10 +95,11 @@ public class AppleService {
         Claims claims = getClaimsBy(idToken);
 
         try {
+            log.info("AppleService 로그인 try문 시작");
             // access token 등.. 생성해서 그 내용을 appleTokenResponse에 받아온다.
             AppleTokenResponse appleTokenResponse = generateAuthToken(authorizationCode);
             appleRefreshToken = appleTokenResponse.getRefreshToken();
-            log.debug("애플 로그인 - 애플 고유 리프레쉬 토큰은 {}", appleRefreshToken);
+            log.debug("애플 로그인-애플 고유 리프레쉬 토큰은 {}", appleRefreshToken);
 
             socialId = String.valueOf(claims.get("sub"));  // sub는 애플에서 제공하는 사용자 식별 값
             email = String.valueOf(claims.get("email"));
@@ -264,13 +265,17 @@ public class AppleService {
     // 애플의 client secret을 얻기 위해 사용하는 메소드이다. key 받아오는 메소드
     private PrivateKey getPrivateKey() {
         try {
+            log.info("getPrivateKey시작");
             ClassPathResource resource = new ClassPathResource(APPLE_KEY_PATH);
             String privateKey = new String(resource.getInputStream().readAllBytes());
+            log.debug("privateKey 읽기 완료");
 
             Reader pemReader = new StringReader(privateKey);
+            log.debug("pemReader 생성");
             PEMParser pemParser = new PEMParser(pemReader);
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
             PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
+            log.debug("pemParser.readObject 완료");
 
             return converter.getPrivateKey(object);
         }

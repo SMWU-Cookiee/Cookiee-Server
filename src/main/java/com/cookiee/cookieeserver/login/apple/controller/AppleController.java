@@ -34,8 +34,12 @@ public class AppleController {
     @PostMapping("/login/apple/callback")
     @ResponseBody
     public BaseResponseDto<?> callback(String id_token, String code, HttpServletRequest request, HttpServletResponse response) {
-        log.info(String.valueOf(request));
-        log.info(String.valueOf(response));
+        log.debug("여기는 애플 컨트롤러");
+        log.debug(String.valueOf(request.getParameter("id_token")));
+        log.debug(String.valueOf(request.getParameter("code")));
+        log.debug(id_token);
+        log.debug(code);
+        //log.info(String.valueOf(response));
 //        request.getParameter("id_token"), request.getParameter("code")
         OAuthResponse authResponse = appleService.login(id_token, code);
         return BaseResponseDto.ofSuccess(APPLE_LOGIN_SUCCESS, authResponse);

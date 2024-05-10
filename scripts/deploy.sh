@@ -24,4 +24,4 @@ else
 fi
 
 echo "> Deploy - $JAR_PATH "
-nohup java -jar -Duser.timezone=Asia/Seoul $JAR_PATH --logging.level.org.hibernate.SQL=DEBUG > $APP_LOG 2>$ERROR_LOG &
+nohup java -jar -Duser.timezone=Asia/Seoul $JAR_PATH --logging.level.org.hibernate.SQL=DEBUG > $APP_LOG 2>>$ERROR_LOG &

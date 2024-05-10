@@ -42,4 +42,7 @@ out/
 /src/main/resources/application-db.yml
 /src/main/resources/application-jwt.yml
 /src/main/resources/application-credential.yml
-/src/main/resources/application-google.yml
+
+### mac ###
+.DS_Store
+
