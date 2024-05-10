@@ -12,6 +12,7 @@ public enum SuccessCode {
 
     // 인증 & 인가 & 로그인
     APPLE_LOGIN_SUCCESS(HttpStatus.OK, "애플 로그인에 성공하였습니다."),
+    GOOGLE_LOGIN_SUCCESS(HttpStatus.OK, "구글 로그인에 성공하였습니다."),
     SIGNUP_SUCCESS(HttpStatus.OK, "회원가입에 성공하였습니다."),
     SIGNOUT_SUCCESS(HttpStatus.OK, "회원 탈퇴에 성공하였습니다. 빠이염"),
     REISSUE_TOKEN_SUCCESS(HttpStatus.OK, "토큰 갱신에 성공하였습니다."),
