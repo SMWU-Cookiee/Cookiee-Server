@@ -1,44 +1,78 @@
 package com.cookiee.cookieeserver.login.google;
 
+import com.cookiee.cookieeserver.global.domain.AuthProvider;
+import com.cookiee.cookieeserver.login.OAuthResponse;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
+import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GoogleLoginService {
 
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private JwtService jwtService;
+
     private final Environment env;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public void socialLoginTest(String code, String registrationId) {
-        System.out.println("code = " + code);
-        System.out.println("registrationId = " + registrationId);
-        String accessToken = getAccessToken(code, registrationId);
-        System.out.println("accessToken = " + accessToken);
-    }
 
-    public void socialLogin(String code, String registrationId) {
+    public OAuthResponse socialLogin(String code, String registrationId) {
         String accessToken = getAccessToken(code, registrationId);
         JsonNode userResourceNode = getUserResource(accessToken, registrationId);
         System.out.println("userResourceNode = " + userResourceNode);
 
-        String id = userResourceNode.get("id").asText();
-        String email = userResourceNode.get("email").asText();
-        String nickname = userResourceNode.get("name").asText();
-        System.out.println("id = " + id);
+        String socialId = userResourceNode.has("id") ? userResourceNode.get("id").asText() : null;
+        String email = userResourceNode.has("email") ? userResourceNode.get("email").asText() : null;
+        System.out.println("id = " + socialId);
         System.out.println("email = " + email);
-        System.out.println("nickname = " + nickname);
-    }
 
+        User foundUser = userRepository
+                .findBySocialLoginTypeAndSocialId(AuthProvider.GOOGLE, socialId)
+                .orElse(null);
+
+        if (foundUser == null) {
+            log.debug("socialId가 {}인 유저는 존재하지 않음. 신규 회원가입", socialId);
+            return OAuthResponse.builder()
+                    .socialId(socialId)
+                    .email(email)
+                    .socialType("google")
+                    .isNewMember(true)
+                    .build();
+        }
+
+        else {
+            log.debug("socialId가 {}인 유저는 기존 유저입니다.", socialId);
+            String appRefreshToken = jwtService.createRefreshToken();
+            String appAccessToken = jwtService.createAccessToken(foundUser.getUserId());
+            foundUser.setRefreshToken(appRefreshToken);
+            userRepository.save(foundUser);
+
+            return OAuthResponse.builder()
+                    .socialId(socialId)
+                    .email(email)
+                    .socialType("google")
+                    .accessToken(appAccessToken)
+                    .refreshToken(appRefreshToken)
+                    .isNewMember(false)
+                    .build();
+        }
+    }
     private String getAccessToken(String authorizationCode, String registrationId) {
         String clientId = env.getProperty("oauth2." + registrationId + ".client-id");
         String clientSecret = env.getProperty("oauth2." + registrationId + ".client-secret");
