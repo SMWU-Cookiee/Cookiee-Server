@@ -46,7 +46,7 @@ public class OAuthAttributes {
                 .nickname(nickname)
                 .email(email)
                 .profileImage(profileImage)
-                .description(description)
+                .selfDescription(description)
                 .role(Role.USER)
                 .build();
     }
