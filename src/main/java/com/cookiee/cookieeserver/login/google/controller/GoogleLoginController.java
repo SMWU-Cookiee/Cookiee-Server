@@ -33,8 +33,8 @@ public class GoogleLoginController {
 
     @PostMapping("/google")
     public String googleLoginUrl(){
-        String url = "https://accounts.google.com/o/oauth2/auth?client_id="+googleClientId+"&redirect_uri=http://localhost:8080/login/oauth2/code/google&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email";
-        //String url = "https://accounts.google.com/o/oauth2/auth?client_id="+googleClientId+"&redirect_uri=https://cookiee.site/login/oauth2/code/google&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email";
+        //String url = "https://accounts.google.com/o/oauth2/auth?client_id="+googleClientId+"&redirect_uri=http://localhost:8080/login/oauth2/code/google&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email";
+        String url = "https://accounts.google.com/o/oauth2/auth?client_id="+googleClientId+"&redirect_uri=https://cookiee.site/login/oauth2/code/google&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email";
         return url;
     }
 
