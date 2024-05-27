@@ -2,7 +2,7 @@ package com.cookiee.cookieeserver.login.google.service;
 
 import com.cookiee.cookieeserver.login.google.dto.OAuthAttributes;
 import com.cookiee.cookieeserver.login.google.dto.SessionUser;
-import com.cookiee.cookieeserver.user.domain.User;
+import com.cookiee.cookieeserver.user.domain.UserV2;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -33,23 +33,23 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
 
-        User user = saveOrUpdate(attributes);
+        UserV2 userV2 = saveOrUpdate(attributes);
 
-        httpSession.setAttribute("user", new SessionUser(user));
+        httpSession.setAttribute("user", new SessionUser(userV2));
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(
-                        user.getRoleKey())),
+                        userV2.getRoleKey())),
                 attributes.getAttributes(),
                 attributes.getNameAttributeKey()
         );
     }
 
-    private User saveOrUpdate(OAuthAttributes attributes) {
-        User user = userRepository.findByEmail(attributes.getEmail())
+    private UserV2 saveOrUpdate(OAuthAttributes attributes) {
+        UserV2 userV2 = userRepository.findByEmail(attributes.getEmail())
                 .map(entity -> entity.update(attributes.getNickname(), attributes.getProfileImage(), attributes.getDescription()))
                 .orElse(attributes.toEntity());
 
-        return userRepository.save(user);
+        return userRepository.save(userV2);
     }
 }

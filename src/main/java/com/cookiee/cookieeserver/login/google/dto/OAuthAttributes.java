@@ -1,7 +1,7 @@
 package com.cookiee.cookieeserver.login.google.dto;
 
 import com.cookiee.cookieeserver.global.domain.Role;
-import com.cookiee.cookieeserver.user.domain.User;
+import com.cookiee.cookieeserver.user.domain.UserV2;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -41,8 +41,8 @@ public class OAuthAttributes {
                 .build();
     }
 
-    public User toEntity() {
-        return User.builder()
+    public UserV2 toEntity() {
+        return UserV2.builder()
                 .nickname(nickname)
                 .email(email)
                 .profileImage(profileImage)

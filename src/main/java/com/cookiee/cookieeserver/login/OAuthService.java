@@ -3,7 +3,7 @@ package com.cookiee.cookieeserver.login;
 import com.amazonaws.services.s3.AmazonS3;
 import com.cookiee.cookieeserver.category.repository.CategoryRepository;
 import com.cookiee.cookieeserver.event.repository.EventRepository;
-import com.cookiee.cookieeserver.event.service.EventService;
+import com.cookiee.cookieeserver.event.service.EventServiceV2;
 import com.cookiee.cookieeserver.event.service.S3Uploader;
 import com.cookiee.cookieeserver.global.domain.AuthProvider;
 import com.cookiee.cookieeserver.global.domain.Role;
@@ -14,8 +14,8 @@ import com.cookiee.cookieeserver.login.dto.request.UserSignupRequestDto;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
 import com.cookiee.cookieeserver.thumbnail.domain.Thumbnail;
 import com.cookiee.cookieeserver.thumbnail.repository.ThumbnailRepository;
-import com.cookiee.cookieeserver.thumbnail.service.ThumbnailService;
-import com.cookiee.cookieeserver.user.domain.User;
+import com.cookiee.cookieeserver.thumbnail.service.ThumbnailServiceV2;
+import com.cookiee.cookieeserver.user.domain.UserV2;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import static com.cookiee.cookieeserver.event.service.EventService.extractFileNameFromUrl;
+import static com.cookiee.cookieeserver.event.service.EventServiceV2.extractFileNameFromUrl;
 import static com.cookiee.cookieeserver.global.ErrorCode.*;
 
 @Slf4j
@@ -35,12 +34,12 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 @RequiredArgsConstructor
 public class OAuthService {
     private final UserRepository userRepository;
-    private final EventService eventService;
+    private final EventServiceV2 eventServiceV2;
     private final EventCategoryRepository eventCategoryRepository;
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final ThumbnailRepository thumbnailRepository;
-    private final ThumbnailService thumbnailService;
+    private final ThumbnailServiceV2 thumbnailServiceV2;
     private final AppleService appleService;
     private final S3Uploader s3Uploader;
     private final JwtService jwtService;
@@ -57,7 +56,7 @@ public class OAuthService {
      */
     @Transactional
     public OAuthResponse signup(UserSignupRequestDto signupUserInfo) {
-        Optional<User> foundUser = userRepository.findBySocialId(signupUserInfo.getSocialId());
+        Optional<UserV2> foundUser = userRepository.findBySocialId(signupUserInfo.getSocialId());
 
         // 이미 유저가 존재하는 경우
         if(foundUser.isPresent()){
@@ -66,7 +65,7 @@ public class OAuthService {
         }
 
         // 그게 아니면 새로운 유저 생성
-        User newUser = User.builder()
+        UserV2 newUserV2 = UserV2.builder()
                 .role(Role.USER)
                 .name(signupUserInfo.getName())
                 .nickname(signupUserInfo.getNickname())
@@ -80,30 +79,30 @@ public class OAuthService {
         String storedFileName;
         // 프로필 이미지 s3에 생성 후 저장된 파일명 가져오기
         storedFileName = s3Uploader.saveFile(signupUserInfo.getProfileImage(),
-                String.valueOf(newUser.getUserId()),
+                String.valueOf(newUserV2.getUserId()),
                 "profile");
 
-        newUser.setProfileImage(storedFileName);
+        newUserV2.setProfileImage(storedFileName);
 
         // 리프레쉬 토큰 먼저 생성, 저장
         String refreshToken = jwtService.createRefreshToken();
-        newUser.setRefreshToken(refreshToken);
+        newUserV2.setRefreshToken(refreshToken);
 
         // 유저 저장
-        userRepository.save(newUser);
+        userRepository.save(newUserV2);
 
         // 액세스 토큰 생성
-        String accessToken = jwtService.createAccessToken(newUser.getUserId());
+        String accessToken = jwtService.createAccessToken(newUserV2.getUserId());
         log.debug("app refresh token: {}", refreshToken);
         log.debug("app access token: {}", accessToken);
 
         return OAuthResponse.builder()
-                .name(newUser.getName())
-                .socialId(newUser.getSocialId())
-                .email(newUser.getEmail())
-                .socialType(newUser.getSocialLoginType().name())
+                .name(newUserV2.getName())
+                .socialId(newUserV2.getSocialId())
+                .email(newUserV2.getEmail())
+                .socialType(newUserV2.getSocialLoginType().name())
                 .isNewMember(true)
-                .userId(newUser.getUserId())  // 나머지 api 접근에는 유저 아이디가 필요함
+                .userId(newUserV2.getUserId())  // 나머지 api 접근에는 유저 아이디가 필요함
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -115,27 +114,27 @@ public class OAuthService {
      */
     @Transactional
     public void signout(final Long userId) {
-        final User user = userRepository.findByUserId(userId).orElse(null);
+        final UserV2 userV2 = userRepository.findByUserId(userId).orElse(null);
 
-        if(user == null){
+        if(userV2 == null){
             throw new GeneralException(USER_NOT_FOUND);
         }
 
         // 애플 로그인한 유저라면 다시 애플 서버에 요청해야 함
-        if (user.getSocialLoginType().equals(AuthProvider.APPLE)) {
-            appleService.revoke(user.getSocialRefreshToken());
+        if (userV2.getSocialLoginType().equals(AuthProvider.APPLE)) {
+            appleService.revoke(userV2.getSocialRefreshToken());
         }
 
         // TODO: 너무 비효율적인듯 ㅠㅠ
         List<Thumbnail> thumbnailList = thumbnailRepository.findThumbnailsByUserUserId(userId);
         for(Thumbnail thumbnail: thumbnailList){
-            thumbnailService.deleteThumbnail(userId, thumbnail.getThumbnailId());
+            thumbnailServiceV2.deleteThumbnail(userId, thumbnail.getThumbnailId());
         }
-        eventService.deleteAllEvent(user.getUserId());
-        categoryRepository.deleteCategoryByUserUserId(user.getUserId());
-        String fileName = extractFileNameFromUrl(user.getProfileImage());
+        eventServiceV2.deleteAllEvent(userV2.getUserId());
+        categoryRepository.deleteCategoryByUserUserId(userV2.getUserId());
+        String fileName = extractFileNameFromUrl(userV2.getProfileImage());
         amazonS3Client.deleteObject(bucketName, fileName);
-        userRepository.delete(user);
+        userRepository.delete(userV2);
     }
 
     /**
@@ -144,13 +143,13 @@ public class OAuthService {
      */
     @Transactional
     public void logout(final Long userId){
-        final User user = userRepository.findByUserId(userId).orElse(null);
+        final UserV2 userV2 = userRepository.findByUserId(userId).orElse(null);
 
-        if(user == null){
+        if(userV2 == null){
             throw new GeneralException(USER_NOT_FOUND);
         }
 
-        user.setRefreshToken(null);
-        userRepository.save(user);
+        userV2.setRefreshToken(null);
+        userRepository.save(userV2);
     }
 }

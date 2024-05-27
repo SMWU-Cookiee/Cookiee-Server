@@ -2,7 +2,7 @@ package com.cookiee.cookieeserver.event.domain;
 
 import com.cookiee.cookieeserver.global.domain.BaseTimeEntity;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
-import com.cookiee.cookieeserver.user.domain.User;
+import com.cookiee.cookieeserver.user.domain.UserV2;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -60,7 +60,7 @@ public class Event extends BaseTimeEntity {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)  // 다대일 단방향 관계, user 삭제되면 이벤트도 삭제
     @JoinColumn(name = "userId")
-    private User user;  // 유저 pk (FK)
+    private UserV2 userV2;  // 유저 pk (FK)
 
     //event : category = 1 : 다 -> 수연이쪽에 매핑해주어야 함
     @JsonIgnore
@@ -69,7 +69,7 @@ public class Event extends BaseTimeEntity {
 
     @Builder
     public Event(String eventWhat, String eventWhere, String withWho, int eventYear, int eventMonth, int eventDate,
-                 String startTime, String endTime, List<String> imageUrl, User user, List<EventCategory> eventCategoryList){
+                 String startTime, String endTime, List<String> imageUrl, UserV2 userV2, List<EventCategory> eventCategoryList){
         this.eventWhat = eventWhat;
         this.eventWhere = eventWhere;
         this.withWho = withWho;
@@ -79,7 +79,7 @@ public class Event extends BaseTimeEntity {
         this.startTime = startTime;
         this.endTime = endTime;
         this.imageUrl = imageUrl;
-        this.user = user;
+        this.userV2 = userV2;
         this.eventCategories = eventCategoryList;
     }
 

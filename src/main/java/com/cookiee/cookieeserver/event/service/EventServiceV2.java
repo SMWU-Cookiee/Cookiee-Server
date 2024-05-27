@@ -5,7 +5,7 @@ import com.cookiee.cookieeserver.category.domain.Category;
 import com.cookiee.cookieeserver.event.domain.Event;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
 import com.cookiee.cookieeserver.global.exception.GeneralException;
-import com.cookiee.cookieeserver.user.domain.User;
+import com.cookiee.cookieeserver.user.domain.UserV2;
 import com.cookiee.cookieeserver.event.dto.request.EventGetRequestDto;
 import com.cookiee.cookieeserver.event.dto.request.EventRegisterRequestDto;
 import com.cookiee.cookieeserver.event.dto.request.EventUpdateRequestDto;
@@ -13,7 +13,6 @@ import com.cookiee.cookieeserver.event.dto.response.EventResponseDto;
 import com.cookiee.cookieeserver.category.repository.CategoryRepository;
 import com.cookiee.cookieeserver.global.repository.EventCategoryRepository;
 import com.cookiee.cookieeserver.event.repository.EventRepository;
-import com.cookiee.cookieeserver.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,7 +30,7 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class EventService  {
+public class EventServiceV2 {
     @Autowired
     private final EventRepository eventRepository;
     @Autowired
@@ -48,11 +46,11 @@ public class EventService  {
 
 
     @Transactional
-    public EventResponseDto createEvent(List<MultipartFile> eventImages, EventRegisterRequestDto eventRegisterRequestDto, User user){
+    public EventResponseDto createEvent(List<MultipartFile> eventImages, EventRegisterRequestDto eventRegisterRequestDto, UserV2 userV2){
 
         List<Category> categoryList = eventRegisterRequestDto.categoryIds().stream()
                 .map(
-                        id -> categoryRepository.findByUserUserIdAndCategoryId(user.getUserId(), id).orElseThrow(
+                        id -> categoryRepository.findByUserUserIdAndCategoryId(userV2.getUserId(), id).orElseThrow(
                                 () -> new GeneralException(CATEGORY_NOT_FOUND)
                         )
                 )
@@ -62,11 +60,11 @@ public class EventService  {
             List<String> storedFileNames = new ArrayList<>();
 
             for (MultipartFile eventImage : eventImages) {
-                String storedFileName = s3Uploader.saveFile(eventImage, String.valueOf(user.getUserId()), "event");
+                String storedFileName = s3Uploader.saveFile(eventImage, String.valueOf(userV2.getUserId()), "event");
                 storedFileNames.add(storedFileName);
                 System.out.println(storedFileName);
             }
-            Event savedEvent = eventRepository.save(eventRegisterRequestDto.toEntity(user, new ArrayList<EventCategory>(), storedFileNames));
+            Event savedEvent = eventRepository.save(eventRegisterRequestDto.toEntity(userV2, new ArrayList<EventCategory>(), storedFileNames));
             List<EventCategory> eventCategoryList = categoryList.stream()
                     .map(category ->
                             EventCategory.builder().event(savedEvent).category(category).build()
