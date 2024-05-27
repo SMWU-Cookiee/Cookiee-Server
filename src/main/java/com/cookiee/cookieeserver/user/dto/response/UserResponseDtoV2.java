@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class UserResponseDto {
+public class UserResponseDtoV2 {
     Long userId;
     String nickname;  // 사용자가 설정한 닉네임
     String email;  // 이메일

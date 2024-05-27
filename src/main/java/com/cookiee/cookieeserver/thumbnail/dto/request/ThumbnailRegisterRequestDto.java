@@ -15,7 +15,7 @@ public record ThumbnailRegisterRequestDto(
                 .eventYear(eventYear)
                 .eventMonth(eventMonth)
                 .eventDate(eventDate)
-                .user(userV2)
+                .userV2(userV2)
                 .thumbnailUrl(thumbnailUrl)
                 .build();
     }

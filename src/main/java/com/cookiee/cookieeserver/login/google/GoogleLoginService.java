@@ -4,7 +4,7 @@ import com.cookiee.cookieeserver.global.domain.AuthProvider;
 import com.cookiee.cookieeserver.login.OAuthResponse;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
 import com.cookiee.cookieeserver.user.domain.UserV2;
-import com.cookiee.cookieeserver.user.repository.UserRepository;
+import com.cookiee.cookieeserver.user.repository.UserRepositoryV2;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import org.springframework.web.client.RestTemplate;
 public class GoogleLoginService {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepositoryV2 userRepositoryV2;
     @Autowired
     private JwtService jwtService;
 
@@ -41,7 +41,7 @@ public class GoogleLoginService {
         System.out.println("id = " + socialId);
         System.out.println("email = " + email);
 
-        UserV2 foundUserV2 = userRepository
+        UserV2 foundUserV2 = userRepositoryV2
                 .findBySocialLoginTypeAndSocialId(AuthProvider.GOOGLE, socialId)
                 .orElse(null);
 
@@ -60,7 +60,7 @@ public class GoogleLoginService {
             String appRefreshToken = jwtService.createRefreshToken();
             String appAccessToken = jwtService.createAccessToken(foundUserV2.getUserId());
             foundUserV2.setRefreshToken(appRefreshToken);
-            userRepository.save(foundUserV2);
+            userRepositoryV2.save(foundUserV2);
 
             return OAuthResponse.builder()
                     .socialId(socialId)

@@ -4,7 +4,7 @@ import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.global.exception.handler.TokenException;
 import com.cookiee.cookieeserver.login.dto.response.AccessTokenResponse;
 import com.cookiee.cookieeserver.user.domain.UserV2;
-import com.cookiee.cookieeserver.user.repository.UserRepository;
+import com.cookiee.cookieeserver.user.repository.UserRepositoryV2;
 import com.cookiee.cookieeserver.user.service.UserServiceV2;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -25,7 +25,7 @@ import static com.cookiee.cookieeserver.global.Constant.AUTHORITIES_KEY;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-    private final UserRepository userRepository;
+    private final UserRepositoryV2 userRepositoryV2;
     private final UserServiceV2 userServiceV2;
     private final long accessTokenExpirationTime = 1000L * 60 * 60;  // 액세스 토큰 만료 기간: 1시간
     private final long refreshTokenExpirationTime = 1000L * 60 * 60 * 24 * 30;  // 리프레쉬 토큰 만료 기간: 30일
@@ -78,7 +78,7 @@ public class JwtService {
      */
     public Long validateRefreshToken(String accessToken, String refreshToken) {
         Long userId = getUserId(accessToken);  // 액세스 토큰으로 user id 받아오기
-        UserV2 userV2 = userRepository.findByUserId(userId).orElse(null);
+        UserV2 userV2 = userRepositoryV2.findByUserId(userId).orElse(null);
 
         if (userV2 == null){
             throw new TokenException(INVALID_TOKEN);

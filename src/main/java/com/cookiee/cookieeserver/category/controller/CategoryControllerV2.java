@@ -1,3 +1,4 @@
+
 package com.cookiee.cookieeserver.category.controller;
 
 import com.cookiee.cookieeserver.category.domain.Category;
@@ -22,12 +23,14 @@ public class CategoryControllerV2 {
     private final CategoryServiceV2 categoryServiceV2;
     private final JwtService jwtService;
 
-    /***
+    */
+/***
      * 카테고리 등록
      * @param userId        유저 아이디
      * @param requestDto    등록하려는 카테고리 내용
      * @return              CategoryResponseDto
-     */
+     *//*
+
     @PostMapping("/category/{userId}")
     public BaseResponseDto<CategoryResponseDto> postCategory(@PathVariable Long userId,
                                                              @RequestBody CategoryCreateRequestDto requestDto){

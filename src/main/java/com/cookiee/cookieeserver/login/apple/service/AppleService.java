@@ -9,7 +9,7 @@ import com.cookiee.cookieeserver.user.domain.UserV2;
 import com.cookiee.cookieeserver.login.apple.dto.response.ApplePublicKeyResponse;
 import com.cookiee.cookieeserver.login.apple.dto.response.AppleTokenResponse;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
-import com.cookiee.cookieeserver.user.repository.UserRepository;
+import com.cookiee.cookieeserver.user.repository.UserRepositoryV2;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
@@ -47,7 +47,7 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 @RequiredArgsConstructor
 @Service
 public class AppleService {
-    private final UserRepository userRepository;
+    private final UserRepositoryV2 userRepositoryV2;
     private final JwtService jwtService;
     private final AppleClient appleClient;
 
@@ -101,7 +101,7 @@ public class AppleService {
             email = String.valueOf(claims.get("email"));
 
             // 로그인 요청하면서 받아온 소셜 아이디와 해당 소셜 로그인 타입의 조합으로 유저 찾아오기 -> 없으면 null(새로운 사용자임)
-            UserV2 foundUserV2 = userRepository
+            UserV2 foundUserV2 = userRepositoryV2
                     .findBySocialLoginTypeAndSocialId(AuthProvider.APPLE, socialId)
                     .orElse(null);
 
@@ -125,7 +125,7 @@ public class AppleService {
 
             // 서버에서 만든 리프레쉬 토큰으로 저장
             foundUserV2.setRefreshToken(appRefreshToken);
-            userRepository.save(foundUserV2);
+            userRepositoryV2.save(foundUserV2);
 
             // 회원 정보 응답 (기존 회원)
             return OAuthResponse.builder()

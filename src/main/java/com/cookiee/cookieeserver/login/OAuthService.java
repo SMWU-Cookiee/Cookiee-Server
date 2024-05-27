@@ -16,7 +16,7 @@ import com.cookiee.cookieeserver.thumbnail.domain.Thumbnail;
 import com.cookiee.cookieeserver.thumbnail.repository.ThumbnailRepository;
 import com.cookiee.cookieeserver.thumbnail.service.ThumbnailServiceV2;
 import com.cookiee.cookieeserver.user.domain.UserV2;
-import com.cookiee.cookieeserver.user.repository.UserRepository;
+import com.cookiee.cookieeserver.user.repository.UserRepositoryV2;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 @Service
 @RequiredArgsConstructor
 public class OAuthService {
-    private final UserRepository userRepository;
+    private final UserRepositoryV2 userRepositoryV2;
     private final EventServiceV2 eventServiceV2;
     private final EventCategoryRepository eventCategoryRepository;
     private final EventRepository eventRepository;
@@ -56,7 +56,7 @@ public class OAuthService {
      */
     @Transactional
     public OAuthResponse signup(UserSignupRequestDto signupUserInfo) {
-        Optional<UserV2> foundUser = userRepository.findBySocialId(signupUserInfo.getSocialId());
+        Optional<UserV2> foundUser = userRepositoryV2.findBySocialId(signupUserInfo.getSocialId());
 
         // 이미 유저가 존재하는 경우
         if(foundUser.isPresent()){
@@ -89,7 +89,7 @@ public class OAuthService {
         newUserV2.setRefreshToken(refreshToken);
 
         // 유저 저장
-        userRepository.save(newUserV2);
+        userRepositoryV2.save(newUserV2);
 
         // 액세스 토큰 생성
         String accessToken = jwtService.createAccessToken(newUserV2.getUserId());
@@ -114,7 +114,7 @@ public class OAuthService {
      */
     @Transactional
     public void signout(final Long userId) {
-        final UserV2 userV2 = userRepository.findByUserId(userId).orElse(null);
+        final UserV2 userV2 = userRepositoryV2.findByUserId(userId).orElse(null);
 
         if(userV2 == null){
             throw new GeneralException(USER_NOT_FOUND);
@@ -134,7 +134,7 @@ public class OAuthService {
         categoryRepository.deleteCategoryByUserUserId(userV2.getUserId());
         String fileName = extractFileNameFromUrl(userV2.getProfileImage());
         amazonS3Client.deleteObject(bucketName, fileName);
-        userRepository.delete(userV2);
+        userRepositoryV2.delete(userV2);
     }
 
     /**
@@ -143,13 +143,13 @@ public class OAuthService {
      */
     @Transactional
     public void logout(final Long userId){
-        final UserV2 userV2 = userRepository.findByUserId(userId).orElse(null);
+        final UserV2 userV2 = userRepositoryV2.findByUserId(userId).orElse(null);
 
         if(userV2 == null){
             throw new GeneralException(USER_NOT_FOUND);
         }
 
         userV2.setRefreshToken(null);
-        userRepository.save(userV2);
+        userRepositoryV2.save(userV2);
     }
 }

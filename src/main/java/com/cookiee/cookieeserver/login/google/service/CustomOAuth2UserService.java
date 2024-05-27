@@ -3,7 +3,7 @@ package com.cookiee.cookieeserver.login.google.service;
 import com.cookiee.cookieeserver.login.google.dto.OAuthAttributes;
 import com.cookiee.cookieeserver.login.google.dto.SessionUser;
 import com.cookiee.cookieeserver.user.domain.UserV2;
-import com.cookiee.cookieeserver.user.repository.UserRepository;
+import com.cookiee.cookieeserver.user.repository.UserRepositoryV2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -20,7 +20,7 @@ import java.util.Collections;
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
-    private final UserRepository userRepository;
+    private final UserRepositoryV2 userRepositoryV2;
     private final HttpSession httpSession;
 
     @Override
@@ -46,10 +46,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private UserV2 saveOrUpdate(OAuthAttributes attributes) {
-        UserV2 userV2 = userRepository.findByEmail(attributes.getEmail())
+        UserV2 userV2 = userRepositoryV2.findByEmail(attributes.getEmail())
                 .map(entity -> entity.update(attributes.getNickname(), attributes.getProfileImage(), attributes.getDescription()))
                 .orElse(attributes.toEntity());
 
-        return userRepository.save(userV2);
+        return userRepositoryV2.save(userV2);
     }
 }
