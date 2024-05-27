@@ -1,7 +1,7 @@
 package com.cookiee.cookieeserver.category.dto.request;
 
 import com.cookiee.cookieeserver.category.domain.Category;
-import com.cookiee.cookieeserver.user.domain.User;
+import com.cookiee.cookieeserver.user.domain.UserV2;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class CategoryCreateRequestDto {
-    private User user;
+    private UserV2 userV2;
     private String categoryName;
     private String categoryColor;
 
@@ -20,9 +20,9 @@ public class CategoryCreateRequestDto {
         this.categoryColor = categoryColor;
     }
 
-    public Category toEntity(User user){
+    public Category toEntity(UserV2 userV2){
         return Category.builder()
-                .user(user)
+                .user(userV2)
                 .categoryName(categoryName)
                 .categoryColor(categoryColor)
                 .build();

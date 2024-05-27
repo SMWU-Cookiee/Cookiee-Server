@@ -17,7 +17,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-public class User extends BaseTimeEntity {
+public class UserV2 extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)  // auto_increment
     private Long userId;  // 사용자 아이디
@@ -59,7 +59,7 @@ public class User extends BaseTimeEntity {
     private List<Category> categories = new ArrayList<>();
 
     @Builder
-    public User(String nickname, String email, String profileImage, String description, Role role) {
+    public UserV2(String nickname, String email, String profileImage, String description, Role role) {
         this.nickname = nickname;
         this.email = email;
         this.profileImage = profileImage;
@@ -67,7 +67,7 @@ public class User extends BaseTimeEntity {
         this.role = role;
     }
 
-    public User update(String nickname, String profileImage, String description) {
+    public UserV2 update(String nickname, String profileImage, String description) {
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.selfDescription = description;

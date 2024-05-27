@@ -2,16 +2,13 @@ package com.cookiee.cookieeserver.category.controller;
 
 import com.cookiee.cookieeserver.category.domain.Category;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
-import com.cookiee.cookieeserver.user.domain.User;
+import com.cookiee.cookieeserver.user.domain.UserV2;
 import com.cookiee.cookieeserver.global.dto.BaseResponseDto;
-import com.cookiee.cookieeserver.global.dto.DataResponseDto;
 import com.cookiee.cookieeserver.category.dto.request.CategoryCreateRequestDto;
 import com.cookiee.cookieeserver.category.dto.request.CategoryUpdateRequestDto;
 import com.cookiee.cookieeserver.category.dto.response.CategoryResponseDto;
 import com.cookiee.cookieeserver.event.dto.response.EventCategoryGetResponseDto;
-import com.cookiee.cookieeserver.category.repository.CategoryRepository;
-import com.cookiee.cookieeserver.category.service.CategoryService;
-import com.cookiee.cookieeserver.user.service.UserService;
+import com.cookiee.cookieeserver.category.service.CategoryServiceV2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +18,8 @@ import static com.cookiee.cookieeserver.global.SuccessCode.*;
 
 @RestController
 @RequiredArgsConstructor
-public class CategoryController {
-    private final CategoryService categoryService;
+public class CategoryControllerV2 {
+    private final CategoryServiceV2 categoryServiceV2;
     private final JwtService jwtService;
 
     /***
@@ -34,9 +31,9 @@ public class CategoryController {
     @PostMapping("/category/{userId}")
     public BaseResponseDto<CategoryResponseDto> postCategory(@PathVariable Long userId,
                                                              @RequestBody CategoryCreateRequestDto requestDto){
-        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+        final UserV2 currentUserV2 = jwtService.getAndValidateCurrentUser(userId);
 
-        Category newCategory = categoryService.create(currentUser, requestDto);
+        Category newCategory = categoryServiceV2.create(currentUserV2, requestDto);
         CategoryResponseDto categoryResponseDto = CategoryResponseDto.builder()
                 .categoryId(newCategory.getCategoryId())
                 .categoryName(newCategory.getCategoryName())
@@ -49,10 +46,10 @@ public class CategoryController {
     // 특정 유저의 카테고리 전체 조회
     @GetMapping("/category/{userId}")
     public BaseResponseDto<List<CategoryResponseDto>> getCategory(@PathVariable Long userId){
-        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+        final UserV2 currentUserV2 = jwtService.getAndValidateCurrentUser(userId);
 
         List<CategoryResponseDto> result;
-        result = categoryService.getAllCategories(currentUser);
+        result = categoryServiceV2.getAllCategories(currentUserV2);
 
         return BaseResponseDto.ofSuccess(GET_CATEGORY_SUCCESS, result);
     }
@@ -62,9 +59,9 @@ public class CategoryController {
     public BaseResponseDto<CategoryResponseDto> updateCategory(@PathVariable Long userId,
                                                                @PathVariable Long categoryId,
                                                                @RequestBody CategoryUpdateRequestDto requestDto){
-        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+        final UserV2 currentUserV2 = jwtService.getAndValidateCurrentUser(userId);
 
-        CategoryResponseDto result = categoryService.update(currentUser, categoryId, requestDto);
+        CategoryResponseDto result = categoryServiceV2.update(currentUserV2, categoryId, requestDto);
 
         return BaseResponseDto.ofSuccess(MODIFY_CATEGORY_SUCCESS, result);
     }
@@ -73,9 +70,9 @@ public class CategoryController {
     @DeleteMapping("/category/{userId}/{categoryId}")
     public BaseResponseDto<?> deleteCategory(@PathVariable Long userId,
                                              @PathVariable Long categoryId){
-        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+        final UserV2 currentUserV2 = jwtService.getAndValidateCurrentUser(userId);
 
-        categoryService.delete(currentUser, categoryId);
+        categoryServiceV2.delete(currentUserV2, categoryId);
 
         return BaseResponseDto.ofSuccess(DELETE_CATEGORY_SUCCESS);
     }
@@ -84,10 +81,10 @@ public class CategoryController {
     @GetMapping("/collection/{userId}/{categoryId}")
     public BaseResponseDto<EventCategoryGetResponseDto> getCollection(@PathVariable Long userId,
                                                                       @PathVariable Long categoryId){
-        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+        final UserV2 currentUserV2 = jwtService.getAndValidateCurrentUser(userId);
 
         // 모아보기 데이터 리턴
-        EventCategoryGetResponseDto result = categoryService.findByIdForCollection(currentUser, categoryId);
+        EventCategoryGetResponseDto result = categoryServiceV2.findByIdForCollection(currentUserV2, categoryId);
 
         return BaseResponseDto.ofSuccess(GET_COLLECTION_SUCCESS, result);
     }
