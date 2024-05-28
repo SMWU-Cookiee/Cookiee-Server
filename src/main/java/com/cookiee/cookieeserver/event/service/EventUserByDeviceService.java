@@ -5,7 +5,6 @@ import com.cookiee.cookieeserver.category.domain.Category;
 import com.cookiee.cookieeserver.event.domain.Event;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
 import com.cookiee.cookieeserver.global.exception.GeneralException;
-import com.cookiee.cookieeserver.user.domain.UserV2;
 import com.cookiee.cookieeserver.event.dto.request.EventGetRequestDto;
 import com.cookiee.cookieeserver.event.dto.request.EventRegisterRequestDto;
 import com.cookiee.cookieeserver.event.dto.request.EventUpdateRequestDto;
@@ -13,6 +12,8 @@ import com.cookiee.cookieeserver.event.dto.response.EventResponseDto;
 import com.cookiee.cookieeserver.category.repository.CategoryRepository;
 import com.cookiee.cookieeserver.global.repository.EventCategoryRepository;
 import com.cookiee.cookieeserver.event.repository.EventRepository;
+import com.cookiee.cookieeserver.user.domain.User;
+import com.cookiee.cookieeserver.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +31,15 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class EventServiceV2 {
+public class EventUserByDeviceService {
     @Autowired
     private final EventRepository eventRepository;
     @Autowired
     private final CategoryRepository categoryRepository;
     @Autowired
     private final EventCategoryRepository eventCategoryRepository;
+    @Autowired
+    private final UserRepository userRepository;
     @Autowired
     private S3Uploader s3Uploader;
     @Autowired
@@ -46,11 +49,12 @@ public class EventServiceV2 {
 
 
     @Transactional
-    public EventResponseDto createEvent(List<MultipartFile> eventImages, EventRegisterRequestDto eventRegisterRequestDto, UserV2 userV2){
+    public EventResponseDto createEvent(List<MultipartFile> eventImages, EventRegisterRequestDto eventRegisterRequestDto, String deviceId){
+        User user = getUserByDeviceId(deviceId);
 
         List<Category> categoryList = eventRegisterRequestDto.categoryIds().stream()
                 .map(
-                        id -> categoryRepository.findByUserUserIdAndCategoryId(userV2.getUserId(), id).orElseThrow(
+                        id -> categoryRepository.findByUserUserIdAndCategoryId(user.getUserId(), id).orElseThrow(
                                 () -> new GeneralException(CATEGORY_NOT_FOUND)
                         )
                 )
@@ -60,11 +64,11 @@ public class EventServiceV2 {
             List<String> storedFileNames = new ArrayList<>();
 
             for (MultipartFile eventImage : eventImages) {
-                String storedFileName = s3Uploader.saveFile(eventImage, String.valueOf(userV2.getUserId()), "event");
+                String storedFileName = s3Uploader.saveFile(eventImage, String.valueOf(user.getUserId()), "event");
                 storedFileNames.add(storedFileName);
                 System.out.println(storedFileName);
             }
-            Event savedEvent = eventRepository.save(eventRegisterRequestDto.toEntity(userV2, new ArrayList<EventCategory>(), storedFileNames));
+            Event savedEvent = eventRepository.save(eventRegisterRequestDto.toEntity(user, new ArrayList<EventCategory>(), storedFileNames));
             List<EventCategory> eventCategoryList = categoryList.stream()
                     .map(category ->
                             EventCategory.builder().event(savedEvent).category(category).build()
@@ -80,7 +84,9 @@ public class EventServiceV2 {
     }
 
     @Transactional
-    public EventResponseDto getEventDetail(long userId, long eventId){
+    public EventResponseDto getEventDetail(String deviceId, long eventId){
+        User user = getUserByDeviceId(deviceId);
+        Long userId = user.getUserId();
         Event event = eventRepository.findByUserUserIdAndEventId(userId, eventId);
         if(event.getEventId() == eventId)
             return EventResponseDto.from(event);
@@ -89,7 +95,9 @@ public class EventServiceV2 {
     }
 
     @Transactional
-    public List<EventResponseDto> getEventList(long userId, EventGetRequestDto eventGetRequestDto){
+    public List<EventResponseDto> getEventList(String deviceId, EventGetRequestDto eventGetRequestDto){
+        User user = getUserByDeviceId(deviceId);
+        Long userId = user.getUserId();
         List<Event> events = eventRepository.findByUserUserIdAndEventYearAndEventMonthAndEventDate(userId, eventGetRequestDto.eventYear(), eventGetRequestDto.eventMonth(), eventGetRequestDto.eventDate());
         return events.stream()
                 .map(EventResponseDto::from)
@@ -97,7 +105,9 @@ public class EventServiceV2 {
     }
 
     @Transactional
-    public EventResponseDto updateEvent(long userId, long eventId, EventUpdateRequestDto eventUpdateRequestDto, List<MultipartFile> eventImanges) {
+    public EventResponseDto updateEvent(String deviceId, long eventId, EventUpdateRequestDto eventUpdateRequestDto, List<MultipartFile> eventImanges) {
+        User user = getUserByDeviceId(deviceId);
+        Long userId = user.getUserId();
         Event updatedEvent = eventRepository.findByUserUserIdAndEventId(userId, eventId);
         if(eventImanges != null) {
             List<String> imageUrls = updatedEvent.getImageUrl();
@@ -146,7 +156,9 @@ public class EventServiceV2 {
 
 
     @Transactional
-    public void deleteEvent(long userId, long eventId){
+    public void deleteEvent(String deviceId, long eventId){
+        User user = getUserByDeviceId(deviceId);
+        Long userId = user.getUserId();
         Event deletedevent;
         deletedevent = eventRepository.findByUserUserIdAndEventId(userId, eventId);
         List<String> imageUrls = deletedevent.getImageUrl();
@@ -162,10 +174,12 @@ public class EventServiceV2 {
 
     }
     @Transactional
-    public void deleteAllEvent(Long userId){
+    public void deleteAllEvent(String deviceId){
+        User user = getUserByDeviceId(deviceId);
+        Long userId = user.getUserId();
         List<Event> eventList = eventRepository.findAllByUserUserId(userId);
         for (Event event: eventList){
-            deleteEvent(userId, event.getEventId());
+            deleteEvent(deviceId, event.getEventId());
         }
     }
 
@@ -178,6 +192,11 @@ public class EventServiceV2 {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public User getUserByDeviceId(String deviceId) {
+        return userRepository.findByDeviceId(deviceId)
+                .orElseThrow(() -> new GeneralException(USER_NOT_FOUND));
     }
 
 

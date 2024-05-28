@@ -2,7 +2,7 @@ package com.cookiee.cookieeserver.event.dto.request;
 
 import com.cookiee.cookieeserver.event.domain.Event;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
-import com.cookiee.cookieeserver.user.domain.UserV2;
+import com.cookiee.cookieeserver.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public record EventRegisterRequestDto (
     String endTime,
     List<Long> categoryIds){
 
-    public Event toEntity(UserV2 userV2, List<EventCategory> eventCategories, List<String> imageUrls){
+    public Event toEntity(User user, List<EventCategory> eventCategories, List<String> imageUrls){
         return Event.builder()
                 .eventWhat(eventWhat)
                 .eventWhere(eventWhere)
@@ -31,7 +31,7 @@ public record EventRegisterRequestDto (
                 .eventDate(eventDate)
                 .startTime(startTime)
                 .endTime(endTime)
-                .userV2(userV2)
+                .user(user)
                 .eventCategoryList(eventCategories)
                 .imageUrl(imageUrls)
                 .build();

@@ -1,7 +1,7 @@
 package com.cookiee.cookieeserver.thumbnail.dto.request;
 
 import com.cookiee.cookieeserver.thumbnail.domain.Thumbnail;
-import com.cookiee.cookieeserver.user.domain.UserV2;
+import com.cookiee.cookieeserver.user.domain.User;
 
 public record ThumbnailRegisterRequestDto(
         Long thumbnailId,
@@ -10,12 +10,12 @@ public record ThumbnailRegisterRequestDto(
         int eventDate,
         String thumbnailUrl){
 
-    public Thumbnail toEntity(UserV2 userV2, String thumbnailUrl){
+    public Thumbnail toEntity(User user, String thumbnailUrl){
         return Thumbnail.builder()
                 .eventYear(eventYear)
                 .eventMonth(eventMonth)
                 .eventDate(eventDate)
-                .userV2(userV2)
+                .user(user)
                 .thumbnailUrl(thumbnailUrl)
                 .build();
     }

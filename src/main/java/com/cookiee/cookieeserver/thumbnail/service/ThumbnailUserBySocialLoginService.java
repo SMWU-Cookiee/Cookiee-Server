@@ -4,11 +4,11 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.cookiee.cookieeserver.event.service.S3Uploader;
 import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.thumbnail.domain.Thumbnail;
-import com.cookiee.cookieeserver.user.domain.UserV2;
 import com.cookiee.cookieeserver.thumbnail.dto.request.ThumbnailRegisterRequestDto;
 import com.cookiee.cookieeserver.thumbnail.dto.response.ThumbnailResponseDto;
 import com.cookiee.cookieeserver.thumbnail.repository.ThumbnailRepository;
-import com.cookiee.cookieeserver.user.repository.UserRepositoryV2;
+import com.cookiee.cookieeserver.user.domain.User;
+import com.cookiee.cookieeserver.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +26,9 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class ThumbnailServiceV2 {
+public class ThumbnailUserBySocialLoginService {
     @Autowired
-    private final UserRepositoryV2 userRepositoryV2;
+    private final UserRepository userRepository;
     @Autowired
     private final ThumbnailRepository thumbnailRepository;
     @Autowired
@@ -40,14 +40,14 @@ public class ThumbnailServiceV2 {
 
     @Transactional
     public ThumbnailResponseDto createThumbnail(MultipartFile thumbnailImage, ThumbnailRegisterRequestDto thumbnailRegisterRequestDto, Long userId) {
-        UserV2 userV2 = userRepositoryV2.findByUserId(userId).orElseThrow(
+        User user = userRepository.findByUserId(userId).orElseThrow(
                 () -> new GeneralException(USER_NOT_FOUND)
         );
         Thumbnail savedThumbnail;
         String storedFileName = null;
         if (!thumbnailImage.isEmpty()) {
             storedFileName = s3Uploader.saveFile(thumbnailImage, String.valueOf(userId), "thumbnail");
-            savedThumbnail = thumbnailRepository.save(thumbnailRegisterRequestDto.toEntity(userV2, storedFileName));
+            savedThumbnail = thumbnailRepository.save(thumbnailRegisterRequestDto.toEntity(user, storedFileName));
             return ThumbnailResponseDto.from(savedThumbnail);
         }
         else {

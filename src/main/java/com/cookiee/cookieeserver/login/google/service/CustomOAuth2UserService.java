@@ -2,8 +2,8 @@ package com.cookiee.cookieeserver.login.google.service;
 
 import com.cookiee.cookieeserver.login.google.dto.OAuthAttributes;
 import com.cookiee.cookieeserver.login.google.dto.SessionUser;
-import com.cookiee.cookieeserver.user.domain.UserV2;
-import com.cookiee.cookieeserver.user.repository.UserRepositoryV2;
+import com.cookiee.cookieeserver.user.domain.User;
+import com.cookiee.cookieeserver.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -20,7 +20,7 @@ import java.util.Collections;
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
-    private final UserRepositoryV2 userRepositoryV2;
+    private final UserRepository userRepository;
     private final HttpSession httpSession;
 
     @Override
@@ -33,23 +33,23 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
 
-        UserV2 userV2 = saveOrUpdate(attributes);
+        User user = saveOrUpdate(attributes);
 
-        httpSession.setAttribute("user", new SessionUser(userV2));
+        httpSession.setAttribute("user", new SessionUser(user));
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(
-                        userV2.getRoleKey())),
+                        user.getRoleKey())),
                 attributes.getAttributes(),
                 attributes.getNameAttributeKey()
         );
     }
 
-    private UserV2 saveOrUpdate(OAuthAttributes attributes) {
-        UserV2 userV2 = userRepositoryV2.findByEmail(attributes.getEmail())
+    private User saveOrUpdate(OAuthAttributes attributes) {
+        User user = userRepository.findByEmail(attributes.getEmail())
                 .map(entity -> entity.update(attributes.getNickname(), attributes.getProfileImage(), attributes.getDescription()))
                 .orElse(attributes.toEntity());
 
-        return userRepositoryV2.save(userV2);
+        return userRepository.save(user);
     }
 }
