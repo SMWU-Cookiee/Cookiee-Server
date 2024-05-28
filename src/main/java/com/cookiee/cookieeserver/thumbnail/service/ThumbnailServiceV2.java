@@ -8,7 +8,7 @@ import com.cookiee.cookieeserver.user.domain.UserV2;
 import com.cookiee.cookieeserver.thumbnail.dto.request.ThumbnailRegisterRequestDto;
 import com.cookiee.cookieeserver.thumbnail.dto.response.ThumbnailResponseDto;
 import com.cookiee.cookieeserver.thumbnail.repository.ThumbnailRepository;
-import com.cookiee.cookieeserver.user.repository.UserRepository;
+import com.cookiee.cookieeserver.user.repository.UserRepositoryV2;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 @Service
 public class ThumbnailServiceV2 {
     @Autowired
-    private final UserRepository userRepository;
+    private final UserRepositoryV2 userRepositoryV2;
     @Autowired
     private final ThumbnailRepository thumbnailRepository;
     @Autowired
@@ -40,7 +40,7 @@ public class ThumbnailServiceV2 {
 
     @Transactional
     public ThumbnailResponseDto createThumbnail(MultipartFile thumbnailImage, ThumbnailRegisterRequestDto thumbnailRegisterRequestDto, Long userId) {
-        UserV2 userV2 = userRepository.findByUserId(userId).orElseThrow(
+        UserV2 userV2 = userRepositoryV2.findByUserId(userId).orElseThrow(
                 () -> new GeneralException(USER_NOT_FOUND)
         );
         Thumbnail savedThumbnail;

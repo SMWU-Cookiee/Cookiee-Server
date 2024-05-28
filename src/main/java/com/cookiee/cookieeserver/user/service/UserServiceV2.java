@@ -5,7 +5,7 @@ import com.cookiee.cookieeserver.event.service.S3Uploader;
 import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.user.domain.UserV2;
 import com.cookiee.cookieeserver.user.dto.request.UpdateUserRequestDto;
-import com.cookiee.cookieeserver.user.repository.UserRepository;
+import com.cookiee.cookieeserver.user.repository.UserRepositoryV2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 @RequiredArgsConstructor
 @Service
 public class UserServiceV2 {
-    private final UserRepository userRepository;
+    private final UserRepositoryV2 userRepositoryV2;
     private final S3Uploader s3Uploader;
     private final AmazonS3 amazonS3Client;
 
@@ -26,7 +26,7 @@ public class UserServiceV2 {
     private String bucketName;
 
     public UserV2 findOneById(Long userId) {
-        Optional<UserV2> user = userRepository.findByUserId(userId);
+        Optional<UserV2> user = userRepositoryV2.findByUserId(userId);
 
         if (user.isEmpty())
             throw new GeneralException(USER_NOT_FOUND);

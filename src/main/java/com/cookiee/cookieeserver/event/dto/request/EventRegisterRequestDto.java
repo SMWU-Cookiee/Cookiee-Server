@@ -31,7 +31,7 @@ public record EventRegisterRequestDto (
                 .eventDate(eventDate)
                 .startTime(startTime)
                 .endTime(endTime)
-                .user(userV2)
+                .userV2(userV2)
                 .eventCategoryList(eventCategories)
                 .imageUrl(imageUrls)
                 .build();
