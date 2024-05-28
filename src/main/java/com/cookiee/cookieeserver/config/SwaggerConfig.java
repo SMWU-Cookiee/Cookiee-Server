@@ -1,7 +1,5 @@
 package com.cookiee.cookieeserver.config;
 
-
-
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +17,7 @@ public class SwaggerConfig {
 
     @Bean
     public OpenApiCustomizer userOpenApiCustomizer() {
-        return openApi -> openApi.info(apiInfo("cookiee-service"));
+        return openApi -> openApi.info(apiInfo("Cookiee- service"));
     }
 
     @Bean
@@ -35,7 +33,7 @@ public class SwaggerConfig {
     private Info apiInfo(String title) {
         return new Info()
                 .title(title)
-                .description("포토 캘린더 서비스, Cookiee-")
+                .description("나만의 포토 캘린더 서비스, Cookiee-")
                 .version("1.0.0");
     }
 }

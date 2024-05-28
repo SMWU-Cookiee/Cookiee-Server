@@ -9,6 +9,8 @@ import com.cookiee.cookieeserver.user.dto.request.UpdateUserRequestDto;
 import com.cookiee.cookieeserver.user.dto.response.UserBySocialLoginResponseDto;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
 import com.cookiee.cookieeserver.user.service.UserBySocialLoginService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +21,7 @@ import static com.cookiee.cookieeserver.global.SuccessCode.*;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name="소셜로그인 유저 프로필 RU", description="소셜로그인 유저의 프로필을 조회/수정할 수 있습니다.")
 public class UserBySocialLoginController {
     private final UserBySocialLoginService userBySocialLoginService;
     private final UserRepository userRepository;
@@ -26,12 +29,14 @@ public class UserBySocialLoginController {
 
     // health check에 대한 상태 반환 위해서
     @GetMapping("/healthcheck")
+    @Operation(summary = "헬스체크")
     public BaseResponseDto healthcheck() {
         return BaseResponseDto.ofSuccess(SuccessCode.OK);
     }
 
     // 유저 프로필 조회
     @GetMapping("/users/{userId}")
+    @Operation(summary = "유저 프로필 조회")
     public BaseResponseDto<UserBySocialLoginResponseDto> getUser(@PathVariable Long userId){
         final User currentUserV2 = jwtService.getAndValidateCurrentUser(userId);
 
@@ -51,6 +56,7 @@ public class UserBySocialLoginController {
 
     // 유저 프로필 수정 (닉네임, 한줄 소개, 프로필사진)
     @PutMapping(value = "/users/{userId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(summary = "유저 프로필 수정")
     public BaseResponseDto<UserBySocialLoginResponseDto> updateUser(@PathVariable Long userId,
                                                                     UpdateUserRequestDto requestUser){
         final User currentUser = jwtService.getAndValidateCurrentUser(userId);
@@ -75,6 +81,7 @@ public class UserBySocialLoginController {
     // 임시로 User 추가
     // TODO: 삭제하기
     @PostMapping("/users/join")
+    @Operation(summary = "임시 유저 추가")
     public DataResponseDto<Object> postTestUser(User user) {
         System.out.println("id: " + user.getUserId());
         System.out.println("nickname: " + user.getNickname());

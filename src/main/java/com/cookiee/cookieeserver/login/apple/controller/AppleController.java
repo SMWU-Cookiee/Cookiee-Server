@@ -6,6 +6,8 @@ import com.cookiee.cookieeserver.global.dto.DataResponseDto;
 import com.cookiee.cookieeserver.global.dto.ErrorResponseDto;
 import com.cookiee.cookieeserver.login.OAuthResponse;
 import com.cookiee.cookieeserver.login.apple.service.AppleService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import static com.cookiee.cookieeserver.global.SuccessCode.*;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@Tag(name="Apple 소셜 로그인", description="Apple 소셜 로그인을 할 수 있습니다.")
 public class AppleController {
     private final AppleService appleService;
 
@@ -25,6 +28,7 @@ public class AppleController {
     // 정상적으로 로그인 관련 처리가 끝났다면 관련 데이터를 클라이언트에 보내준다.
     @PostMapping("/auth/login/apple")
     @ResponseBody
+    @Operation(summary = "Apple 로그인")
     public BaseResponseDto<?> appleOAuthRequest(@RequestHeader(HEADER_IDENTITY_TOKEN) String idToken,
                                                 @RequestHeader(HEADER_APPLE_AUTHORIZATION_CODE) String authorizationCode) {
         OAuthResponse response = appleService.login(idToken, authorizationCode);

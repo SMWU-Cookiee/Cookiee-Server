@@ -8,6 +8,8 @@ import com.cookiee.cookieeserver.event.dto.request.EventRegisterRequestDto;
 import com.cookiee.cookieeserver.event.dto.request.EventUpdateRequestDto;
 import com.cookiee.cookieeserver.event.dto.response.EventResponseDto;
 import com.cookiee.cookieeserver.event.service.EventUserBySocialLoginService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -23,6 +25,7 @@ import static com.cookiee.cookieeserver.global.SuccessCode.*;
 @RequiredArgsConstructor
 @RequestMapping(value="api/v2/events/")
 @Controller
+@Tag(name="이벤트 CRUD", description="(소셜로그인 유저용) 이벤트를 등록/조회/수정/삭제 할 수 있습니다.")
 public class EventUserBySocialLoginController {
     @Autowired
     private final EventUserBySocialLoginService eventUserBySocialLoginService;
@@ -30,6 +33,7 @@ public class EventUserBySocialLoginController {
     private final JwtService jwtService;
 
     @ResponseBody
+    @Operation(summary = "이벤트 등록")
     @PostMapping(value = "{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponseDto<EventResponseDto> saveEvent(@PathVariable Long userId, @RequestParam(value = "images") List<MultipartFile> imageUrl, EventRegisterRequestDto eventRegisterRequestDto) {
         final User user = jwtService.getAndValidateCurrentUser(userId);
@@ -38,6 +42,7 @@ public class EventUserBySocialLoginController {
     }
 
     @ResponseBody
+    @Operation(summary = "이벤트 상세 조회")
     @GetMapping("{userId}/{eventId}")
     public BaseResponseDto<EventResponseDto> getEventDetail(@PathVariable long userId, @PathVariable long eventId) {
         final User user = jwtService.getAndValidateCurrentUser(userId);
@@ -46,6 +51,7 @@ public class EventUserBySocialLoginController {
     }
 
     @ResponseBody
+    @Operation(summary = "이벤트 목록 조회")
     @GetMapping("{userId}")
     public BaseResponseDto<EventResponseDto> getEventList(@PathVariable long userId, EventGetRequestDto eventGetRequestDto) {
         final User user = jwtService.getAndValidateCurrentUser(userId);
@@ -54,6 +60,7 @@ public class EventUserBySocialLoginController {
     }
 
     @ResponseBody
+    @Operation(summary = "이벤트 수정")
     @PutMapping("{userId}/{eventId}")
     public BaseResponseDto<EventResponseDto> updateEvent(@PathVariable long userId, @PathVariable long eventId, @RequestParam(value = "images", required = false) List<MultipartFile> imageUrl, EventUpdateRequestDto eventUpdateRequestDto) {
         final User user = jwtService.getAndValidateCurrentUser(userId);
@@ -62,6 +69,7 @@ public class EventUserBySocialLoginController {
     }
 
     @ResponseBody
+    @Operation(summary = "이벤트 삭제")
     @DeleteMapping("{userId}/{eventId}")
     public BaseResponseDto<?> deleteEvent(@PathVariable long userId, @PathVariable long eventId) {
         final User user = jwtService.getAndValidateCurrentUser(userId);
