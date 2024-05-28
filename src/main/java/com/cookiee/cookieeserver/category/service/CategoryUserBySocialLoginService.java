@@ -4,7 +4,7 @@ import com.cookiee.cookieeserver.category.domain.Category;
 import com.cookiee.cookieeserver.event.domain.Event;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
 import com.cookiee.cookieeserver.global.exception.GeneralException;
-import com.cookiee.cookieeserver.user.domain.UserV2;
+import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.category.dto.request.CategoryCreateRequestDto;
 import com.cookiee.cookieeserver.category.dto.request.CategoryUpdateRequestDto;
 import com.cookiee.cookieeserver.category.dto.response.CategoryResponseDto;
@@ -23,23 +23,23 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 
 @RequiredArgsConstructor
 @Service
-public class CategoryServiceV2 {
+public class CategoryUserBySocialLoginService {
     private final CategoryRepository categoryRepository;
     private final EventCategoryRepository eventCategoryRepository;
 
     // 카테고리 생성
     @Transactional
-    public Category create(UserV2 userV2, CategoryCreateRequestDto requestDto) {
+    public Category create(User user, CategoryCreateRequestDto requestDto) {
         // 이름만 중복 검사
-        if(categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryColor(), userV2.getUserId())){
+        if(categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryColor(), user.getUserId())){
             throw new GeneralException(CATEGORY_NAME_EXISTS);
         }
 
-        return categoryRepository.save(requestDto.toEntity(userV2));
+        return categoryRepository.save(requestDto.toEntity(user));
     }
 
     @Transactional
-    public EventCategoryGetResponseDto findByIdForCollection(UserV2 userV2, Long categoryId){
+    public EventCategoryGetResponseDto findByIdForCollection(User userV2, Long categoryId){
         Category categoryEntity = categoryRepository.findByUserUserIdAndCategoryId(userV2.getUserId(), categoryId)
                 .orElseThrow(
                         () -> new GeneralException(CATEGORY_NOT_FOUND)
@@ -56,8 +56,8 @@ public class CategoryServiceV2 {
     }
 
     @Transactional
-    public List<CategoryResponseDto> getAllCategories(UserV2 userV2) {
-        List<CategoryResponseDto> list = categoryRepository.findCategoriesByUserUserId(userV2.getUserId());
+    public List<CategoryResponseDto> getAllCategories(User user) {
+        List<CategoryResponseDto> list = categoryRepository.findCategoriesByUserUserId(user.getUserId());
         return list;
     }
 
@@ -78,8 +78,8 @@ public class CategoryServiceV2 {
 //    }
 
     @Transactional
-    public CategoryResponseDto update(UserV2 userV2, Long categoryId, CategoryUpdateRequestDto requestDto){
-        Long userId = userV2.getUserId();
+    public CategoryResponseDto update(User user, Long categoryId, CategoryUpdateRequestDto requestDto){
+        Long userId = user.getUserId();
 
         // 유저 아이디와 카테고리 아이디가 부합하는지 확인
         Category category = categoryRepository
@@ -97,7 +97,7 @@ public class CategoryServiceV2 {
     }
 
     @Transactional
-    public void delete(UserV2 userV2, Long categoryId) {
+    public void delete(User user, Long categoryId) {
 
         // 카테고리 아이디 존재 유무 확인
         Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow(() ->
@@ -105,7 +105,7 @@ public class CategoryServiceV2 {
         );
 
         // 유저 아이디와 카테고리 아이디가 부합하는지 확인
-        if (categoryRepository.existsByCategoryIdInUser(userV2.getUserId(), categoryId) == 1) {
+        if (categoryRepository.existsByCategoryIdInUser(user.getUserId(), categoryId) == 1) {
             // 외래키로 엮였기 때문에 해당 카테고리 아이디를 갖고 있는 EventCategory를 지워야 함
             eventCategoryRepository.deleteByCategoryCategoryId(categoryId);
 

@@ -1,12 +1,12 @@
 package com.cookiee.cookieeserver.event.dto.request;
 
 import com.cookiee.cookieeserver.event.domain.Event;
-import com.cookiee.cookieeserver.user.domain.UserV2;
+import com.cookiee.cookieeserver.user.domain.User;
 
 public record EventGetRequestDto(int eventYear,
                                  int eventMonth,
                                  int eventDate) {
-    public Event toEntity(UserV2 userV2){
+    public Event toEntity(User user){
         return Event.builder()
                 .eventYear(eventYear)
                 .eventMonth(eventMonth)

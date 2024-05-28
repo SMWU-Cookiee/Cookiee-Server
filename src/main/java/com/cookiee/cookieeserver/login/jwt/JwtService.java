@@ -3,9 +3,9 @@ package com.cookiee.cookieeserver.login.jwt;
 import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.global.exception.handler.TokenException;
 import com.cookiee.cookieeserver.login.dto.response.AccessTokenResponse;
-import com.cookiee.cookieeserver.user.domain.UserV2;
-import com.cookiee.cookieeserver.user.repository.UserRepositoryV2;
-import com.cookiee.cookieeserver.user.service.UserServiceV2;
+import com.cookiee.cookieeserver.user.domain.User;
+import com.cookiee.cookieeserver.user.repository.UserRepository;
+import com.cookiee.cookieeserver.user.service.UserBySocialLoginService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -25,8 +25,8 @@ import static com.cookiee.cookieeserver.global.Constant.AUTHORITIES_KEY;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-    private final UserRepositoryV2 userRepositoryV2;
-    private final UserServiceV2 userServiceV2;
+    private final UserRepository userRepository;
+    private final UserBySocialLoginService userBySocialLoginService;
     private final long accessTokenExpirationTime = 1000L * 60 * 60;  // 액세스 토큰 만료 기간: 1시간
     private final long refreshTokenExpirationTime = 1000L * 60 * 60 * 24 * 30;  // 리프레쉬 토큰 만료 기간: 30일
 
@@ -78,20 +78,20 @@ public class JwtService {
      */
     public Long validateRefreshToken(String accessToken, String refreshToken) {
         Long userId = getUserId(accessToken);  // 액세스 토큰으로 user id 받아오기
-        UserV2 userV2 = userRepositoryV2.findByUserId(userId).orElse(null);
+        User user = userRepository.findByUserId(userId).orElse(null);
 
-        if (userV2 == null){
+        if (user == null){
             throw new TokenException(INVALID_TOKEN);
         }
         else{
-            if (userV2.getRefreshToken() == null)
+            if (user.getRefreshToken() == null)
                 throw new TokenException(NULL_REFRESH_TOKEN);
 
-            if (!userV2.getRefreshToken().equals(refreshToken))
+            if (!user.getRefreshToken().equals(refreshToken))
                 throw new TokenException(INVALID_REFRESH_TOKEN);
         }
 
-        return userV2.getUserId();
+        return user.getUserId();
     }
 
     /**
@@ -172,12 +172,12 @@ public class JwtService {
                 .build();
     }
 
-    public UserV2 getAndValidateCurrentUser(Long requestedUserId){
+    public User getAndValidateCurrentUser(Long requestedUserId){
         String accessToken = JwtHeaderUtil.getAccessToken();
         Long id = getUserId(accessToken);
 
         if(id.equals(requestedUserId))
-            return userServiceV2.findOneById(id);
+            return userBySocialLoginService.findOneById(id);
         else {
             throw new GeneralException(TOKEN_AND_USER_NOT_CORRESPONDS);
         }

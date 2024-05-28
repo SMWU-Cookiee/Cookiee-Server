@@ -1,6 +1,6 @@
 package com.cookiee.cookieeserver.login.google.dto;
 
-import com.cookiee.cookieeserver.user.domain.UserV2;
+import com.cookiee.cookieeserver.user.domain.User;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -12,10 +12,10 @@ public class SessionUser implements Serializable {
     private String profileImage;
     private String description;
 
-    public SessionUser(UserV2 userV2) {
-        this.nickname = userV2.getNickname();
-        this.email = userV2.getEmail();
-        this.profileImage = userV2.getProfileImage();
-        this.description = userV2.getSelfDescription();
+    public SessionUser(User user) {
+        this.nickname = user.getNickname();
+        this.email = user.getEmail();
+        this.profileImage = user.getProfileImage();
+        this.description = user.getSelfDescription();
     }
 }

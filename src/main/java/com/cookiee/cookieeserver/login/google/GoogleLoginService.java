@@ -3,8 +3,8 @@ package com.cookiee.cookieeserver.login.google;
 import com.cookiee.cookieeserver.global.domain.AuthProvider;
 import com.cookiee.cookieeserver.login.OAuthResponse;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
-import com.cookiee.cookieeserver.user.domain.UserV2;
-import com.cookiee.cookieeserver.user.repository.UserRepositoryV2;
+import com.cookiee.cookieeserver.user.domain.User;
+import com.cookiee.cookieeserver.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import org.springframework.web.client.RestTemplate;
 public class GoogleLoginService {
 
     @Autowired
-    private UserRepositoryV2 userRepositoryV2;
+    private UserRepository userRepository;
     @Autowired
     private JwtService jwtService;
 
@@ -41,11 +41,11 @@ public class GoogleLoginService {
         System.out.println("id = " + socialId);
         System.out.println("email = " + email);
 
-        UserV2 foundUserV2 = userRepositoryV2
+        User foundUser = userRepository
                 .findBySocialLoginTypeAndSocialId(AuthProvider.GOOGLE, socialId)
                 .orElse(null);
 
-        if (foundUserV2 == null) {
+        if (foundUser == null) {
             log.debug("socialId가 {}인 유저는 존재하지 않음. 신규 회원가입", socialId);
             return OAuthResponse.builder()
                     .socialId(socialId)
@@ -58,9 +58,9 @@ public class GoogleLoginService {
         else {
             log.debug("socialId가 {}인 유저는 기존 유저입니다.", socialId);
             String appRefreshToken = jwtService.createRefreshToken();
-            String appAccessToken = jwtService.createAccessToken(foundUserV2.getUserId());
-            foundUserV2.setRefreshToken(appRefreshToken);
-            userRepositoryV2.save(foundUserV2);
+            String appAccessToken = jwtService.createAccessToken(foundUser.getUserId());
+            foundUser.setRefreshToken(appRefreshToken);
+            userRepository.save(foundUser);
 
             return OAuthResponse.builder()
                     .socialId(socialId)

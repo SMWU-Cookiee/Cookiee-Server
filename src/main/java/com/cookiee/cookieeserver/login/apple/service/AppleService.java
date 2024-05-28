@@ -5,11 +5,11 @@ import com.cookiee.cookieeserver.global.exception.handler.AppleAuthException;
 import com.cookiee.cookieeserver.login.apple.controller.AppleClient;
 import com.cookiee.cookieeserver.global.domain.AuthProvider;
 import com.cookiee.cookieeserver.login.OAuthResponse;
-import com.cookiee.cookieeserver.user.domain.UserV2;
+import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.login.apple.dto.response.ApplePublicKeyResponse;
 import com.cookiee.cookieeserver.login.apple.dto.response.AppleTokenResponse;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
-import com.cookiee.cookieeserver.user.repository.UserRepositoryV2;
+import com.cookiee.cookieeserver.user.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
@@ -47,7 +47,7 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 @RequiredArgsConstructor
 @Service
 public class AppleService {
-    private final UserRepositoryV2 userRepositoryV2;
+    private final UserRepository userRepository;
     private final JwtService jwtService;
     private final AppleClient appleClient;
 
@@ -101,12 +101,12 @@ public class AppleService {
             email = String.valueOf(claims.get("email"));
 
             // 로그인 요청하면서 받아온 소셜 아이디와 해당 소셜 로그인 타입의 조합으로 유저 찾아오기 -> 없으면 null(새로운 사용자임)
-            UserV2 foundUserV2 = userRepositoryV2
+            User foundUser = userRepository
                     .findBySocialLoginTypeAndSocialId(AuthProvider.APPLE, socialId)
                     .orElse(null);
 
             /* 신규 회원가입인 경우 -> 관련 정보 리턴 */
-            if (foundUserV2 == null) {
+            if (foundUser == null) {
                 log.debug("socialId가 {}인 유저는 존재하지 않음. 신규 회원가입", socialId);
                 return OAuthResponse.builder()
                         .socialId(socialId)
@@ -121,11 +121,11 @@ public class AppleService {
             // 앱의 리프레쉬 토큰과 액세스 토큰 생성
             log.debug("socialId가 {}인 유저는 기존 유저입니다.", socialId);
             String appRefreshToken = jwtService.createRefreshToken();
-            String appAccessToken = jwtService.createAccessToken(foundUserV2.getUserId());
+            String appAccessToken = jwtService.createAccessToken(foundUser.getUserId());
 
             // 서버에서 만든 리프레쉬 토큰으로 저장
-            foundUserV2.setRefreshToken(appRefreshToken);
-            userRepositoryV2.save(foundUserV2);
+            foundUser.setRefreshToken(appRefreshToken);
+            userRepository.save(foundUser);
 
             // 회원 정보 응답 (기존 회원)
             return OAuthResponse.builder()

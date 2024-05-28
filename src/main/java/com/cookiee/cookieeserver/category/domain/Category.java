@@ -2,8 +2,7 @@ package com.cookiee.cookieeserver.category.domain;
 
 import com.cookiee.cookieeserver.global.domain.BaseTimeEntity;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
-import com.cookiee.cookieeserver.user.domain.UserV1;
-import com.cookiee.cookieeserver.user.domain.UserV2;
+import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.category.dto.response.CategoryGetResponseDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -31,15 +30,15 @@ public class Category extends BaseTimeEntity {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
-    private UserV1 userV1;
+    private User user;
 
     @JsonIgnore
     @OneToMany(mappedBy = "category")
     private List<EventCategory> eventCategories = new ArrayList<>();
 
     @Builder
-    public Category(UserV1 userV1, String categoryName, String categoryColor){
-        this.userV1 = userV1;
+    public Category(User user, String categoryName, String categoryColor){
+        this.user = user;
         this.categoryName = categoryName;
         this.categoryColor = categoryColor;
     }
