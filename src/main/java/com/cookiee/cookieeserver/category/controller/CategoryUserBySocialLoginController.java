@@ -10,6 +10,8 @@ import com.cookiee.cookieeserver.category.dto.response.CategoryResponseDto;
 import com.cookiee.cookieeserver.event.dto.response.EventCategoryGetResponseDto;
 import com.cookiee.cookieeserver.category.service.CategoryUserBySocialLoginService;
 import com.cookiee.cookieeserver.user.domain.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +22,7 @@ import static com.cookiee.cookieeserver.global.SuccessCode.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value="api/v2/categories/")
+@Tag(name="카테고리 CRUD", description="(소셜로그인 유저용) 카테고리를 등록/조회/수정/삭제 할 수 있습니다.")
 public class CategoryUserBySocialLoginController {
     private final CategoryUserBySocialLoginService categoryUserBySocialLoginService;
     private final JwtService jwtService;
@@ -33,7 +36,7 @@ public class CategoryUserBySocialLoginController {
      */
 
     @PostMapping("{userId}")
-
+    @Operation(summary = "카테고리 등록")
     public BaseResponseDto<CategoryResponseDto> postCategoryUserBySocialLogin(@PathVariable Long userId,
                                                              @RequestBody CategoryCreateRequestDto requestDto){
         final User currentUser = jwtService.getAndValidateCurrentUser(userId);
@@ -48,8 +51,8 @@ public class CategoryUserBySocialLoginController {
         return BaseResponseDto.ofSuccess(CREATE_CATEGORY_SUCCESS, categoryResponseDto);
     }
 
-    // 특정 유저의 카테고리 전체 조회
     @GetMapping("{userId}")
+    @Operation(summary = "카테고리 조회")
     public BaseResponseDto<List<CategoryResponseDto>> getCategoryUserBySocialLogin(@PathVariable Long userId){
         final User currentUser = jwtService.getAndValidateCurrentUser(userId);
 
@@ -59,8 +62,8 @@ public class CategoryUserBySocialLoginController {
         return BaseResponseDto.ofSuccess(GET_CATEGORY_SUCCESS, result);
     }
 
-    // 카테고리 수정
     @PutMapping("{userId}/{categoryId}")
+    @Operation(summary = "카테고리 수정")
     public BaseResponseDto<CategoryResponseDto> updateCategoryUserBySocialLogin(@PathVariable Long userId,
                                                                @PathVariable Long categoryId,
                                                                @RequestBody CategoryUpdateRequestDto requestDto){
@@ -71,8 +74,8 @@ public class CategoryUserBySocialLoginController {
         return BaseResponseDto.ofSuccess(MODIFY_CATEGORY_SUCCESS, result);
     }
 
-    // 카테고리 삭제
     @DeleteMapping("{userId}/{categoryId}")
+    @Operation(summary = "카테고리 삭제")
     public BaseResponseDto<?> deleteCategoryUserBySocialLogin(@PathVariable Long userId,
                                              @PathVariable Long categoryId){
         final User currentUser = jwtService.getAndValidateCurrentUser(userId);
@@ -82,8 +85,8 @@ public class CategoryUserBySocialLoginController {
         return BaseResponseDto.ofSuccess(DELETE_CATEGORY_SUCCESS);
     }
 
-    // 카테고리 모아보기....
     @GetMapping("/collection/{userId}/{categoryId}")
+    @Operation(summary = "카테고리 모아보기")
     public BaseResponseDto<EventCategoryGetResponseDto> getCollectionUserBySocialLogin(@PathVariable Long userId,
                                                                       @PathVariable Long categoryId){
         final User currentUser = jwtService.getAndValidateCurrentUser(userId);

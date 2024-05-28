@@ -6,6 +6,8 @@ import com.cookiee.cookieeserver.login.google.GoogleLoginService;
 import com.cookiee.cookieeserver.login.google.dto.GoogleInfoResponseDto;
 import com.cookiee.cookieeserver.login.google.dto.GoogleRequestDto;
 import com.cookiee.cookieeserver.login.google.dto.GoogleResponseDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import static com.cookiee.cookieeserver.global.SuccessCode.GOOGLE_LOGIN_SUCCESS;
 
 @RestController
 @RequestMapping(value="/login/oauth2", produces = "application/json")
+@Tag(name="Google 소셜 로그인", description="Google 소셜 로그인을 할 수 있습니다.")
 public class GoogleLoginController {
     private final GoogleLoginService gooleLoginServcie;
 
@@ -32,6 +35,7 @@ public class GoogleLoginController {
     }
 
     @PostMapping("/google")
+    @Operation(summary = "Google 로그인 URL 반환")
     public String googleLoginUrl(){
         //String url = "https://accounts.google.com/o/oauth2/auth?client_id="+googleClientId+"&redirect_uri=http://localhost:8080/login/oauth2/code/google&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email";
         String url = "https://accounts.google.com/o/oauth2/auth?client_id="+googleClientId+"&redirect_uri=https://cookiee.site/login/oauth2/code/google&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email";
@@ -39,6 +43,7 @@ public class GoogleLoginController {
     }
 
     @GetMapping("/code/{registrationId}")
+    @Operation(summary = "Google 로그인")
     public BaseResponseDto<?> googleLogin(@RequestParam String code, @PathVariable String registrationId){
         OAuthResponse oAuthResponse = gooleLoginServcie.socialLogin(code, registrationId);
         return BaseResponseDto.ofSuccess(GOOGLE_LOGIN_SUCCESS, oAuthResponse);

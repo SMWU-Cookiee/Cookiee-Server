@@ -5,6 +5,8 @@ import com.cookiee.cookieeserver.login.dto.request.UserSignupRequestDto;
 import com.cookiee.cookieeserver.login.dto.response.AccessTokenResponse;
 import com.cookiee.cookieeserver.login.jwt.JwtHeaderUtil;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -15,6 +17,7 @@ import static com.cookiee.cookieeserver.global.SuccessCode.*;
 @RestController
 //@RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name="유저 가입/탈퇴, 로그아웃, 토큰갱신", description="유저의 회원가입/탈퇴와 토큰 갱신, 로그아웃을 할 수 있습니다.")
 public class OAuthController {
     private final JwtService jwtService;
     private final OAuthService oAuthService;
@@ -24,6 +27,7 @@ public class OAuthController {
      * @return
      */
     @PostMapping(value = "/auth/signup", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(summary = "소셜 로그인 후 회원가입")
     public BaseResponseDto<?> signup(UserSignupRequestDto userSignupRequestDto) {
         OAuthResponse response = oAuthService.signup(userSignupRequestDto);
         return BaseResponseDto.ofSuccess(SIGNUP_SUCCESS, response);
@@ -34,6 +38,7 @@ public class OAuthController {
      * @return
      */
     @DeleteMapping("/auth/signout")
+    @Operation(summary = "회원탈퇴")
     public BaseResponseDto<?> signout(){
         String accessToken = JwtHeaderUtil.getAccessToken();
         Long userId = jwtService.getUserId(accessToken);
@@ -48,6 +53,7 @@ public class OAuthController {
      * @throws Exception
      */
     @PostMapping("/auth/refresh")
+    @Operation(summary = "액세스 토큰 갱신")
     public BaseResponseDto<?> refresh() {
 //        try {
         AccessTokenResponse response = jwtService.reissueAccessToken();
@@ -63,6 +69,7 @@ public class OAuthController {
      * @return
      */
     @PutMapping("/auth/logout")
+    @Operation(summary = "로그아웃")
     public BaseResponseDto<?> logout() {
         String accessToken = JwtHeaderUtil.getAccessToken();
         Long userId = jwtService.getUserId(accessToken);
