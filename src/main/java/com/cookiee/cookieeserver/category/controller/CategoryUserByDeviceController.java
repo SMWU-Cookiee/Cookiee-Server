@@ -20,7 +20,7 @@ import static com.cookiee.cookieeserver.global.SuccessCode.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value="api/v1/categories/")
-@Tag(name="카테고리 CRUD", description="(디바이스 등록 유저용) 카테고리를 등록/조회/수정/삭제 할 수 있습니다.")
+@Tag(name="카테고리 CRUD (디바이스 유저)", description="(디바이스 등록 유저용) 카테고리를 등록/조회/수정/삭제 할 수 있습니다.")
 public class CategoryUserByDeviceController {
     private final CategoryUserByDeviceService categoryUserByDeviceService;
     private final JwtService jwtService;
