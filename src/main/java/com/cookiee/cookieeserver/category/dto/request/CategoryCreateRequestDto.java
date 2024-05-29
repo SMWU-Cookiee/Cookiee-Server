@@ -27,4 +27,5 @@ public class CategoryCreateRequestDto {
                 .categoryColor(categoryColor)
                 .build();
     }
+
 }

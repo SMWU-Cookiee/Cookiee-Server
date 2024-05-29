@@ -5,7 +5,6 @@ import com.cookiee.cookieeserver.category.domain.Category;
 import com.cookiee.cookieeserver.event.domain.Event;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
 import com.cookiee.cookieeserver.global.exception.GeneralException;
-import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.event.dto.request.EventGetRequestDto;
 import com.cookiee.cookieeserver.event.dto.request.EventRegisterRequestDto;
 import com.cookiee.cookieeserver.event.dto.request.EventUpdateRequestDto;
@@ -13,6 +12,7 @@ import com.cookiee.cookieeserver.event.dto.response.EventResponseDto;
 import com.cookiee.cookieeserver.category.repository.CategoryRepository;
 import com.cookiee.cookieeserver.global.repository.EventCategoryRepository;
 import com.cookiee.cookieeserver.event.repository.EventRepository;
+import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,13 +31,15 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class EventService  {
+public class EventUserByDeviceService {
     @Autowired
     private final EventRepository eventRepository;
     @Autowired
     private final CategoryRepository categoryRepository;
     @Autowired
     private final EventCategoryRepository eventCategoryRepository;
+    @Autowired
+    private final UserRepository userRepository;
     @Autowired
     private S3Uploader s3Uploader;
     @Autowired
@@ -48,7 +49,8 @@ public class EventService  {
 
 
     @Transactional
-    public EventResponseDto createEvent(List<MultipartFile> eventImages, EventRegisterRequestDto eventRegisterRequestDto, User user){
+    public EventResponseDto createEvent(List<MultipartFile> eventImages, EventRegisterRequestDto eventRegisterRequestDto, String deviceId){
+        User user = getUserByDeviceId(deviceId);
 
         List<Category> categoryList = eventRegisterRequestDto.categoryIds().stream()
                 .map(
@@ -82,7 +84,9 @@ public class EventService  {
     }
 
     @Transactional
-    public EventResponseDto getEventDetail(long userId, long eventId){
+    public EventResponseDto getEventDetail(String deviceId, long eventId){
+        User user = getUserByDeviceId(deviceId);
+        Long userId = user.getUserId();
         Event event = eventRepository.findByUserUserIdAndEventId(userId, eventId);
         if(event.getEventId() == eventId)
             return EventResponseDto.from(event);
@@ -91,7 +95,9 @@ public class EventService  {
     }
 
     @Transactional
-    public List<EventResponseDto> getEventList(long userId, EventGetRequestDto eventGetRequestDto){
+    public List<EventResponseDto> getEventList(String deviceId, EventGetRequestDto eventGetRequestDto){
+        User user = getUserByDeviceId(deviceId);
+        Long userId = user.getUserId();
         List<Event> events = eventRepository.findByUserUserIdAndEventYearAndEventMonthAndEventDate(userId, eventGetRequestDto.eventYear(), eventGetRequestDto.eventMonth(), eventGetRequestDto.eventDate());
         return events.stream()
                 .map(EventResponseDto::from)
@@ -99,7 +105,9 @@ public class EventService  {
     }
 
     @Transactional
-    public EventResponseDto updateEvent(long userId, long eventId, EventUpdateRequestDto eventUpdateRequestDto, List<MultipartFile> eventImanges) {
+    public EventResponseDto updateEvent(String deviceId, long eventId, EventUpdateRequestDto eventUpdateRequestDto, List<MultipartFile> eventImanges) {
+        User user = getUserByDeviceId(deviceId);
+        Long userId = user.getUserId();
         Event updatedEvent = eventRepository.findByUserUserIdAndEventId(userId, eventId);
         if(eventImanges != null) {
             List<String> imageUrls = updatedEvent.getImageUrl();
@@ -148,7 +156,9 @@ public class EventService  {
 
 
     @Transactional
-    public void deleteEvent(long userId, long eventId){
+    public void deleteEvent(String deviceId, long eventId){
+        User user = getUserByDeviceId(deviceId);
+        Long userId = user.getUserId();
         Event deletedevent;
         deletedevent = eventRepository.findByUserUserIdAndEventId(userId, eventId);
         List<String> imageUrls = deletedevent.getImageUrl();
@@ -164,10 +174,12 @@ public class EventService  {
 
     }
     @Transactional
-    public void deleteAllEvent(Long userId){
+    public void deleteAllEvent(String deviceId){
+        User user = getUserByDeviceId(deviceId);
+        Long userId = user.getUserId();
         List<Event> eventList = eventRepository.findAllByUserUserId(userId);
         for (Event event: eventList){
-            deleteEvent(userId, event.getEventId());
+            deleteEvent(deviceId, event.getEventId());
         }
     }
 
@@ -180,6 +192,11 @@ public class EventService  {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public User getUserByDeviceId(String deviceId) {
+        return userRepository.findByDeviceId(deviceId)
+                .orElseThrow(() -> new GeneralException(USER_NOT_FOUND));
     }
 
 

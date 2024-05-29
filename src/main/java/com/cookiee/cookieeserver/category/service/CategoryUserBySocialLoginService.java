@@ -23,7 +23,7 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 
 @RequiredArgsConstructor
 @Service
-public class CategoryService {
+public class CategoryUserBySocialLoginService {
     private final CategoryRepository categoryRepository;
     private final EventCategoryRepository eventCategoryRepository;
 
@@ -39,8 +39,8 @@ public class CategoryService {
     }
 
     @Transactional
-    public EventCategoryGetResponseDto findByIdForCollection(User user, Long categoryId){
-        Category categoryEntity = categoryRepository.findByUserUserIdAndCategoryId(user.getUserId(), categoryId)
+    public EventCategoryGetResponseDto findByIdForCollection(User userV2, Long categoryId){
+        Category categoryEntity = categoryRepository.findByUserUserIdAndCategoryId(userV2.getUserId(), categoryId)
                 .orElseThrow(
                         () -> new GeneralException(CATEGORY_NOT_FOUND)
                 );

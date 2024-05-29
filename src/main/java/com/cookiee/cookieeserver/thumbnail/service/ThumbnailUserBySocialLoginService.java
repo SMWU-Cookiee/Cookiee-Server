@@ -4,11 +4,10 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.cookiee.cookieeserver.event.service.S3Uploader;
 import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.thumbnail.domain.Thumbnail;
-import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.thumbnail.dto.request.ThumbnailRegisterRequestDto;
-import com.cookiee.cookieeserver.thumbnail.dto.request.ThumbnailUpdateRequestDto;
 import com.cookiee.cookieeserver.thumbnail.dto.response.ThumbnailResponseDto;
 import com.cookiee.cookieeserver.thumbnail.repository.ThumbnailRepository;
+import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.net.URI;
@@ -28,7 +26,7 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class ThumbnailService {
+public class ThumbnailUserBySocialLoginService {
     @Autowired
     private final UserRepository userRepository;
     @Autowired

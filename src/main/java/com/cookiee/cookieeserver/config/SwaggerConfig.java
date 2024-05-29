@@ -1,48 +1,39 @@
-
-
 package com.cookiee.cookieeserver.config;
 
-
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.info.Info;
-import lombok.RequiredArgsConstructor;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@OpenAPIDefinition(
-        info = @Info(title = "Cookiee API 명세서",
-                description = "Cookiee API 명세서 입니다.",
-                version = "v1"))
-@RequiredArgsConstructor
+import io.swagger.v3.oas.models.info.Info;
+
 @Configuration
-public class SwaggerConfig implements WebMvcConfigurer {
+public class SwaggerConfig {
 
-    //http://localhost:8080/swagger-ui/index.html#/
     @Bean
-    public GroupedOpenApi chatOpenApi() {
-        String[] paths = {"/**"};
+    public OpenApiCustomizer customOpenApiCustomizer() {
+        return openApi -> openApi.info(apiInfo("Cookiee- API"));
+    }
 
+    @Bean
+    public OpenApiCustomizer userOpenApiCustomizer() {
+        return openApi -> openApi.info(apiInfo("Cookiee- service"));
+    }
+
+    @Bean
+    public GroupedOpenApi userApi() {
         return GroupedOpenApi.builder()
-                .group("Cookiee API v1")
-                .pathsToMatch(paths)
+                .group("SERVICE")
+                .pathsToMatch("/api/**")
+                .addOpenApiCustomizer(customOpenApiCustomizer())
+                .addOpenApiCustomizer(userOpenApiCustomizer())
                 .build();
     }
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/swagger-ui.html")
-                .addResourceLocations("classpath:/META-INF/resources/");
-
-        registry.addResourceHandler("/webjars/**")
-                .addResourceLocations("classpath:/META-INF/resources/webjars/");
-        // -- Static resources
-        registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
-        registry.addResourceHandler("/css/**").addResourceLocations("classpath:/static/css");
-        registry.addResourceHandler("/js/**").addResourceLocations("classpath:/static/js/");
-        registry.addResourceHandler("/images/**").addResourceLocations("classpath:/static/images/");
-
+    private Info apiInfo(String title) {
+        return new Info()
+                .title(title)
+                .description("나만의 포토 캘린더 서비스, Cookiee-")
+                .version("1.0.0");
     }
 }
