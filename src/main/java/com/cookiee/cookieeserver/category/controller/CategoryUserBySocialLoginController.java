@@ -22,7 +22,7 @@ import static com.cookiee.cookieeserver.global.SuccessCode.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value="api/v2/categories/")
-@Tag(name="카테고리 CRUD", description="(소셜로그인 유저용) 카테고리를 등록/조회/수정/삭제 할 수 있습니다.")
+@Tag(name="카테고리 CRUD (소셜로그인 유저)", description="(소셜로그인 유저용) 카테고리를 등록/조회/수정/삭제 할 수 있습니다.")
 public class CategoryUserBySocialLoginController {
     private final CategoryUserBySocialLoginService categoryUserBySocialLoginService;
     private final JwtService jwtService;
