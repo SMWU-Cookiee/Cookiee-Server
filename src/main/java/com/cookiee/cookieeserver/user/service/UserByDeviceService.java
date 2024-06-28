@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static com.cookiee.cookieeserver.global.ErrorCode.USER_EXISTS;
 
 @Service
@@ -16,11 +18,16 @@ import static com.cookiee.cookieeserver.global.ErrorCode.USER_EXISTS;
 public class UserByDeviceService {
     private final UserRepository userV1Repository;
     public UserByDeviceResponseDto registerUser(String deviceId) {
-        if (userV1Repository.findByDeviceId(deviceId).isPresent())
-            throw new GeneralException(USER_EXISTS);
-        User deviceUser = User.deviceBuilder()
-                .deviceId(deviceId)
-                .build();
-        return UserByDeviceResponseDto.of(userV1Repository.save(deviceUser));
+        Optional<User> user = userV1Repository.findByDeviceId(deviceId);
+
+        if (user.isPresent()) {
+            return UserByDeviceResponseDto.of(userV1Repository.save(user.get()), true);
+        }
+        else {
+            User deviceUser = User.deviceBuilder()
+                    .deviceId(deviceId)
+                    .build();
+            return UserByDeviceResponseDto.of(userV1Repository.save(deviceUser), false);
+        }
     }
 }
