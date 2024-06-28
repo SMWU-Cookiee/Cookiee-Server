@@ -11,9 +11,11 @@ import static lombok.AccessLevel.PRIVATE;
 public class UserByDeviceResponseDto {
     private final Long userId;
     private final String deviceId;
-    public static UserByDeviceResponseDto of(User user){
+    private final Boolean userAlreadyExists;
+    public static UserByDeviceResponseDto of(User user, Boolean userAlreadyExists){
         return new UserByDeviceResponseDto(
                 user.getUserId(),
-                user.getDeviceId());
+                user.getDeviceId(),
+                userAlreadyExists);
     }
 }
