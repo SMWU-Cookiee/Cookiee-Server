@@ -35,7 +35,7 @@ public class CategoryUserByDeviceService {
     public Category create(String deviceId, CategoryCreateRequestDto requestDto) {
         User user = getUserByDeviceId(deviceId);
         // 이름만 중복 검사
-        if(categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryColor(), user.getUserId())){
+        if(categoryRepository.existsByCategoryNameAndUserUserId(requestDto.getCategoryName(), user.getUserId())){
             throw new GeneralException(CATEGORY_NAME_EXISTS);
         }
         return categoryRepository.save(requestDto.toEntity(user));
