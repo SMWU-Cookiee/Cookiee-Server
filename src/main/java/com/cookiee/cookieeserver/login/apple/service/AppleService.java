@@ -1,6 +1,5 @@
 package com.cookiee.cookieeserver.login.apple.service;
 
-import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.global.exception.handler.AppleAuthException;
 import com.cookiee.cookieeserver.login.apple.controller.AppleClient;
 import com.cookiee.cookieeserver.global.domain.AuthProvider;
@@ -34,6 +33,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -71,33 +71,31 @@ public class AppleService {
     private final static String APPLE_AUTH_URL = "https://appleid.apple.com";
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // 애플 로그인 url 만드는 메소드
-    public String getAppleLoginUrl() {
-        return APPLE_AUTH_URL + "/auth/authorize"
-                + "?client_id=" + APPLE_CLIENT_ID
-                + "&redirect_uri=" + APPLE_REDIRECT_URL
-                + "&response_type=code%20id_token&scope=name%20email&response_mode=form_post";
-    }
-
-    // 애플로부터 받은 authentication code를 사용하여 auth token을 발급받고 유저 정보를 읽어온다.
-    // 읽어온 정보가 기존 DB에 저장되어 있지 않다면 회원가입을 위해 새로 저장해주고, 그렇지 않다면 로그인을 수행한다.
-    // 두 경우 모두 JWT access token과 refresh token을 발급해준다.
+    /**
+     * 클라이언트에서 받은 authenticationCode를 사용해 auth token을 발급받고, 유저 정보를 받아온다.
+     * 이후, 이미 존재하는 사요자라면 회원가입을 위해 새로 저장하고, 그렇지 않다면 로그인을 수행해야 한다.
+     * 두 경우 모두 JWT access token과 refresh token을 발급해준다.
+     * @param idToken               클라이언트에서 받은 identityToken
+     * @param authorizationCode     클라이언트에서 받은 authorizationCode
+     * @return                      새로운 사용자에 관한 정보
+     */
     @Transactional
     public OAuthResponse login(String idToken, String authorizationCode) {
         String socialId;
         String email;
         String appleRefreshToken;
 
-        // public key 구성요소를 조회한 뒤 JWT의 서명을 검증한 후 Claim을 응답
+        // 1. idToken 사용 -> public key 조회한 뒤 JWT의 서명을 검증한 후 Claim을 응답
         // identity token의 payload들이 인코딩 되어 claims에 있음. -> 디코딩하여 apple 고유 계정 id 등 중요 요소를 획득해서 사용하면 된다.
         Claims claims = verifyIdentityToken(idToken);
 
         try {
-            log.info("AppleService 로그인 try문 시작");
-            // access token 등.. 생성해서 그 내용을 appleTokenResponse에 받아온다.
+            log.info("AppleService 로그인 시작");
+
+            // 2. authorizationCode 사용 -> access token 등.. 생성해서 그 내용을 appleTokenResponse에 받아온다.
             AppleTokenResponse appleTokenResponse = generateAuthToken(authorizationCode);
             appleRefreshToken = appleTokenResponse.getRefreshToken();
-            log.debug("애플 로그인-애플 고유 리프레쉬 토큰은 {}", appleRefreshToken);
+            log.debug("애플 로그인 - 애플 고유 리프레쉬 토큰은 {}", appleRefreshToken);
 
             socialId = String.valueOf(claims.get("sub"));  // sub는 애플에서 제공하는 사용자 식별 값
             email = String.valueOf(claims.get("email"));
@@ -157,14 +155,13 @@ public class AppleService {
             log.debug("public key 조회 완료, public keys: {}", response.getKeys());
 
             String headerOfIdentityToken = identityToken.substring(0, identityToken.indexOf("."));
-            log.debug("추출한 identityToken: {}", headerOfIdentityToken);
 
             Map<String, String> header = objectMapper.readValue(
-                    new String(Base64.getDecoder().decode(headerOfIdentityToken), "UTF-8"),
+                    new String(Base64.getDecoder().decode(headerOfIdentityToken), StandardCharsets.UTF_8),
                     Map.class);
-            log.debug("추출한 header: {}", header);
 
-            ApplePublicKeyResponse.Key key = response.getMatchedKeyBy(header.get("kid"), header.get("alg"))
+            ApplePublicKeyResponse.Key key = response
+                    .getMatchedKeyBy(header.get("kid"), header.get("alg"))
                     .orElseThrow(() -> new AppleAuthException(FAILED_TO_GET_APPLE_PUBLIC_KEY));
             log.debug("apple public key 가져오기 완료, key: {}", key);
 
@@ -196,74 +193,44 @@ public class AppleService {
         } catch (Exception e) {
             throw new AppleAuthException(FAILED_TO_GET_APPLE_PUBLIC_KEY);
         }
-        //return null;
     }
 
     /**
-     * APP에서 session을 유지하기위해 필요한 token을 발급 받는 메소드
+     * APP에서 session을 유지하기위해 필요한 token을 발급 받는 메소드 (refreshToken 등을 발급받음)
      * 요청에 필요한 요소들:
      * code(Authorization Code) : APP으로부터 넘겨받은 Authorization Code
      * client_id : App Bundle ID (중요)
      * client_secret : JWT 형식의 토큰으로 만들어야 함
      * grant_type : "authorization_code" 값을 주면 됨.
      *
-     * @param code      클라이언트에서 전달받은 authorizationCode
-     * @return          애플에서 받아온 토큰 등 정보들
+     * @param code              클라이언트에서 전달받은 authorizationCode
+     * @return                  애플에서 받아온 토큰 등 정보들
      * @throws IOException
      */
     public AppleTokenResponse generateAuthToken(String code) throws IOException {
 
         if (code == null) throw new AppleAuthException(NULL_AUTHENTICATION_CODE);
 
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
-        params.add("client_id", APPLE_CLIENT_ID);
-        params.add("client_secret", createClientSecretKey());  // public key를 받기 위해서는 client secret key 생성
-        params.add("code", code);
-        params.add("redirect_uri", APPLE_REDIRECT_URL);  // 추가 안해도 되는 것 같음..
+        // 애플에 보내 요청값 만들기
+        AppleTokenRequest request = AppleTokenRequest.builder()
+                .client_id(APPLE_CLIENT_ID)
+                .client_secret(createClientSecretKey())
+                .code(code)
+                .grant_type("authorization_code")
+                .build();
 
-        AppleTokenRequest request = AppleTokenRequest.builder().
-                client_id(APPLE_CLIENT_ID).
-                client_secret(createClientSecretKey()).
-                code(code).
-                grant_type("authorization_code").
-                build();
-
-//        RestTemplate restTemplate = new RestTemplate();
-//
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-//        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-//        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
-
-        // https://appleid.apple.com/auth/token 에 POST 요청을 보내서 액세스 토큰 등을 받아온다.
-        // 성공하면
-        // access_token, token_type, expires_in, refresh_token, id_token 이 담긴 json을 응답으로 받음.
-
-//        AppleTokenResponse tokenResponse = appleClient.getToken(AppleTokenRequest.of(
-//                code, APPLE_CLIENT_ID,createClientSecretKey(), "authorization_code", ));
-        // 여기서오류 나는 것 같은디.....
         try {
-//            ResponseEntity<String> response = restTemplate.exchange(
-//                    APPLE_AUTH_URL + "/auth/token",
-//                    HttpMethod.POST,
-//                    httpEntity,
-//                    String.class
-//            );
-
-//            AppleTokenResponse appleTokenResponse = objectMapper.readValue(appleClient.getAppleToken(request), AppleTokenResponse.class) ;
-
-            // 응답으로 받은 json 데이터를 AppleTokenResponse로 변환해서 리턴
-//            AppleTokenResponse appleTokenResponse = new ObjectMapper().readValue(response.getBody(), AppleTokenResponse.class);
-            AppleTokenResponse appleTokenResponse = appleClient.getAppleToken(request);
-            log.debug("generateAuthToken, 최종 애플 토큰 응답은: {}", appleTokenResponse);
-            return appleTokenResponse;
+            // 애플에 요청 보내기
+            return appleClient.getAppleToken(request);
         } catch (HttpClientErrorException e) {
             throw new AppleAuthException(FAILED_TO_GET_APPLE_TOKEN);
         }
     }
 
-    // 애플의 client secret을 얻기 위해 사용하는 메소드이다.
+    /**
+     * 애플에서 토큰을 받아오기 위해 보내야할 client secret을 얻어오는 메소드
+     * @return      JWT Payload
+     */
     public String createClientSecretKey() {
         Date expirationDate = Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
         // headerParams 적재
@@ -288,20 +255,19 @@ public class AppleService {
                 .compact();
     }
 
-    // 애플의 client secret을 얻기 위해 사용하는 메소드이다. key 받아오는 메소드
+    /**
+     * 애플의 client secret을 만들 때 사용되는 메소드, 이때 static에 있는 .p8 키 파일이 사용됨
+     * @return          Private Key
+     */
     private PrivateKey getPrivateKey() {
         try {
-            log.info("getPrivateKey시작");
             ClassPathResource resource = new ClassPathResource(APPLE_KEY_PATH);
             String privateKey = new String(resource.getInputStream().readAllBytes());
-            log.debug("privateKey 읽기 완료");
 
             Reader pemReader = new StringReader(privateKey);
-            log.debug("pemReader 생성");
             PEMParser pemParser = new PEMParser(pemReader);
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
             PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
-            log.debug("pemParser.readObject 완료");
 
             return converter.getPrivateKey(object);
         }
@@ -322,6 +288,7 @@ public class AppleService {
         params.add("token", appleRefreshToken);
         params.add("token_type_hint", "refresh_token");
 
+        // TODO: FeignClient 방식으로 변경하기
         // 통신할 rest template 만들기
         RestTemplate restTemplate = new RestTemplate();
 

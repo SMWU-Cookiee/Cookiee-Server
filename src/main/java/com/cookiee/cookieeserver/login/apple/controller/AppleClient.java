@@ -16,5 +16,4 @@ public interface AppleClient {
     // 토큰 등 발급 요청
     @PostMapping(value = "/token", consumes = "application/x-www-form-urlencoded")
     AppleTokenResponse getAppleToken(@RequestBody AppleTokenRequest request);
-//    AppleTokenResponse getToken(AppleTokenRequest request);
 }

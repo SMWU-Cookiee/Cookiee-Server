@@ -6,7 +6,6 @@ import lombok.Setter;
 @Setter
 public class AppleTokenResponse {
 // 일반적으로 응답받은 access_token을 session유지에 사용하겠지만 우리가 필요한건 access_token이 아닌 refresh_token이다.
-// 그 이유는 애플은 현재 access_token을 통해 무언가 인증해줄 서비스를 제공해주고 있지 않다.
 // 무슨 생각인지는 모르겠지만 결국 우리는 APP측에서 refresh_token을 가지고 session을 유지해야한다.
 // 아래가 응답받는 내용임
 //    {
