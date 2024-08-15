@@ -5,6 +5,7 @@ import com.cookiee.cookieeserver.global.exception.handler.AppleAuthException;
 import com.cookiee.cookieeserver.login.apple.controller.AppleClient;
 import com.cookiee.cookieeserver.global.domain.AuthProvider;
 import com.cookiee.cookieeserver.login.OAuthResponse;
+import com.cookiee.cookieeserver.login.apple.dto.request.AppleTokenRequest;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.login.apple.dto.response.ApplePublicKeyResponse;
 import com.cookiee.cookieeserver.login.apple.dto.response.AppleTokenResponse;
@@ -68,6 +69,7 @@ public class AppleService {
     private String APPLE_KEY_PATH;
 
     private final static String APPLE_AUTH_URL = "https://appleid.apple.com";
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     // 애플 로그인 url 만드는 메소드
     public String getAppleLoginUrl() {
@@ -156,11 +158,16 @@ public class AppleService {
 
             String headerOfIdentityToken = identityToken.substring(0, identityToken.indexOf("."));
             log.debug("추출한 identityToken: {}", headerOfIdentityToken);
-            Map<String, String> header = new ObjectMapper().readValue(new String(Base64.getDecoder().decode(headerOfIdentityToken), "UTF-8"), Map.class);
+
+            Map<String, String> header = objectMapper.readValue(
+                    new String(Base64.getDecoder().decode(headerOfIdentityToken), "UTF-8"),
+                    Map.class);
             log.debug("추출한 header: {}", header);
+
             ApplePublicKeyResponse.Key key = response.getMatchedKeyBy(header.get("kid"), header.get("alg"))
-                    .orElseThrow(() -> new AppleAuthException(INVALID_APPLE_PUBLIC_KEY));
+                    .orElseThrow(() -> new AppleAuthException(FAILED_TO_GET_APPLE_PUBLIC_KEY));
             log.debug("apple public key 가져오기 완료, key: {}", key);
+
             // 응답받은 n, e 값은 base64 url-safe로 인코딩 되어 있기 때문에 반드시 디코딩하고나서 public key로 만들어야 한다.
             byte[] nBytes = Base64.getUrlDecoder().decode(key.getN());
             byte[] eBytes = Base64.getUrlDecoder().decode(key.getE());
@@ -175,8 +182,11 @@ public class AppleService {
             // 이후 성공적으로 서명이 검증됐다면 Identity token의 payload 들이 신뢰할 수 있는 값들이라는 증명이 완료된것이다.
             // 인코딩 되어있는 payload를 디코딩하여 apple 고유 계정 id 등 중요 요소를 획득해 사용하면된다.
             // 그리고 필요에 따라 iss, aud 등 나머지 값들을 추가적으로 검증하면 된다.
-            return Jwts.parser().setSigningKey(publicKey).parseClaimsJws(identityToken).getBody();
-
+            return Jwts.parserBuilder().
+                    setSigningKey(publicKey).
+                    build().
+                    parseClaimsJws(identityToken).
+                    getBody();
         } catch (MalformedJwtException e) {
             throw new AppleAuthException(MALFORMED_TOKEN);
         } catch (ExpiredJwtException e) {
@@ -192,18 +202,18 @@ public class AppleService {
     /**
      * APP에서 session을 유지하기위해 필요한 token을 발급 받는 메소드
      * 요청에 필요한 요소들:
-     * code(Authorization Code) : APP으로 부터 넘겨받은 Authorization Code
-     * client_id : App Bundle ID
+     * code(Authorization Code) : APP으로부터 넘겨받은 Authorization Code
+     * client_id : App Bundle ID (중요)
      * client_secret : JWT 형식의 토큰으로 만들어야 함
      * grant_type : "authorization_code" 값을 주면 됨.
      *
-     * @param code
-     * @return
+     * @param code      클라이언트에서 전달받은 authorizationCode
+     * @return          애플에서 받아온 토큰 등 정보들
      * @throws IOException
      */
     public AppleTokenResponse generateAuthToken(String code) throws IOException {
 
-        if (code == null) throw new AppleAuthException(INVALID_APPLE_PUBLIC_KEY);
+        if (code == null) throw new AppleAuthException(NULL_AUTHENTICATION_CODE);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
@@ -212,12 +222,19 @@ public class AppleService {
         params.add("code", code);
         params.add("redirect_uri", APPLE_REDIRECT_URL);  // 추가 안해도 되는 것 같음..
 
-        RestTemplate restTemplate = new RestTemplate();
+        AppleTokenRequest request = AppleTokenRequest.builder().
+                client_id(APPLE_CLIENT_ID).
+                client_secret(createClientSecretKey()).
+                code(code).
+                grant_type("authorization_code").
+                build();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
+//        RestTemplate restTemplate = new RestTemplate();
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+//        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+//        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
 
         // https://appleid.apple.com/auth/token 에 POST 요청을 보내서 액세스 토큰 등을 받아온다.
         // 성공하면
@@ -227,15 +244,18 @@ public class AppleService {
 //                code, APPLE_CLIENT_ID,createClientSecretKey(), "authorization_code", ));
         // 여기서오류 나는 것 같은디.....
         try {
-            ResponseEntity<String> response = restTemplate.exchange(
-                    APPLE_AUTH_URL + "/auth/token",
-                    HttpMethod.POST,
-                    httpEntity,
-                    String.class
-            );
+//            ResponseEntity<String> response = restTemplate.exchange(
+//                    APPLE_AUTH_URL + "/auth/token",
+//                    HttpMethod.POST,
+//                    httpEntity,
+//                    String.class
+//            );
+
+//            AppleTokenResponse appleTokenResponse = objectMapper.readValue(appleClient.getAppleToken(request), AppleTokenResponse.class) ;
 
             // 응답으로 받은 json 데이터를 AppleTokenResponse로 변환해서 리턴
-            AppleTokenResponse appleTokenResponse = new ObjectMapper().readValue(response.getBody(), AppleTokenResponse.class);
+//            AppleTokenResponse appleTokenResponse = new ObjectMapper().readValue(response.getBody(), AppleTokenResponse.class);
+            AppleTokenResponse appleTokenResponse = appleClient.getAppleToken(request);
             log.debug("generateAuthToken, 최종 애플 토큰 응답은: {}", appleTokenResponse);
             return appleTokenResponse;
         } catch (HttpClientErrorException e) {
@@ -286,7 +306,7 @@ public class AppleService {
             return converter.getPrivateKey(object);
         }
         catch(IOException e){
-            throw new RuntimeException("Failed to get private key");
+            throw new AppleAuthException(FAILED_TO_GET_APPLE_PRIVATE_KEY);
         }
     }
 
