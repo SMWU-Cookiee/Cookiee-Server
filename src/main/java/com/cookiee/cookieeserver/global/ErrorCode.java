@@ -25,6 +25,7 @@ public enum ErrorCode {
 
     // APPLE
     NULL_AUTHENTICATION_CODE(HttpStatus.BAD_REQUEST, "Apple Authentication Code가 빈 값입니다."),
+    FAILED_TO_GET_APPLE_TOKEN(HttpStatus.BAD_REQUEST, "Apple에서 사용자 코드를 가져오는데 실패했습니다."),
     FAILED_TO_GET_APPLE_PRIVATE_KEY(HttpStatus.BAD_REQUEST, "Apple 프라이빗 키를 가져오는데 실패했습니다."),
     FAILED_TO_GET_APPLE_PUBLIC_KEY(HttpStatus.BAD_REQUEST, "Apple 공개키를 가져오는데 실패했습니다."),
     INVALID_APPLE_PUBLIC_KEY(HttpStatus.BAD_REQUEST, "Apple 공개키를 가져올 수 없습니다."),

@@ -194,7 +194,7 @@ public class AppleService {
         } catch(UnsupportedJwtException | IllegalArgumentException e) {
             throw new AppleAuthException(INVALID_TOKEN);
         } catch (Exception e) {
-            throw new GeneralException(INTERNAL_SERVER_ERROR);
+            throw new AppleAuthException(FAILED_TO_GET_APPLE_PUBLIC_KEY);
         }
         //return null;
     }
@@ -259,7 +259,7 @@ public class AppleService {
             log.debug("generateAuthToken, 최종 애플 토큰 응답은: {}", appleTokenResponse);
             return appleTokenResponse;
         } catch (HttpClientErrorException e) {
-            throw new AppleAuthException(INVALID_APPLE_PUBLIC_KEY);
+            throw new AppleAuthException(FAILED_TO_GET_APPLE_TOKEN);
         }
     }
 
