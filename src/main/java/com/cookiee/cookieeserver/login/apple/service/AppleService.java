@@ -88,7 +88,7 @@ public class AppleService {
 
         // public key 구성요소를 조회한 뒤 JWT의 서명을 검증한 후 Claim을 응답
         // identity token의 payload들이 인코딩 되어 claims에 있음. -> 디코딩하여 apple 고유 계정 id 등 중요 요소를 획득해서 사용하면 된다.
-        Claims claims = getClaimsBy(idToken);
+        Claims claims = verifyIdentityToken(idToken);
 
         try {
             log.info("AppleService 로그인 try문 시작");
@@ -143,8 +143,12 @@ public class AppleService {
         }
     }
 
-    // public key 조회 -> JWT 서명 검증 -> claim 응답
-    public Claims getClaimsBy(String identityToken) {
+    /**
+     * public key 조회 -> JWT 서명 검증 -> claim 응답
+     * @param identityToken     클라이언트에서 보낸 identityToken
+     * @return
+     */
+    public Claims verifyIdentityToken(String identityToken) {
         try {
             // 1. public key 조회
             ApplePublicKeyResponse response = appleClient.getAppleAuthPublicKey();
