@@ -148,12 +148,15 @@ public class AppleService {
         try {
             // 1. public key 조회
             ApplePublicKeyResponse response = appleClient.getAppleAuthPublicKey();
+            log.debug("public key 조회 완료, public keys: {}", response.getKeys());
 
             String headerOfIdentityToken = identityToken.substring(0, identityToken.indexOf("."));
+            log.debug("추출한 identityToken: {}", headerOfIdentityToken);
             Map<String, String> header = new ObjectMapper().readValue(new String(Base64.getDecoder().decode(headerOfIdentityToken), "UTF-8"), Map.class);
+            log.debug("추출한 header: {}", header);
             ApplePublicKeyResponse.Key key = response.getMatchedKeyBy(header.get("kid"), header.get("alg"))
                     .orElseThrow(() -> new AppleAuthException(INVALID_APPLE_PUBLIC_KEY));
-
+            log.debug("apple public key 가져오기 완료, key: {}", key);
             // 응답받은 n, e 값은 base64 url-safe로 인코딩 되어 있기 때문에 반드시 디코딩하고나서 public key로 만들어야 한다.
             byte[] nBytes = Base64.getUrlDecoder().decode(key.getN());
             byte[] eBytes = Base64.getUrlDecoder().decode(key.getE());
@@ -218,6 +221,7 @@ public class AppleService {
 
 //        AppleTokenResponse tokenResponse = appleClient.getToken(AppleTokenRequest.of(
 //                code, APPLE_CLIENT_ID,createClientSecretKey(), "authorization_code", ));
+        // 여기서오류 나는 것 같은디.....
         try {
             ResponseEntity<String> response = restTemplate.exchange(
                     APPLE_AUTH_URL + "/auth/token",
@@ -227,7 +231,9 @@ public class AppleService {
             );
 
             // 응답으로 받은 json 데이터를 AppleTokenResponse로 변환해서 리턴
-            return new ObjectMapper().readValue(response.getBody(), AppleTokenResponse.class);
+            AppleTokenResponse appleTokenResponse = new ObjectMapper().readValue(response.getBody(), AppleTokenResponse.class);
+            log.debug("generateAuthToken, 최종 애플 토큰 응답은: {}", appleTokenResponse);
+            return appleTokenResponse;
         } catch (HttpClientErrorException e) {
             throw new AppleAuthException(INVALID_APPLE_PUBLIC_KEY);
         }
