@@ -24,8 +24,6 @@ import static com.cookiee.cookieeserver.global.SuccessCode.*;
 public class AppleController {
     private final AppleService appleService;
 
-    // 로그인 성공 시 설정된 redirect url로 받는 authorization code를 service 단에 넘겨줌
-    // 정상적으로 로그인 관련 처리가 끝났다면 관련 데이터를 클라이언트에 보내준다.
     @PostMapping("/auth/login/apple")
     @ResponseBody
     @Operation(summary = "Apple 로그인")
