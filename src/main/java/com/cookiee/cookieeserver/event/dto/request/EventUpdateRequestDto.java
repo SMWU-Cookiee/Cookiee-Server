@@ -18,8 +18,6 @@ public record EventUpdateRequestDto(
                 .eventWhat(eventWhat)
                 .eventWhere(eventWhere)
                 .withWho(withWho)
-                .startTime(startTime)
-                .endTime(endTime)
                 .eventCategoryList(eventCategories)
                 .imageUrl(imageUrls)
                 .build();

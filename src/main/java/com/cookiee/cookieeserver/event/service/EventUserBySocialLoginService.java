@@ -131,8 +131,6 @@ public class EventUserBySocialLoginService {
                     eventUpdateRequestDto.eventWhat(),
                     eventUpdateRequestDto.eventWhere(),
                     eventUpdateRequestDto.withWho(),
-                    eventUpdateRequestDto.startTime(),
-                    eventUpdateRequestDto.endTime(),
                     storedFileNames,
                     eventCategoryList
             );
