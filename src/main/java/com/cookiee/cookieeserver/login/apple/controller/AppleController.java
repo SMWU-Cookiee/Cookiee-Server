@@ -20,6 +20,7 @@ import static com.cookiee.cookieeserver.global.SuccessCode.*;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@RequestMapping("api")
 @Tag(name="Apple 소셜 로그인", description="Apple 소셜 로그인을 할 수 있습니다.")
 public class AppleController {
     private final AppleService appleService;
@@ -35,6 +36,7 @@ public class AppleController {
 
     @PostMapping("/login/apple/callback")
     @ResponseBody
+    @Operation(summary = "Apple 콜백")
     public BaseResponseDto<?> callback(String id_token, String code, HttpServletRequest request, HttpServletResponse response) {
         log.debug("여기는 애플 컨트롤러");
         log.debug(String.valueOf(request.getParameter("id_token")));

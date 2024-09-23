@@ -19,7 +19,7 @@ import java.util.Map;
 import static com.cookiee.cookieeserver.global.SuccessCode.GOOGLE_LOGIN_SUCCESS;
 
 @RestController
-@RequestMapping(value="/login/oauth2", produces = "application/json")
+@RequestMapping(value="/api", produces = "application/json")
 @Tag(name="Google 소셜 로그인", description="Google 소셜 로그인을 할 수 있습니다.")
 public class GoogleLoginController {
     private final GoogleLoginService gooleLoginServcie;
@@ -34,18 +34,10 @@ public class GoogleLoginController {
         this.gooleLoginServcie = gooleLoginServcie;
     }
 
-    @PostMapping("/google")
-    @Operation(summary = "Google 로그인 URL 반환")
-    public String googleLoginUrl(){
-        //String url = "https://accounts.google.com/o/oauth2/auth?client_id="+googleClientId+"&redirect_uri=http://localhost:8080/login/oauth2/code/google&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email";
-        String url = "https://accounts.google.com/o/oauth2/auth?client_id="+googleClientId+"&redirect_uri=https://cookiee.site/login/oauth2/code/google&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email";
-        return url;
-    }
-
-    @GetMapping("/code/{registrationId}")
+    @GetMapping("/google/{socailId}")
     @Operation(summary = "Google 로그인")
-    public BaseResponseDto<?> googleLogin(@RequestParam String code, @PathVariable String registrationId){
-        OAuthResponse oAuthResponse = gooleLoginServcie.socialLogin(code, registrationId);
+    public BaseResponseDto<?> googleLogin(@RequestParam String code, @PathVariable String socailId){
+        OAuthResponse oAuthResponse = gooleLoginServcie.socialLogin(code, socailId);
         return BaseResponseDto.ofSuccess(GOOGLE_LOGIN_SUCCESS, oAuthResponse);
     }
 

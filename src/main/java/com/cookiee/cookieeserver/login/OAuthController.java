@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import static com.cookiee.cookieeserver.global.SuccessCode.*;
 
 @RestController
-//@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Tag(name="유저 가입/탈퇴, 로그아웃, 토큰갱신", description="유저의 회원가입/탈퇴와 토큰 갱신, 로그아웃을 할 수 있습니다.")
 public class OAuthController {
@@ -26,7 +26,7 @@ public class OAuthController {
      * 새로 가입한 사용자가 소셜 로그인 후 회원 정보 입력할 때
      * @return
      */
-    @PostMapping(value = "/auth/signup", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = "/signup", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "소셜 로그인 후 회원가입")
     public BaseResponseDto<?> signup(UserSignupRequestDto userSignupRequestDto) {
         OAuthResponse response = oAuthService.signup(userSignupRequestDto);
@@ -37,7 +37,7 @@ public class OAuthController {
      * 회원 탈퇴
      * @return
      */
-    @DeleteMapping("/auth/signout")
+    @DeleteMapping("/signout")
     @Operation(summary = "회원탈퇴")
     public BaseResponseDto<?> signout(){
         String accessToken = JwtHeaderUtil.getAccessToken();
@@ -52,7 +52,7 @@ public class OAuthController {
      * @return
      * @throws Exception
      */
-    @PostMapping("/auth/refresh")
+    @PostMapping("/refresh")
     @Operation(summary = "액세스 토큰 갱신")
     public BaseResponseDto<?> refresh() {
 //        try {
@@ -68,7 +68,7 @@ public class OAuthController {
      * 로그아웃
      * @return
      */
-    @PutMapping("/auth/logout")
+    @PutMapping("/logout")
     @Operation(summary = "로그아웃")
     public BaseResponseDto<?> logout() {
         String accessToken = JwtHeaderUtil.getAccessToken();

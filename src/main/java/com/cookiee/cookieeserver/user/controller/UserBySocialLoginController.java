@@ -21,6 +21,7 @@ import static com.cookiee.cookieeserver.global.SuccessCode.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("api")
 @Tag(name="소셜로그인 유저 프로필 RU", description="소셜로그인 유저의 프로필을 조회/수정할 수 있습니다.")
 public class UserBySocialLoginController {
     private final UserBySocialLoginService userBySocialLoginService;

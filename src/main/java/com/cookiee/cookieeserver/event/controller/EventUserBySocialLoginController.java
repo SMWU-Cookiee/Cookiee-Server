@@ -22,9 +22,9 @@ import java.util.List;
 import static com.cookiee.cookieeserver.global.SuccessCode.*;
 
 @RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 @RequestMapping(value="api/v2/events/")
-@Controller
 @Tag(name="이벤트 CRUD (소셜로그인 유저)", description="(소셜로그인 유저용) 이벤트를 등록/조회/수정/삭제 할 수 있습니다.")
 public class EventUserBySocialLoginController {
     @Autowired
