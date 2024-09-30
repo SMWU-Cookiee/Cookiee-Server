@@ -29,8 +29,8 @@ import static com.cookiee.cookieeserver.global.ErrorCode.*;
 @Service
 public class S3Uploader {
 
-    @Value("${cloud.aws.s3.domain}")
-    private String CLOUD_FRONT_DOMAIN_NAME;
+/*    @Value("${cloud.aws.s3.domain}")
+    private String CLOUD_FRONT_DOMAIN_NAME;*/
 
     private final AmazonS3 amazonS3Client;
 
@@ -51,7 +51,7 @@ public class S3Uploader {
             throw new GeneralException(S3_UPLOAD_ERROR);
         }
 
-        //return amazonS3Client.getUrl(bucket, newFilename).toString();
-        return CLOUD_FRONT_DOMAIN_NAME+"/"+newFilename;
+        return amazonS3Client.getUrl(bucket, newFilename).toString();
+        //return CLOUD_FRONT_DOMAIN_NAME+"/"+newFilename;
     }
 }

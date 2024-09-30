@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +56,7 @@ public class OAuthService {
      * @throws Exception
      */
     @Transactional
-    public OAuthResponse signup(UserSignupRequestDto signupUserInfo) {
+    public OAuthResponse signup(MultipartFile image, UserSignupRequestDto signupUserInfo) {
         Optional<User> foundUser = userRepository.findBySocialId(signupUserInfo.getSocialId());
 
         // 이미 유저가 존재하는 경우
@@ -72,15 +73,15 @@ public class OAuthService {
                 .selfDescription(signupUserInfo.getSelfDescription())
                 .email(signupUserInfo.getEmail())
                 .socialId(signupUserInfo.getSocialId())
-                .socialLoginType(AuthProvider.of(signupUserInfo.getSocialLoginType().name()))
-                .socialRefreshToken(signupUserInfo.getSocialRefreshToken())
+                .socialLoginType(AuthProvider.of(signupUserInfo.getSocialLoginType()))
+                //.socialRefreshToken(signupUserInfo.getSocialRefreshToken())
                 .build();
 
-        String storedFileName;
+        String storedFileName="";
         // 프로필 이미지 s3에 생성 후 저장된 파일명 가져오기
-        storedFileName = s3Uploader.saveFile(signupUserInfo.getProfileImage(),
-                String.valueOf(newUser.getUserId()),
-                "profile");
+//        storedFileName = s3Uploader.saveFile(image,
+//                String.valueOf(newUser.getUserId()),
+//                "profile");
 
         newUser.setProfileImage(storedFileName);
 

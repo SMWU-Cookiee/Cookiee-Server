@@ -36,8 +36,8 @@ public class GoogleLoginController {
 
     @GetMapping("/google/{socailId}")
     @Operation(summary = "Google 로그인")
-    public BaseResponseDto<?> googleLogin(@RequestParam String code, @PathVariable String socailId){
-        OAuthResponse oAuthResponse = gooleLoginServcie.socialLogin(code, socailId);
+    public BaseResponseDto<?> googleLogin(@PathVariable String socailId){
+        OAuthResponse oAuthResponse = gooleLoginServcie.socialLogin(socailId);
         return BaseResponseDto.ofSuccess(GOOGLE_LOGIN_SUCCESS, oAuthResponse);
     }
 

@@ -11,7 +11,7 @@ public class UserSignupRequestDto {
     private String nickname;
     private String selfDescription;
     private String socialId;
-    private AuthProvider socialLoginType;
-    private String socialRefreshToken;
-    private MultipartFile profileImage;
+    private String socialLoginType;
+    //private String socialRefreshToken;
+    //private MultipartFile profileImage;
 }

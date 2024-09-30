@@ -11,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 import static com.cookiee.cookieeserver.global.SuccessCode.*;
 
@@ -26,10 +29,10 @@ public class OAuthController {
      * 새로 가입한 사용자가 소셜 로그인 후 회원 정보 입력할 때
      * @return
      */
-    @PostMapping(value = "/signup", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = "/signup")
     @Operation(summary = "소셜 로그인 후 회원가입")
-    public BaseResponseDto<?> signup(UserSignupRequestDto userSignupRequestDto) {
-        OAuthResponse response = oAuthService.signup(userSignupRequestDto);
+    public BaseResponseDto<?> signup(@RequestParam(value = "image") MultipartFile image, UserSignupRequestDto userSignupRequestDto) {
+        OAuthResponse response = oAuthService.signup(image, userSignupRequestDto);
         return BaseResponseDto.ofSuccess(SIGNUP_SUCCESS, response);
     }
 

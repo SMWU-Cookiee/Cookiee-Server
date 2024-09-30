@@ -31,7 +31,8 @@ public class GoogleLoginService {
     private final RestTemplate restTemplate = new RestTemplate();
 
 
-    public OAuthResponse socialLogin(String code, String registrationId) {
+    public OAuthResponse socialLogin(String socialId) {
+/*
         String accessToken = getAccessToken(code, registrationId);
         JsonNode userResourceNode = getUserResource(accessToken, registrationId);
         System.out.println("userResourceNode = " + userResourceNode);
@@ -40,6 +41,7 @@ public class GoogleLoginService {
         String email = userResourceNode.has("email") ? userResourceNode.get("email").asText() : null;
         System.out.println("id = " + socialId);
         System.out.println("email = " + email);
+*/
 
         User foundUser = userRepository
                 .findBySocialLoginTypeAndSocialId(AuthProvider.GOOGLE, socialId)
@@ -49,7 +51,7 @@ public class GoogleLoginService {
             log.debug("socialId가 {}인 유저는 존재하지 않음. 신규 회원가입", socialId);
             return OAuthResponse.builder()
                     .socialId(socialId)
-                    .email(email)
+                    .email("")
                     .socialType("google")
                     .isNewMember(true)
                     .build();
@@ -64,7 +66,7 @@ public class GoogleLoginService {
 
             return OAuthResponse.builder()
                     .socialId(socialId)
-                    .email(email)
+                    .email("")
                     .socialType("google")
                     .accessToken(appAccessToken)
                     .refreshToken(appRefreshToken)
