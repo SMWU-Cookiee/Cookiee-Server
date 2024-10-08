@@ -55,6 +55,15 @@ public class ThumbnailUserBySocialLoginController {
     }
 
     @ResponseBody
+    @GetMapping(value="date/{userId}")
+    @Operation(summary = "썸네일 날짜별 조회")
+    public BaseResponseDto<ThumbnailResponseDto> getThumbnailByDate(@PathVariable Long userId, @RequestParam int year, @RequestParam int month, @RequestParam int day) {
+        final User user = jwtService.getAndValidateCurrentUser(userId);
+        ThumbnailResponseDto thumbnail = thumbnailUserBySocialLoginService.getThumbnailByDate(user.getUserId(), year, month, day);
+        return BaseResponseDto.ofSuccess(GET_THUMBNAIL_SUCCESS, thumbnail);
+    }
+
+    @ResponseBody
     @PutMapping(value = "{userId}/{thumbnailId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "썸네일 수정")
     public BaseResponseDto<ThumbnailResponseDto> updateThumbnail(@PathVariable long userId, @PathVariable long thumbnailId,
