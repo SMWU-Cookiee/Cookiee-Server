@@ -10,4 +10,6 @@ public interface ThumbnailRepository extends JpaRepository<Thumbnail, Long> {
     List<Thumbnail> findThumbnailsByUserUserId(@Param("userId") long userId);
 
     Thumbnail findByUserUserIdAndThumbnailId(long userId, long thumbnailId);
+
+    Thumbnail findByUserUserIdAndEventYearAndEventMonthAndEventDate(long uerId, int year, int month, int day);
 }

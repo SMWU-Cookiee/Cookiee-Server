@@ -62,7 +62,12 @@ public class ThumbnailUserBySocialLoginService {
         return thumbnails.stream()
                 .map(ThumbnailResponseDto::from)
                 .collect(Collectors.toList());
+    }
 
+    @Transactional
+    public ThumbnailResponseDto getThumbnailByDate(Long userId, int year, int month, int day) {
+        Thumbnail thumbnail = thumbnailRepository.findByUserUserIdAndEventYearAndEventMonthAndEventDate(userId, year, month, day);
+        return ThumbnailResponseDto.from(thumbnail);
     }
 
     @Transactional
@@ -94,4 +99,5 @@ public class ThumbnailUserBySocialLoginService {
         updatedthumbnail.update(updatedFileName);
         return new ThumbnailResponseDto(updatedthumbnail.getThumbnailId(), updatedthumbnail.getEventYear(), updatedthumbnail.getEventMonth(), updatedthumbnail.getEventDate(), updatedthumbnail.getThumbnailUrl());
     }
+
 }
