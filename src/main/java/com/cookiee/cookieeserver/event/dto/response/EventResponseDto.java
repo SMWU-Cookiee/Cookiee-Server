@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 public record EventResponseDto(
         Long eventId,
+        String title,
         String what,
         String eventWhere,
         String withWho,
@@ -24,6 +25,7 @@ public record EventResponseDto(
     public static EventResponseDto from(Event event){
         return new EventResponseDto(
                 event.getEventId(),
+                event.getEventTitle(),
                 event.getEventWhat(),
                 event.getEventWhere(),
                 event.getWithWho(),

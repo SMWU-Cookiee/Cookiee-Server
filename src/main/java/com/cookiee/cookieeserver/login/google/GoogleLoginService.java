@@ -51,7 +51,6 @@ public class GoogleLoginService {
             log.debug("socialId가 {}인 유저는 존재하지 않음. 신규 회원가입", socialId);
             return OAuthResponse.builder()
                     .socialId(socialId)
-                    .email("")
                     .socialType("google")
                     .isNewMember(true)
                     .build();
@@ -66,7 +65,9 @@ public class GoogleLoginService {
 
             return OAuthResponse.builder()
                     .socialId(socialId)
-                    .email("")
+                    .email(foundUser.getEmail())
+                    .name(foundUser.getName())
+                    .userId(foundUser.getUserId())
                     .socialType("google")
                     .accessToken(appAccessToken)
                     .refreshToken(appRefreshToken)

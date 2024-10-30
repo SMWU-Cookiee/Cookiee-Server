@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.cookiee.cookieeserver.event.service.EventUserBySocialLoginService.extractFileNameFromUrl;
@@ -77,13 +78,14 @@ public class OAuthService {
                 //.socialRefreshToken(signupUserInfo.getSocialRefreshToken())
                 .build();
 
-        String storedFileName="";
-        // 프로필 이미지 s3에 생성 후 저장된 파일명 가져오기
-//        storedFileName = s3Uploader.saveFile(image,
-//                String.valueOf(newUser.getUserId()),
-//                "profile");
-
-        newUser.setProfileImage(storedFileName);
+        if(image != null) {
+            String storedFileName = "";
+            // 프로필 이미지 s3에 생성 후 저장된 파일명 가져오기
+            storedFileName = s3Uploader.saveFile(image,
+                    String.valueOf(newUser.getUserId()),
+                    "profile");
+            newUser.setProfileImage(storedFileName);
+        }
 
         // 리프레쉬 토큰 먼저 생성, 저장
         String refreshToken = jwtService.createRefreshToken();
@@ -134,7 +136,10 @@ public class OAuthService {
         eventUserBySocialLoginService.deleteAllEvent(userV2.getUserId());
         categoryRepository.deleteCategoryByUserUserId(userV2.getUserId());
         String fileName = extractFileNameFromUrl(userV2.getProfileImage());
-        amazonS3Client.deleteObject(bucketName, fileName);
+        System.out.println("Extracted fileName: " + fileName); // 로그 출력
+        if (fileName != null && !fileName.isEmpty()) {
+            amazonS3Client.deleteObject(bucketName, fileName);
+        }
         userRepository.delete(userV2);
     }
 

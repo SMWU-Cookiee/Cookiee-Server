@@ -50,7 +50,7 @@ public enum ErrorCode {
     IMAGE_IS_NULL(HttpStatus.BAD_REQUEST, "사진이 없습니다. 사진을 넣어주세요."),
     S3_UPLOAD_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "S3 업로드에 실패하였습니다."),
 
-    ;
+    THUMBNAIL_IS_NULL(HttpStatus.BAD_REQUEST, "해당 날짜에 썸네일이 존재하지 않습니다.");
 
 
     private final HttpStatus httpStatus;

@@ -39,8 +39,9 @@ public class UserBySocialLoginService {
         if (requestUser.getProfileImage() != null) {
             // 저장된 이미지부터 삭제
             String fileName = extractFileNameFromUrl(user.getProfileImage());
-            amazonS3Client.deleteObject(bucketName, fileName);
-
+            if (fileName != null && !fileName.isEmpty()) {
+                amazonS3Client.deleteObject(bucketName, fileName);
+            }
             // 프로필 이미지 s3에 생성 후 저장된 파일명 가져오기
             String storedFileName = s3Uploader.saveFile(requestUser.getProfileImage(),
                     String.valueOf(user.getUserId()),

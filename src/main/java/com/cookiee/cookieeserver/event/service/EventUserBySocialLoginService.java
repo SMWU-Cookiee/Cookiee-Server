@@ -99,18 +99,17 @@ public class EventUserBySocialLoginService {
     @Transactional
     public EventResponseDto updateEvent(long userId, long eventId, EventUpdateRequestDto eventUpdateRequestDto, List<MultipartFile> eventImanges) {
         Event updatedEvent = eventRepository.findByUserUserIdAndEventId(userId, eventId);
+        List<String> storedFileNames = updatedEvent.getImageUrl();
         if(eventImanges != null) {
             List<String> imageUrls = updatedEvent.getImageUrl();
             for (String imageUrl : imageUrls){
                 String fileName = extractFileNameFromUrl(imageUrl);
                 amazonS3Client.deleteObject(bucketName, fileName);
             }
-
-            List<String> storedFileNames = new ArrayList<>();
             for (MultipartFile image : eventImanges) {
                 String storedFileName = s3Uploader.saveFile(image, String.valueOf(userId), "event");
                 storedFileNames.add(storedFileName);
-            }
+            }}
 
             eventCategoryRepository.deleteAll(updatedEvent.getEventCategories());
             List<Category> categoryList = eventUpdateRequestDto.categoryIds().stream()
@@ -128,6 +127,7 @@ public class EventUserBySocialLoginService {
             eventCategoryRepository.saveAll(eventCategoryList);
 
             updatedEvent.update(
+                    eventUpdateRequestDto.eventTitle(),
                     eventUpdateRequestDto.eventWhat(),
                     eventUpdateRequestDto.eventWhere(),
                     eventUpdateRequestDto.withWho(),
@@ -137,8 +137,6 @@ public class EventUserBySocialLoginService {
 
             return EventResponseDto.from(updatedEvent);
 
-        } else
-            throw new GeneralException(EVENT_NOT_FOUND);
 
     }
 

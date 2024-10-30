@@ -22,6 +22,9 @@ public class Event extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long eventId;  // 이벤트 PK
 
+    @Column(nullable = false, length = 20)
+    private String eventTitle;
+
     //@ApiParam(value="이벤트 내용", required=true, example="모같코를 했다.")
     @Column(nullable = true, length = 100)
     private String eventWhat; // 이벤트 내용
@@ -62,8 +65,9 @@ public class Event extends BaseTimeEntity {
     private List<EventCategory> eventCategories = new ArrayList<>();
 
     @Builder
-    public Event(String eventWhat, String eventWhere, String withWho, int eventYear, int eventMonth, int eventDate,
+    public Event(String eventTitle, String eventWhat, String eventWhere, String withWho, int eventYear, int eventMonth, int eventDate,
                  List<String> imageUrl, User user, List<EventCategory> eventCategoryList){
+        this.eventTitle = eventTitle;
         this.eventWhat = eventWhat;
         this.eventWhere = eventWhere;
         this.withWho = withWho;
@@ -75,7 +79,8 @@ public class Event extends BaseTimeEntity {
         this.eventCategories = eventCategoryList;
     }
 
-    public void update(String eventWhat, String eventWhere, String withWho, List<String> imageUrl, List<EventCategory> eventCategoryList){
+    public void update(String eventTitle, String eventWhat, String eventWhere, String withWho, List<String> imageUrl, List<EventCategory> eventCategoryList){
+        this.eventTitle = eventTitle;
         this.eventWhat = eventWhat;
         this.eventWhere = eventWhere;
         this.withWho = withWho;

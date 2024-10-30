@@ -34,7 +34,7 @@ public class S3Uploader {
 
     private final AmazonS3 amazonS3Client;
 
-    @Value("cookiee-s3")
+    @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
     public String saveFile(MultipartFile multipartFile, String userId, String dirName) {

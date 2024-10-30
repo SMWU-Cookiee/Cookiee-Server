@@ -31,7 +31,7 @@ public class OAuthController {
      */
     @PostMapping(value = "/signup")
     @Operation(summary = "소셜 로그인 후 회원가입")
-    public BaseResponseDto<?> signup(@RequestParam(value = "image") MultipartFile image, UserSignupRequestDto userSignupRequestDto) {
+    public BaseResponseDto<?> signup(@RequestParam(value = "image", required = false) MultipartFile image, UserSignupRequestDto userSignupRequestDto) {
         OAuthResponse response = oAuthService.signup(image, userSignupRequestDto);
         return BaseResponseDto.ofSuccess(SIGNUP_SUCCESS, response);
     }

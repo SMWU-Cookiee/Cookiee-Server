@@ -138,6 +138,7 @@ public class EventUserByDeviceService {
             eventCategoryRepository.saveAll(eventCategoryList);
 
             updatedEvent.update(
+                    eventUpdateRequestDto.eventTitle(),
                     eventUpdateRequestDto.eventWhat(),
                     eventUpdateRequestDto.eventWhere(),
                     eventUpdateRequestDto.withWho(),

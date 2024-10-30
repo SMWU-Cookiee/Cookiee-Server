@@ -67,6 +67,8 @@ public class ThumbnailUserBySocialLoginService {
     @Transactional
     public ThumbnailResponseDto getThumbnailByDate(Long userId, int year, int month, int day) {
         Thumbnail thumbnail = thumbnailRepository.findByUserUserIdAndEventYearAndEventMonthAndEventDate(userId, year, month, day);
+        if(thumbnail==null)
+            throw new GeneralException(THUMBNAIL_IS_NULL);
         return ThumbnailResponseDto.from(thumbnail);
     }
 

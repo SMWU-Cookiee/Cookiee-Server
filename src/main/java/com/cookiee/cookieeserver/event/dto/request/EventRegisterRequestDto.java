@@ -10,7 +10,7 @@ import java.util.List;
 //@ApiModel(value = "이벤트 등록")
 public record EventRegisterRequestDto (
         @Schema(description = "이벤트 내용", nullable = false, example = "")
-
+    String eventTitle,
     String eventWhat,
     String eventWhere,
     String withWho,
@@ -21,6 +21,7 @@ public record EventRegisterRequestDto (
 
     public Event toEntity(User user, List<EventCategory> eventCategories, List<String> imageUrls){
         return Event.builder()
+                .eventTitle(eventTitle)
                 .eventWhat(eventWhat)
                 .eventWhere(eventWhere)
                 .withWho(withWho)

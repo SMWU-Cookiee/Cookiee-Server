@@ -1,0 +1,3 @@
+servers:
+  - url: https://cookiee.info
+    description: Production server

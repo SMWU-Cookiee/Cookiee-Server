@@ -6,15 +6,15 @@ import com.cookiee.cookieeserver.global.domain.EventCategory;
 import java.util.List;
 
 public record EventUpdateRequestDto(
+        String eventTitle,
         String eventWhat,
         String eventWhere,
         String withWho,
-        String startTime,
-        String endTime,
         List<Long> categoryIds){
 
     public Event toEntity(List<EventCategory> eventCategories, List<String> imageUrls){
         return Event.builder()
+                .eventTitle(eventTitle)
                 .eventWhat(eventWhat)
                 .eventWhere(eventWhere)
                 .withWho(withWho)
