@@ -33,4 +33,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findAllByCategoryIdList(List<Long> categoryIDs);
 
     void deleteCategoryByUserUserId(Long userId);
+
+    @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END " +
+            "FROM Event e JOIN e.eventCategories c WHERE c.category.categoryId = :categoryId")
+    boolean existsEventByCategoryId(@Param("categoryId") Long categoryId);
 }

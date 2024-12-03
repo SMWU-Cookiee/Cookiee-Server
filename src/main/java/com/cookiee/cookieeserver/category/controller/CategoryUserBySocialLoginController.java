@@ -2,6 +2,7 @@
 package com.cookiee.cookieeserver.category.controller;
 
 import com.cookiee.cookieeserver.category.domain.Category;
+import com.cookiee.cookieeserver.category.dto.response.CategoryCollectionResponseDto;
 import com.cookiee.cookieeserver.login.jwt.JwtService;
 import com.cookiee.cookieeserver.global.dto.BaseResponseDto;
 import com.cookiee.cookieeserver.category.dto.request.CategoryCreateRequestDto;
@@ -10,6 +11,7 @@ import com.cookiee.cookieeserver.category.dto.response.CategoryResponseDto;
 import com.cookiee.cookieeserver.event.dto.response.EventCategoryGetResponseDto;
 import com.cookiee.cookieeserver.category.service.CategoryUserBySocialLoginService;
 import com.cookiee.cookieeserver.user.domain.User;
+import com.fasterxml.jackson.databind.ser.Serializers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -83,6 +85,14 @@ public class CategoryUserBySocialLoginController {
         categoryUserBySocialLoginService.delete(currentUser, categoryId);
 
         return BaseResponseDto.ofSuccess(DELETE_CATEGORY_SUCCESS);
+    }
+
+    @GetMapping("collection/{userId}")
+    @Operation(summary="카테고리별 데이터 유무 조회")
+    public BaseResponseDto<CategoryCollectionResponseDto> getCollectionBooleanBySocialLogin(@PathVariable Long userId){
+        final User currentUser = jwtService.getAndValidateCurrentUser(userId);
+        return BaseResponseDto.ofSuccess(GET_COLLECTION_SUCCESS, categoryUserBySocialLoginService.getCollections(userId));
+
     }
 
     @GetMapping("/collection/{userId}/{categoryId}")

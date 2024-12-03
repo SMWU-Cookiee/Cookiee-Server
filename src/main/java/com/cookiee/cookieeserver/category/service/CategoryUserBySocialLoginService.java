@@ -1,6 +1,7 @@
 package com.cookiee.cookieeserver.category.service;
 
 import com.cookiee.cookieeserver.category.domain.Category;
+import com.cookiee.cookieeserver.category.dto.response.CategoryCollectionResponseDto;
 import com.cookiee.cookieeserver.event.domain.Event;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
 import com.cookiee.cookieeserver.global.exception.GeneralException;
@@ -15,6 +16,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,7 +33,7 @@ public class CategoryUserBySocialLoginService {
     @Transactional
     public Category create(User user, CategoryCreateRequestDto requestDto) {
         // 이름만 중복 검사
-        if(categoryRepository.existsByCategoryColorAndUserUserId(requestDto.getCategoryColor(), user.getUserId())){
+        if(categoryRepository.existsByCategoryNameAndUserUserId(requestDto.getCategoryName(), user.getUserId())){
             throw new GeneralException(CATEGORY_NAME_EXISTS);
         }
 
@@ -114,5 +116,18 @@ public class CategoryUserBySocialLoginService {
         } else {
             throw new GeneralException(CATEGORY_NOT_FOUND);
         }
+    }
+
+    public List<CategoryCollectionResponseDto> getCollections(Long userId) {
+        List<CategoryResponseDto> categories = categoryRepository.findCategoriesByUserUserId(userId);
+        List<CategoryCollectionResponseDto> categoryCollectionResponseDto = new ArrayList<>();
+        for(CategoryResponseDto category : categories){
+            Boolean collectionExist = categoryRepository.existsEventByCategoryId(category.getCategoryId());
+            categoryCollectionResponseDto.add(CategoryCollectionResponseDto.builder()
+                    .category(category)
+                    .collectionExist(collectionExist)
+                    .build());
+        }
+        return categoryCollectionResponseDto;
     }
 }

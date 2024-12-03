@@ -97,16 +97,16 @@ public class EventUserBySocialLoginService {
     }
 
     @Transactional
-    public EventResponseDto updateEvent(long userId, long eventId, EventUpdateRequestDto eventUpdateRequestDto, List<MultipartFile> eventImanges) {
+    public EventResponseDto updateEvent(long userId, long eventId, EventUpdateRequestDto eventUpdateRequestDto, List<MultipartFile> eventImages) {
         Event updatedEvent = eventRepository.findByUserUserIdAndEventId(userId, eventId);
-        List<String> storedFileNames = updatedEvent.getImageUrl();
-        if(eventImanges != null) {
+        List<String> storedFileNames = new ArrayList<>();
+        if(eventImages != null) {
             List<String> imageUrls = updatedEvent.getImageUrl();
             for (String imageUrl : imageUrls){
                 String fileName = extractFileNameFromUrl(imageUrl);
                 amazonS3Client.deleteObject(bucketName, fileName);
             }
-            for (MultipartFile image : eventImanges) {
+            for (MultipartFile image : eventImages) {
                 String storedFileName = s3Uploader.saveFile(image, String.valueOf(userId), "event");
                 storedFileNames.add(storedFileName);
             }}
@@ -165,16 +165,17 @@ public class EventUserBySocialLoginService {
         }
     }
 
-    public static String extractFileNameFromUrl(String EventImageUrl) {
+    public static String extractFileNameFromUrl(String eventImageUrl) {
         try {
-            URI uri = new URI(EventImageUrl);
+            URI uri = new URI(eventImageUrl);
             String path = uri.getPath();
-            return path.substring(path.lastIndexOf('/') + 1);
+            return path;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
+
 
 
 }
