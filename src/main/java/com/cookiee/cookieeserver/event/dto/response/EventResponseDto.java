@@ -27,7 +27,7 @@ public record EventResponseDto(
                 event.getEventId(),
                 event.getEventTitle(),
                 event.getEventWhat(),
-                event.getEventWhere(),
+                event.getEventWhereText(),
                 event.getWithWho(),
                 event.getEventYear(),
                 event.getEventMonth(),

@@ -16,7 +16,7 @@ public record EventUpdateRequestDto(
         return Event.builder()
                 .eventTitle(eventTitle)
                 .eventWhat(eventWhat)
-                .eventWhere(eventWhere)
+                .eventWhereText(eventWhere)
                 .withWho(withWho)
                 .eventCategoryList(eventCategories)
                 .imageUrl(imageUrls)

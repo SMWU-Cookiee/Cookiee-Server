@@ -141,6 +141,7 @@ public class EventUserByDeviceService {
                     eventUpdateRequestDto.eventTitle(),
                     eventUpdateRequestDto.eventWhat(),
                     eventUpdateRequestDto.eventWhere(),
+                    null,
                     eventUpdateRequestDto.withWho(),
                     storedFileNames,
                     eventCategoryList

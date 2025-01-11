@@ -130,6 +130,7 @@ public class EventUserBySocialLoginService {
                     eventUpdateRequestDto.eventTitle(),
                     eventUpdateRequestDto.eventWhat(),
                     eventUpdateRequestDto.eventWhere(),
+                    null,
                     eventUpdateRequestDto.withWho(),
                     storedFileNames,
                     eventCategoryList

@@ -2,6 +2,7 @@ package com.cookiee.cookieeserver.event.domain;
 
 import com.cookiee.cookieeserver.global.domain.BaseTimeEntity;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
+import com.cookiee.cookieeserver.global.domain.EventWhereType;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -9,6 +10,9 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.cookiee.cookieeserver.global.domain.EventWhereType.PLACE;
+import static com.cookiee.cookieeserver.global.domain.EventWhereType.TEXT;
 
 
 @Getter
@@ -20,56 +24,58 @@ public class Event extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long eventId;  // 이벤트 PK
+    private Long eventId;
 
     @Column(nullable = false, length = 20)
     private String eventTitle;
 
-    //@ApiParam(value="이벤트 내용", required=true, example="모같코를 했다.")
     @Column(nullable = true, length = 100)
-    private String eventWhat; // 이벤트 내용
+    private String eventWhat;
 
-    //@ApiParam(value="이벤트 장소", required=true, example="합정역")
     @Column(nullable = true, length = 100)
-    private String eventWhere; // 이벤트 장소
+    @Enumerated(EnumType.STRING)
+    private EventWhereType eventWhereType;
 
-    //@ApiParam(value="함께 한 사람", required=true, example="민서, 수연, 지수")
     @Column(nullable = true, length = 100)
-    private String withWho; // 함께 한 사람
+    private String eventWhereText;
 
-    //@ApiParam(value="이벤트 내용", required=true, example="모같코를 했다.")
+    @ManyToOne
+    @JoinColumn(name = "placeId", nullable = true)
+    private Place eventWherePlace;
+
+    @Column(nullable = true, length = 100)
+    private String withWho;
+
     @Column(nullable = false)
     private int eventYear;
 
-    //@ApiParam(value="이벤트 달", required=true, example="1월")
     @Column(nullable = false)
     private int eventMonth;
 
-    //@ApiParam(value="이벤트 날", required=true, example="20일")
     @Column(nullable = false)
     private int eventDate;
 
-    //@ApiParam(value="이벤트 사진", required=true, example="https:블라블라,amazom.블라블라")
     @ElementCollection
     @Column(nullable = true)
-    private List<String> imageUrl; //이미지 사진
+    private List<String> imageUrl;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)  // 다대일 단방향 관계, user 삭제되면 이벤트도 삭제
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
-    private User user;  // 유저 pk (FK)
+    private User user;
 
-    //event : category = 1 : 다 -> 수연이쪽에 매핑해주어야 함
     @JsonIgnore
     @OneToMany(mappedBy = "event")
     private List<EventCategory> eventCategories = new ArrayList<>();
 
     @Builder
-    public Event(String eventTitle, String eventWhat, String eventWhere, String withWho, int eventYear, int eventMonth, int eventDate,
+    public Event(String eventTitle, String eventWhat, String eventWhereText, Place eventWherePlace, String withWho, int eventYear, int eventMonth, int eventDate,
                  List<String> imageUrl, User user, List<EventCategory> eventCategoryList){
         this.eventTitle = eventTitle;
         this.eventWhat = eventWhat;
-        this.eventWhere = eventWhere;
+        this.eventWhereType = eventWhereText == null ? PLACE : TEXT;
+        this.eventWhereText = eventWhereText;
+        this.eventWherePlace = eventWherePlace;
         this.withWho = withWho;
         this.eventYear = eventYear;
         this.eventMonth = eventMonth;
@@ -79,10 +85,12 @@ public class Event extends BaseTimeEntity {
         this.eventCategories = eventCategoryList;
     }
 
-    public void update(String eventTitle, String eventWhat, String eventWhere, String withWho, List<String> imageUrl, List<EventCategory> eventCategoryList){
+    public void update(String eventTitle, String eventWhat, String eventWhereText, Place eventWherePlace, String withWho, List<String> imageUrl, List<EventCategory> eventCategoryList){
         this.eventTitle = eventTitle;
         this.eventWhat = eventWhat;
-        this.eventWhere = eventWhere;
+        this.eventWhereType = eventWhereText == null ? PLACE : TEXT;
+        this.eventWhereText = eventWhereText;
+        this.eventWherePlace = eventWherePlace;
         this.withWho = withWho;
         this.imageUrl = imageUrl;
         this.eventCategories = eventCategoryList;

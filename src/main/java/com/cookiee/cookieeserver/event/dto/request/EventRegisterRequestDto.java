@@ -23,7 +23,7 @@ public record EventRegisterRequestDto (
         return Event.builder()
                 .eventTitle(eventTitle)
                 .eventWhat(eventWhat)
-                .eventWhere(eventWhere)
+                .eventWhereText(eventWhere)
                 .withWho(withWho)
                 .eventYear(eventYear)
                 .eventMonth(eventMonth)
