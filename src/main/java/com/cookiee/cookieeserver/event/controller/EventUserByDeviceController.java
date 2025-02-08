@@ -32,7 +32,7 @@ public class EventUserByDeviceController {
     @ResponseBody
     @Operation(summary = "이벤트 등록")
     @PostMapping(value = "{deviceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BaseResponseDto<EventResponseDto> saveEvent(@PathVariable String deviceId, @RequestParam(value = "images") List<MultipartFile> imageUrl, EventRegisterRequestDto eventRegisterRequestDto) {
+    public BaseResponseDto<EventResponseDto> saveEvent(@PathVariable String deviceId, @RequestPart(value = "images") List<MultipartFile> imageUrl, @RequestPart("eventDetail")EventRegisterRequestDto eventRegisterRequestDto) {
         EventResponseDto event = eventUserByDeviceService.createEvent(imageUrl, eventRegisterRequestDto, deviceId);
         return BaseResponseDto.ofSuccess(CREATE_EVENT_SUCCESS, event);
     }
@@ -56,7 +56,7 @@ public class EventUserByDeviceController {
     @ResponseBody
     @Operation(summary = "이벤트 수정")
     @PutMapping("{deviceId}/{eventId}")
-    public BaseResponseDto<EventResponseDto> updateEvent(@PathVariable String deviceId, @PathVariable long eventId, @RequestParam(value = "images", required = false) List<MultipartFile> imageUrl, EventUpdateRequestDto eventUpdateRequestDto) {
+    public BaseResponseDto<EventResponseDto> updateEvent(@PathVariable String deviceId, @PathVariable long eventId, @RequestPart(value = "images", required = false) List<MultipartFile> imageUrl, @RequestPart("eventDetail")EventUpdateRequestDto eventUpdateRequestDto) {
         EventResponseDto event =  eventUserByDeviceService.updateEvent(deviceId, eventId,eventUpdateRequestDto, imageUrl);
         return BaseResponseDto.ofSuccess(MODIFY_EVENT_SUCCESS, event);
     }

@@ -35,7 +35,7 @@ public class EventUserBySocialLoginController {
     @ResponseBody
     @Operation(summary = "이벤트 등록")
     @PostMapping(value = "{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BaseResponseDto<EventResponseDto> saveEvent(@PathVariable Long userId, @RequestParam(value = "images") List<MultipartFile> imageUrl, EventRegisterRequestDto eventRegisterRequestDto) {
+    public BaseResponseDto<EventResponseDto> saveEvent(@PathVariable Long userId, @RequestPart(value = "images") List<MultipartFile> imageUrl, @RequestPart("eventDetail") EventRegisterRequestDto eventRegisterRequestDto) {
         final User user = jwtService.getAndValidateCurrentUser(userId);
         EventResponseDto event = eventUserBySocialLoginService.createEvent(imageUrl, eventRegisterRequestDto, user);
         return BaseResponseDto.ofSuccess(CREATE_EVENT_SUCCESS, event);
@@ -62,7 +62,7 @@ public class EventUserBySocialLoginController {
     @ResponseBody
     @Operation(summary = "이벤트 수정")
     @PutMapping("{userId}/{eventId}")
-    public BaseResponseDto<EventResponseDto> updateEvent(@PathVariable long userId, @PathVariable long eventId, @RequestParam(value = "images", required = false) List<MultipartFile> imageUrl, EventUpdateRequestDto eventUpdateRequestDto) {
+    public BaseResponseDto<EventResponseDto> updateEvent(@PathVariable long userId, @PathVariable long eventId, @RequestPart(value = "images", required = false) List<MultipartFile> imageUrl, @RequestPart("eventDetail")EventUpdateRequestDto eventUpdateRequestDto) {
         final User user = jwtService.getAndValidateCurrentUser(userId);
         EventResponseDto event =  eventUserBySocialLoginService.updateEvent(user.getUserId(), eventId,eventUpdateRequestDto, imageUrl);
         return BaseResponseDto.ofSuccess(MODIFY_EVENT_SUCCESS, event);
