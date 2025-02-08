@@ -3,6 +3,7 @@ package com.cookiee.cookieeserver.event.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.cookiee.cookieeserver.category.domain.Category;
 import com.cookiee.cookieeserver.event.domain.Event;
+import com.cookiee.cookieeserver.event.domain.Place;
 import com.cookiee.cookieeserver.global.domain.EventCategory;
 import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.event.dto.request.EventGetRequestDto;
@@ -109,18 +110,19 @@ public class EventUserByDeviceService {
         User user = getUserByDeviceId(deviceId);
         Long userId = user.getUserId();
         Event updatedEvent = eventRepository.findByUserUserIdAndEventId(userId, eventId);
+        List<String> imageUrls = updatedEvent.getImageUrl();
+        List<String> storedFileNames = new ArrayList<>();
         if(eventImanges != null) {
-            List<String> imageUrls = updatedEvent.getImageUrl();
-            for (String imageUrl : imageUrls){
+            for (String imageUrl : imageUrls) {
                 String fileName = extractFileNameFromUrl(imageUrl);
                 amazonS3Client.deleteObject(bucketName, fileName);
             }
 
-            List<String> storedFileNames = new ArrayList<>();
             for (MultipartFile image : eventImanges) {
                 String storedFileName = s3Uploader.saveFile(image, String.valueOf(userId), "event");
                 storedFileNames.add(storedFileName);
             }
+        }
 
             eventCategoryRepository.deleteAll(updatedEvent.getEventCategories());
             List<Category> categoryList = eventUpdateRequestDto.categoryIds().stream()
@@ -137,20 +139,18 @@ public class EventUserByDeviceService {
 
             eventCategoryRepository.saveAll(eventCategoryList);
 
+
             updatedEvent.update(
                     eventUpdateRequestDto.eventTitle(),
                     eventUpdateRequestDto.eventWhat(),
-                    eventUpdateRequestDto.eventWhere(),
-                    null,
+                    eventUpdateRequestDto.eventWhereText(),
+                     (eventUpdateRequestDto.eventWherePlace() != null) ? eventUpdateRequestDto.eventWherePlace().toEntity() : null,
                     eventUpdateRequestDto.withWho(),
                     storedFileNames,
                     eventCategoryList
             );
 
             return EventResponseDto.from(updatedEvent);
-
-        } else
-            throw new GeneralException(EVENT_NOT_FOUND);
 
     }
 

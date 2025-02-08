@@ -9,12 +9,16 @@ import lombok.Builder;
 import java.util.List;
         import java.util.stream.Collectors;
 
+import static com.cookiee.cookieeserver.global.domain.EventWhereType.PLACE;
+import static com.cookiee.cookieeserver.global.domain.EventWhereType.TEXT;
+
 @Builder
 public record EventResponseDto(
         Long eventId,
         String title,
         String what,
-        String eventWhere,
+        String eventWhereText,
+        EventPlaceResponseDto eventWherePlace,
         String withWho,
         int EventYear,
         int EventMonth,
@@ -27,7 +31,8 @@ public record EventResponseDto(
                 event.getEventId(),
                 event.getEventTitle(),
                 event.getEventWhat(),
-                event.getEventWhereText(),
+                event.getEventWhereType() == TEXT ? event.getEventWhereText() : null,
+                event.getEventWhereType() == PLACE ? new EventPlaceResponseDto(event.getEventWherePlace()) : null,
                 event.getWithWho(),
                 event.getEventYear(),
                 event.getEventMonth(),

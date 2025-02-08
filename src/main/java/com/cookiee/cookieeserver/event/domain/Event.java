@@ -39,7 +39,7 @@ public class Event extends BaseTimeEntity {
     @Column(nullable = true, length = 100)
     private String eventWhereText;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "placeId", nullable = true)
     private Place eventWherePlace;
 

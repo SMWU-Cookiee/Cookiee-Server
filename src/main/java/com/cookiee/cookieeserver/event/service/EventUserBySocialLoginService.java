@@ -129,8 +129,8 @@ public class EventUserBySocialLoginService {
             updatedEvent.update(
                     eventUpdateRequestDto.eventTitle(),
                     eventUpdateRequestDto.eventWhat(),
-                    eventUpdateRequestDto.eventWhere(),
-                    null,
+                    eventUpdateRequestDto.eventWhereText(),
+                    (eventUpdateRequestDto.eventWherePlace() != null) ? eventUpdateRequestDto.eventWherePlace().toEntity() : null,
                     eventUpdateRequestDto.withWho(),
                     storedFileNames,
                     eventCategoryList
