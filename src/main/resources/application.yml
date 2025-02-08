@@ -11,6 +11,10 @@ spring:
   profiles:
     include: oauth, db, credential, jwt
 
+server:
+  tomcat:
+    max-swallow-size: 50MB
+
 logging:
   file:
     name: logs/test.log  # 로깅 파일 위치
