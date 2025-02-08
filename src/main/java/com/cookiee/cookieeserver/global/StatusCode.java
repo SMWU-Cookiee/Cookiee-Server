@@ -43,6 +43,7 @@ public enum StatusCode {
                 .filter(errorCode -> errorCode.getHttpStatus() == httpStatus)
                 .findFirst()
                 .orElseGet(() -> {
+                    assert httpStatus != null;
                     if (httpStatus.is4xxClientError()) {
                         return StatusCode.BAD_REQUEST;
                     } else if (httpStatus.is5xxServerError()) {

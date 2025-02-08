@@ -123,10 +123,10 @@ public class OAuthService {
             throw new GeneralException(USER_NOT_FOUND);
         }
 
-        // 애플 로그인한 유저라면 다시 애플 서버에 요청해야 함
+/*        // 애플 로그인한 유저라면 다시 애플 서버에 요청해야 함
         if (userV2.getSocialLoginType().equals(AuthProvider.APPLE)) {
             appleService.revoke(userV2.getSocialRefreshToken());
-        }
+        }*/
 
         // TODO: 너무 비효율적인듯 ㅠㅠ
         List<Thumbnail> thumbnailList = thumbnailRepository.findThumbnailsByUserUserId(userId);

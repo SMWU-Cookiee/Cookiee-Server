@@ -13,14 +13,14 @@ public enum ErrorCode {
     IO_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "IO 예외입니다."),
 
     // 인증 & 인가
-    INVALID_TOKEN(HttpStatus.BAD_REQUEST, "유효한 토큰이 아닙니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효한 토큰이 아닙니다."),
     //INVALID_TOKEN_SIGNATURE(BAD_REQUEST, "LOGIN4002", "잘못된 토큰 서명입니다."),
-    UNSUPPORTED_TOKEN(HttpStatus.BAD_REQUEST, "지원하지 않는 토큰입니다."),  // bearer
-    MALFORMED_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 구성의 토큰입니다."),
+    UNSUPPORTED_TOKEN(HttpStatus.UNAUTHORIZED, "지원하지 않는 토큰입니다."),  // bearer
+    MALFORMED_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 구성의 토큰입니다."),
     //NULL_TOKEN(HttpStatus.BAD_REQUEST, "토큰이 존재하지 않습니다."),
-    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "잘못된 리프레시 토큰입니다."),
-    NULL_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "리프레시 토큰이 빈 값입니다."),
-    EXPIRED_TOKEN(HttpStatus.BAD_REQUEST, "만료된 토큰입니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "잘못된 리프레시 토큰입니다."),
+    NULL_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 빈 값입니다."),
+    EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
     NULL_AUTHORIZATION_HEADER(HttpStatus.UNAUTHORIZED, "Authorization Header가 빈 값입니다."),
 
     // APPLE

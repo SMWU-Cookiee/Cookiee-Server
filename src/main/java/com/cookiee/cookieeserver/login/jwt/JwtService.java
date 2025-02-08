@@ -1,7 +1,7 @@
 package com.cookiee.cookieeserver.login.jwt;
 
 import com.cookiee.cookieeserver.global.exception.GeneralException;
-import com.cookiee.cookieeserver.global.exception.handler.TokenException;
+import com.cookiee.cookieeserver.global.exception.handler.*;
 import com.cookiee.cookieeserver.login.dto.response.AccessTokenResponse;
 import com.cookiee.cookieeserver.user.domain.User;
 import com.cookiee.cookieeserver.user.repository.UserRepository;
@@ -81,14 +81,14 @@ public class JwtService {
         User user = userRepository.findByUserId(userId).orElse(null);
 
         if (user == null){
-            throw new TokenException(INVALID_TOKEN);
+            throw new TokenException(INVALID_TOKEN.getMessage());
         }
         else{
             if (user.getRefreshToken() == null)
-                throw new TokenException(NULL_REFRESH_TOKEN);
+                throw new TokenException(NULL_REFRESH_TOKEN.getMessage());
 
             if (!user.getRefreshToken().equals(refreshToken))
-                throw new TokenException(INVALID_REFRESH_TOKEN);
+                throw new TokenException(INVALID_REFRESH_TOKEN.getMessage());
         }
 
         return user.getUserId();
@@ -108,13 +108,13 @@ public class JwtService {
                     .getBody();
             return true;
         } catch (SecurityException | MalformedJwtException e) {
-            throw new JwtException("Invalid token,"+e.getMessage());
+            throw new GeneralException(INVALID_TOKEN);
         }catch (ExpiredJwtException e) {
-            throw new JwtException(EXPIRED_TOKEN.getMessage());
+            throw new GeneralException(EXPIRED_TOKEN);
         } catch (UnsupportedJwtException e) {
-            throw new JwtException(UNSUPPORTED_TOKEN.getMessage());
+            throw new GeneralException(UNSUPPORTED_TOKEN);
         } catch (IllegalArgumentException e) {
-            throw new JwtException(INVALID_TOKEN.getMessage());
+            throw new GeneralException(INVALID_TOKEN);
         }
     }
 

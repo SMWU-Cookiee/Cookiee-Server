@@ -1,10 +1,11 @@
 package com.cookiee.cookieeserver.global.exception.handler;
 
-import com.cookiee.cookieeserver.global.ErrorCode;
-import com.cookiee.cookieeserver.global.exception.GeneralException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-public class TokenException extends GeneralException {
-    public TokenException(ErrorCode errorCode) {
-        super(errorCode);
+@ResponseStatus(HttpStatus.UNAUTHORIZED)
+public class TokenException extends RuntimeException  {
+    public TokenException(String message) {
+        super(message);
     }
 }

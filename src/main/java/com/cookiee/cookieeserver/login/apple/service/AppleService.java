@@ -1,6 +1,8 @@
 package com.cookiee.cookieeserver.login.apple.service;
 
+import com.cookiee.cookieeserver.global.exception.GeneralException;
 import com.cookiee.cookieeserver.global.exception.handler.AppleAuthException;
+import com.cookiee.cookieeserver.global.exception.handler.TokenException;
 import com.cookiee.cookieeserver.login.apple.controller.AppleClient;
 import com.cookiee.cookieeserver.global.domain.AuthProvider;
 import com.cookiee.cookieeserver.login.OAuthResponse;
@@ -185,11 +187,11 @@ public class AppleService {
                     parseClaimsJws(identityToken).
                     getBody();
         } catch (MalformedJwtException e) {
-            throw new AppleAuthException(MALFORMED_TOKEN);
+            throw new GeneralException(MALFORMED_TOKEN);
         } catch (ExpiredJwtException e) {
-            throw new AppleAuthException(EXPIRED_TOKEN);
+            throw new GeneralException(EXPIRED_TOKEN);
         } catch(UnsupportedJwtException | IllegalArgumentException e) {
-            throw new AppleAuthException(INVALID_TOKEN);
+            throw new GeneralException(INVALID_TOKEN);
         } catch (Exception e) {
             throw new AppleAuthException(FAILED_TO_GET_APPLE_PUBLIC_KEY);
         }

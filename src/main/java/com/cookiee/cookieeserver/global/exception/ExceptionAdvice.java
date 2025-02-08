@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @RestControllerAdvice  // 전역 예외 처리 핸들러
 @Slf4j
+@ControllerAdvice
 // ResponseEntityExceptionHandler에는 스프링 예외에 대한 ExceptionHandler가 모두 구현되어 있으므로 이걸 상속받기
 // 에러 메세지는 반환하지 않기 때문에 handleExceptionInternal을 오버라이드
 public class ExceptionAdvice extends ResponseEntityExceptionHandler {
@@ -32,6 +34,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = GeneralException.class)
     public ResponseEntity<Object> onThrowException(final GeneralException generalException) {
         log.warn("커스텀 에러 처리");
+        System.out.println("여기오는거쥬?");
         ErrorCode errorCode = generalException.getErrorCode();
 
         return handleExceptionInternal(errorCode, errorCode.getMessage());
